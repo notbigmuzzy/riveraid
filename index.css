@@ -108,3 +108,19 @@ player-pixel:before {
 	border-right: 16px solid transparent;
 	border-bottom: 32px solid #dedf38;
 }
+
+fire-pixel {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+}
+
+fire-pixel:before {
+	content: "";
+	display: block;
+	width: 10px;
+	height: 10px;
+	background-color: #dedf38;
+}

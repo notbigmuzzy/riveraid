@@ -110,7 +110,35 @@ $(document).ready(function(){
 
 	//CONTROL PLAYER
 	function fire() {
-		console.log('123123123')
+		if ($('fire-pixel').length < 3) {
+			var firePixel = $('<fire-pixel id="' + Date.now() + '"></fire-pixel>'),
+				playerPixel = $('player-pixel'),
+				playerCurrentPixelID = playerPixel.parent().attr('id'),
+				playerCurrentRow = playerPixel.parents('screen-row'),
+				playerNextRow = playerCurrentRow.next(),
+				playerNextPixel = playerNextRow.find('#' + playerCurrentPixelID);
+
+			playerNextPixel.append(firePixel);
+		}
+	}
+
+	function scrollFire() {
+		var firePixel = $('fire-pixel');
+
+		firePixel.each(function() {
+			var eachFirePixel = $(this),
+				fireCurrentPixelID = eachFirePixel.parent().attr('id'),
+				fireCurrentRow = eachFirePixel.parents('screen-row'),
+				fireNextRow = fireCurrentRow.next(),
+				fireNextPixel = fireNextRow.find('#' + fireCurrentPixelID),
+				containingPixel = eachFirePixel.parent('river-pixel');
+
+			eachFirePixel.detach().appendTo(fireNextPixel)
+
+			if (!fireNextRow.length || !containingPixel.length) {
+				eachFirePixel.remove();
+			}
+		})
 	}
 
 	function stearLeft() {
@@ -243,10 +271,16 @@ $(document).ready(function(){
 		var	startMoment = Date.now();
 
 		interval = setInterval(function() {
+			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
+			//SCROLL PLAYER
 			scrollPlayer();
 			playerCrashCheck(interval);
+			//SCROLL FIRE
+			scrollFire();
+			scrollFire();
+			scrollFire();
 		}, gameSpeed);
 	}
 });
