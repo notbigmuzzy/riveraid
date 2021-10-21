@@ -87,11 +87,33 @@ grass-pixel {
 }
 
 coast-pixel {
-	display: block;
+	position: relative;
+	display: flex;
+	flex-direction: row-reverse;
+	background-color: #274c11;
+}
+
+
+coast-pixel.right {
+	flex-direction: row;
+}
+
+coast-pixel.left:before,
+coast-pixel.right:before {
+	content: '';
+	width: 20%;
 	background-color: #7abfc7;
 }
 
+coast-pixel.left:after,
+coast-pixel.right:after {
+	content: '';
+	width: 70%;
+	background-color: #ff9800;
+}
+
 player-pixel {
+	position: relative;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -100,12 +122,24 @@ player-pixel {
 }
 
 player-pixel:before {
+	position: absolute;
+	top: 8px;
 	content: "";
 	display: block;
 	width: 0;
 	height: 0;
 	border-left: 16px solid transparent;
 	border-right: 16px solid transparent;
+	border-bottom: 16px solid #dedf38;
+}
+
+player-pixel:after {
+	content: "";
+	display: block;
+	width: 0;
+	height: 0;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
 	border-bottom: 32px solid #dedf38;
 }
 
@@ -120,7 +154,33 @@ fire-pixel {
 fire-pixel:before {
 	content: "";
 	display: block;
-	width: 10px;
-	height: 10px;
+	width: 6px;
+	height: 6px;
 	background-color: #dedf38;
+}
+
+enemy-pixel {
+	position: relative;
+	background-color: #7c6fdb;
+}
+
+enemy-pixel:before {
+	content: "";
+	position: absolute;
+	bottom: 4px;
+	left: 0;
+	right: 0;
+	border-top: 12px solid #d71818;
+	border-left: 12px solid transparent;
+	border-right: 12px solid transparent;
+}
+
+enemy-pixel:after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 50%;
+    background-color: #d71818;
 }

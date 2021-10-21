@@ -25,8 +25,12 @@ $(document).ready(function(){
 			whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
 		} else if (pixelType == 'river') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
-		} else if (pixelType == 'coast') {
-			whichPixel = '<coast-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
+		} else if (pixelType == 'coastleft') {
+			whichPixel = '<coast-pixel class="left" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
+		} else if (pixelType == 'coastright') {
+			whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
+		} else if (pixelType == 'enemy') {
+			whichPixel = '<enemy-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
 		}
 
 		thisRow.append(whichPixel)
@@ -34,7 +38,7 @@ $(document).ready(function(){
 
 	function philRow(numberOfPixelsW,rowIndex,pixelSize,difficulty,gameScreen) {
 		gameScreen.append('<screen-row id="row' + rowIndex + '"></screen-row');
-		
+
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setDifficulty(pixelSize,difficulty);
 			howMuchGrass = getRandomInt(getDiff.from,getDiff.to),
@@ -43,7 +47,8 @@ $(document).ready(function(){
 			riverWidth = numberOfPixelsW - howMuchGrass,
 			riverStart = leftGrassStart + leftGrass,
 			rightGrass = howMuchGrass - leftGrass,
-			rightGrassStart = riverStart + riverWidth;
+			rightGrassStart = riverStart + riverWidth,
+			willRowContainEnemey = getRandomInt(0,4);
 
 		for (let j = 0; j < numberOfPixelsW; j++) {
 			switch (true) {
@@ -51,11 +56,18 @@ $(document).ready(function(){
 					generatePixel(thisRow, j, pixelSize, 'grass')
 					break;
 				case (j >= riverStart && j < rightGrassStart):
-					if (j == riverStart || j == rightGrassStart - 1) {
-						generatePixel(thisRow, j, pixelSize, 'coast');
+					if (j == riverStart) {
+						generatePixel(thisRow, j, pixelSize, 'coastleft');
+						break;
+					} else if (j == rightGrassStart - 1) {
+						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						generatePixel(thisRow, j, pixelSize, 'river');
+						if (willRowContainEnemey == getRandomInt(0,4) && j == riverStart + getRandomInt(Math.floor(numberOfPixelsW/10),riverWidth - Math.floor(numberOfPixelsW/10))) {
+							generatePixel(thisRow, j, pixelSize, 'enemy');
+						} else {
+							generatePixel(thisRow, j, pixelSize, 'river');
+						}
 						break;
 					}
 					
@@ -261,8 +273,6 @@ $(document).ready(function(){
 				to = from + 4;
 				break;
 		}
-
-
 
 		return {from,to};
 	}
