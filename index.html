@@ -8,11 +8,25 @@
 	<link href="index.css" rel="stylesheet" type="text/css" />
 </head>
 	<body 	data-gamestarted="no"
+			data-gameended="no"
 			data-width="1024" 
-			data-height="768" 
+			data-height="640" 
 			data-pxsize="32" 
 			data-diff="normal" 
 			data-spid="425">
-			<game-screen></game-screen>
+			<game-screen style="min-width: 1024px;min-height: 640px;"></game-screen>
+			<game-stats>
+				<game-label>
+					<span>Score</span>
+					<label>0</label>
+				</game-label>
+				<game-label>
+					<label>River Raid</label>
+				</game-label>
+				<game-label>
+					<span>Sound</span>
+					<label>Off</label>
+				</game-label>
+			</game-stats>
 	</body>
 </html>

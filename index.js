@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
 	//START GAME
-	var $body = $('body'),
+	var $body = $('body'),interval,
 		screenWidth = $body.attr('data-width'),
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
@@ -113,47 +113,87 @@ $(document).ready(function(){
 		console.log('123123123')
 	}
 
+	function stearLeft() {
+		var playerPixel = $('player-pixel'),
+			playerCurrentPixelID = playerPixel.parent().attr('id'),
+			playerCurrentIDNum = playerCurrentPixelID.substring(5)
+			playerCurrentRow = playerPixel.parents('screen-row'),
+			playerNextPixel = playerCurrentRow.find('#pixel' + (Number(playerCurrentIDNum) - 1));
+
+		if (playerNextPixel.length) {
+			playerPixel.detach().appendTo(playerNextPixel);	
+		}
+
+		playerCrashCheck(interval);
+	}
+
+	function stearRight() {
+		var playerPixel = $('player-pixel'),
+			playerCurrentPixelID = playerPixel.parent().attr('id'),
+			playerCurrentIDNum = playerCurrentPixelID.substring(5)
+			playerCurrentRow = playerPixel.parents('screen-row'),
+			playerNextPixel = playerCurrentRow.find('#pixel' + (Number(playerCurrentIDNum) + 1));
+
+		if (playerNextPixel.length) {
+			playerPixel.detach().appendTo(playerNextPixel)
+		}
+
+		playerCrashCheck(interval);
+	}
+
+	//COLLISION DETECTION
+	function playerCrashCheck(interval) {
+		var playerPixel = $('player-pixel'),
+			containingPixel = playerPixel.parent('river-pixel');
+
+		if (!containingPixel.length) {
+			gameEnded(interval);
+			crashMessage();
+		}
+	}
+
+	//GAMEND
+	function gameEnded(interval) {
+		clearInterval(interval);
+		interval = null;
+		$('game-screen').css('opacity','0.25');
+		$body.attr('data-gameended','yes');
+	}
+
+	function crashMessage() {
+		$('body').addClass('end-message crashed')
+	}
+
 	//KEYBOARD CONTROLS
 	document.addEventListener('keydown', function(e) {
-		var isStarted = $body.attr('data-gamestarted');
+		var isStarted = $body.attr('data-gamestarted'),
+			isEnded = $body.attr('data-gameended');
 		switch (event.keyCode) {
 		case 32: //SPACEBAR
 			e.preventDefault();
-			if (isStarted == "no") {
+			if (isStarted == "no" && isEnded == "no") {
 				initTimingStuff(gameSpeed)
 				$body.attr('data-gamestarted','yes');
-			} else if (isStarted == "yes") {
+			} else if (isStarted == "yes" && isEnded == "no") {
 				fire();
 			}
 			break;
 		case 37: // LEFT ARROW
 			e.preventDefault();
-			if (isStarted == "yes") {
-				var playerPixel = $('player-pixel'),
-					playerCurrentPixelID = playerPixel.parent().attr('id'),
-					playerCurrentIDNum = playerCurrentPixelID.substring(5)
-					playerCurrentRow = playerPixel.parents('screen-row'),
-					playerNextPixel = playerCurrentRow.find('#pixel' + (Number(playerCurrentIDNum) - 1));
-
-				console.log(playerNextPixel)
-
-				if (playerNextPixel.length) {
-					playerPixel.detach().appendTo(playerNextPixel);	
-				}
+			if (isStarted == "yes" && isEnded == "no") {
+				stearLeft();
 			}
 			break;
 		case 39: // RIGHT ARROW
 			e.preventDefault();
-			if (isStarted == "yes") {
-				var playerPixel = $('player-pixel'),
-					playerCurrentPixelID = playerPixel.parent().attr('id'),
-					playerCurrentIDNum = playerCurrentPixelID.substring(5)
-					playerCurrentRow = playerPixel.parents('screen-row'),
-					playerNextPixel = playerCurrentRow.find('#pixel' + (Number(playerCurrentIDNum) + 1));
-
-				if (playerNextPixel.length) {
-					playerPixel.detach().appendTo(playerNextPixel)
-				}
+			if (isStarted == "yes" && isEnded == "no") {
+				stearRight();
+			}
+			break;
+		case 13: //ENTER AFTER END TO START NEW
+			e.preventDefault()
+			if (isStarted == "yes" && isEnded == "yes") {
+				location.reload();
 			}
 			break;
 		}
@@ -200,20 +240,13 @@ $(document).ready(function(){
 	}
 
 	function initTimingStuff(gameSpeed, started) {
-		var	interval,
-			startMoment = Date.now();
+		var	startMoment = Date.now();
 
 		interval = setInterval(function() {
-			difficulty = $body.attr('data-diff');
-			
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
 			scrollPlayer();
-
+			playerCrashCheck(interval);
 		}, gameSpeed);
-
-		// clearInterval(interval);
-		// interval = null;
 	}
-
 });
