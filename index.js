@@ -24,8 +24,7 @@ $(document).ready(function(){
 		if (pixelType == 'grass') {
 			whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
 		} else if (pixelType == 'river') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
-		} else if (pixelType == 'coastleft') {
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';		} else if (pixelType == 'coastleft') {
 			whichPixel = '<coast-pixel class="left" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
 		} else if (pixelType == 'coastright') {
 			whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
@@ -143,11 +142,16 @@ $(document).ready(function(){
 				fireCurrentRow = eachFirePixel.parents('screen-row'),
 				fireNextRow = fireCurrentRow.next(),
 				fireNextPixel = fireNextRow.find('#' + fireCurrentPixelID),
-				containingPixel = eachFirePixel.parent('river-pixel');
+				containingPixel = eachFirePixel.parent('river-pixel'),
+				hitEnemy = eachFirePixel.parent('enemy-pixel');
+			eachFirePixel.detach().appendTo(fireNextPixel);
 
-			eachFirePixel.detach().appendTo(fireNextPixel)
-
-			if (!fireNextRow.length || !containingPixel.length) {
+			if (hitEnemy.length) {
+				if(!hitEnemy.hasClass('zeds-dead')) {
+					eachFirePixel.remove();	
+				}
+				hitEnemy.addClass('zeds-dead')
+			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
 			}
 		})
@@ -186,7 +190,9 @@ $(document).ready(function(){
 		var playerPixel = $('player-pixel'),
 			containingPixel = playerPixel.parent('river-pixel');
 
-		if (!containingPixel.length) {
+		if (playerPixel.parent().hasClass('zeds-dead')) {
+			return;
+		} else if (!containingPixel.length) {
 			gameEnded(interval);
 			crashMessage();
 		}
@@ -284,7 +290,7 @@ $(document).ready(function(){
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
-			//SCROLL PLAYER
+			// //SCROLL PLAYER
 			scrollPlayer();
 			playerCrashCheck(interval);
 			//SCROLL FIRE
