@@ -25,6 +25,8 @@ $(document).ready(function(){
 			whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
 		} else if (pixelType == 'forest') {
 			whichPixel = '<forest-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><i></i><i></i><i></i><i></i></forest-pixel>';
+		} else if (pixelType == 'mountain') {
+			whichPixel = '<mountain-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></mountain-pixel>';
 		} else if (pixelType == 'river') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
 		} else if (pixelType == 'coastleft') {
@@ -51,13 +53,24 @@ $(document).ready(function(){
 			rightGrass = howMuchGrass - leftGrass,
 			rightGrassStart = riverStart + riverWidth,
 			willRowContainEnemy = getRandomInt(0,4),
-			willRowContainForest = getRandomInt(0,2);
+			willRowContainForest = getRandomInt(0,2),
+			willContaintMountain = getRandomInt(0,10);
 
 		for (let j = 0; j < numberOfPixelsW; j++) {
 			switch (true) {
 				case (j >= leftGrassStart && j < riverStart):
-					if (willRowContainForest == getRandomInt(0,2) && j == leftGrassStart + getRandomInt(Math.floor(numberOfPixelsW/5),leftGrassStart + riverStart - Math.floor(numberOfPixelsW/5))) {
-						generatePixel(thisRow, j, pixelSize, 'forest');
+					if (willRowContainForest == getRandomInt(0,2) && j == leftGrassStart + getRandomInt(0,leftGrassStart + riverStart - 1)) {
+						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
+							generatePixel(thisRow, j, pixelSize, 'forest');
+						} else {
+							generatePixel(thisRow, j, pixelSize, 'grass');
+						}
+					} else if (willContaintMountain == getRandomInt(0,10) && j == leftGrassStart + getRandomInt(0,leftGrassStart + riverStart - 1)) {
+						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
+							generatePixel(thisRow, j, pixelSize, 'mountain');
+						} else {
+							generatePixel(thisRow, j, pixelSize, 'grass');
+						}
 					} else {
 						generatePixel(thisRow, j, pixelSize, 'grass');
 					}
@@ -70,21 +83,29 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (willRowContainEnemy == getRandomInt(0,4) && j == riverStart + getRandomInt(Math.floor(numberOfPixelsW/5),riverWidth - Math.floor(numberOfPixelsW/5))) {
+						if (willRowContainEnemy == getRandomInt(0,4) && j == riverStart + getRandomInt(0,riverWidth)) {
 							generatePixel(thisRow, j, pixelSize, 'enemy');
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'river');
 						}
 						break;
 					}
-					
 				case (j >= rightGrassStart && j < numberOfPixelsW):
-					if (willRowContainForest == getRandomInt(0,2) && j == rightGrassStart + getRandomInt(Math.floor(numberOfPixelsW/5),numberOfPixelsW - rightGrassStart - Math.floor(numberOfPixelsW/5))) {
-						generatePixel(thisRow, j, pixelSize, 'forest');
-					} else {
+					if (willRowContainForest == getRandomInt(0,2) && j == rightGrassStart + getRandomInt(0,numberOfPixelsW - rightGrassStart)) {
+						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
+							generatePixel(thisRow, j, pixelSize, 'forest');
+						} else {
+							generatePixel(thisRow, j, pixelSize, 'grass');
+						}
+					} else if (willContaintMountain == getRandomInt(0,10) && j == rightGrassStart + getRandomInt(0,numberOfPixelsW - rightGrassStart)) {
+						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
+							generatePixel(thisRow, j, pixelSize, 'mountain');
+						} else {
+							generatePixel(thisRow, j, pixelSize, 'grass');
+						}
+					}else {
 						generatePixel(thisRow, j, pixelSize, 'grass');
 					}
-
 					break;
 			}
 		}

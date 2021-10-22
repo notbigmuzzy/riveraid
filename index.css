@@ -112,25 +112,27 @@ grass-pixel {
 forest-pixel {
 	display: flex;
 	flex-direction: row;
-	background-color: #68a940;
+	background-color: #5d943c;
 	position: relative;
-	justify-content: space-evenly;
+	justify-content: center;
 }
 
 forest-pixel:before {
-    content: '';
-    display: block;
-    width: 8px;
-    height: 100%;
-    background-color: #193607;
+	content: '';
+	display: block;
+	width: 8px;
+	height: 85%;
+	background-color: #193607;
+	margin-left: 6px;
+	margin-right: 1px;
 }
 
 forest-pixel:after {
-    content: '';
-    display: block;
-    width: 8px;
-    height: 100%;
-    background-color: #193607;
+	content: '';
+	display: block;
+	width: 8px;
+	height: 100%;
+	background-color: #193607;
 }
 
 forest-pixel i:nth-child(1) {
@@ -175,6 +177,36 @@ forest-pixel i:nth-child(4) {
 	width: 20px;
 	background-color: #274c11;
 	border-radius: 83% 17% 54% 46% / 43% 44% 56% 57%;
+}
+
+mountain-pixel {
+	position: relative;
+	display: flex;
+	flex-direction: row-reverse;
+	background-color: #68a940;
+}
+
+mountain-pixel:before {
+	content: "";
+	display: block;
+	position: absolute;
+	width: 0; 
+	height: 0; 
+	border-left: 24px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 32px solid #7abfc7;
+	z-index: 1;
+}
+mountain-pixel:after {
+	content: "";
+	display: block;
+	position: absolute;
+	margin-right: -10px;
+	width: 0;
+	height: 0;
+	border-left: 10px solid transparent;
+	border-right: 19px solid transparent;
+	border-bottom: 32px solid #72a2ec;
 }
 
 coast-pixel {
