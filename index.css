@@ -152,6 +152,7 @@ player-pixel .wings {
 	border-left: 16px solid transparent;
 	border-right: 16px solid transparent;
 	border-bottom: 16px solid #dedf38;
+	z-index: 1;
 }
 
 player-pixel .body {
@@ -162,6 +163,7 @@ player-pixel .body {
 	border-left: 10px solid transparent;
 	border-right: 10px solid transparent;
 	border-bottom: 32px solid #dedf38;
+	z-index: 1;
 }
 
 fire-pixel {
@@ -186,7 +188,37 @@ enemy-pixel {
 }
 
 enemy-pixel.zeds-dead {
-	border:10px solid red;
+	background-color: #7367c8;
+}
+
+enemy-pixel.zeds-dead:after {
+	content: "";
+	position: absolute;
+	bottom: 14px;
+	left: 4px;
+	right: 0;
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	height: 8px;
+	width: 16px;
+	background: red;
+	border-radius: 6px;
+}
+
+enemy-pixel.zeds-dead:before {
+	content: "";
+	position: absolute;
+	bottom: 4px;
+	left: 13px;
+	right: 0;
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	height: 8px;
+	width: 16px;
+	background: red;
+	border-radius: 6px;
 }
 
 enemy-pixel:before {
