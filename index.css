@@ -64,6 +64,7 @@ game-label label {
 game-screen {
 	display: flex;
 	flex-direction: column-reverse;
+	overflow: hidden;
 }
 
 screen-canvas {
@@ -74,11 +75,33 @@ screen-canvas {
 screen-row {
 	display: flex;
 	flex-direction: row;
+	transition: height 0.32s ease-out;
 }
 
 river-pixel {
 	display: block;
 	background-color: #7c6fdb;
+}
+
+river-pixel.plane-was-here {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+}
+
+river-pixel.plane-was-here:before {
+	content: "";
+	height: 100%;
+	width: 5px;
+	background-color: #dedf38;
+}
+
+river-pixel.plane-was-here:after {
+	content: "";
+	height: 100%;
+	width: 5px;
+	background-color: #dedf38;
 }
 
 grass-pixel {
@@ -92,7 +115,6 @@ coast-pixel {
 	flex-direction: row-reverse;
 	background-color: #274c11;
 }
-
 
 coast-pixel.right {
 	flex-direction: row;
@@ -121,10 +143,9 @@ player-pixel {
 	height: 100%;
 }
 
-player-pixel:before {
+player-pixel .wings {
 	position: absolute;
 	top: 8px;
-	content: "";
 	display: block;
 	width: 0;
 	height: 0;
@@ -133,8 +154,8 @@ player-pixel:before {
 	border-bottom: 16px solid #dedf38;
 }
 
-player-pixel:after {
-	content: "";
+player-pixel .body {
+	position: absolute;
 	display: block;
 	width: 0;
 	height: 0;

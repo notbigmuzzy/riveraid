@@ -36,7 +36,7 @@ $(document).ready(function(){
 	}
 
 	function philRow(numberOfPixelsW,rowIndex,pixelSize,difficulty,gameScreen) {
-		gameScreen.append('<screen-row id="row' + rowIndex + '"></screen-row');
+		gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
 
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setDifficulty(pixelSize,difficulty);
@@ -97,7 +97,11 @@ $(document).ready(function(){
 	}
 
 	function sanitizeRowsAfterScroll() {
-		$('screen-row').first().remove()
+		$('screen-row').first().css('height','0');
+
+		setTimeout(function() {
+			$('screen-row').first().remove();
+		},240)
 	}
 
 	function scrollPlayer() {
@@ -107,6 +111,7 @@ $(document).ready(function(){
 			playerNextRow = playerCurrentRow.next(),
 			playerNextPixel = playerNextRow.find('#' + playerCurrentPixelID);
 
+		playerPixel.parent('river-pixel').addClass('plane-was-here');
 		playerPixel.detach().appendTo(playerNextPixel)
 	}
 
@@ -116,7 +121,7 @@ $(document).ready(function(){
 			middlePixel = initialRow.find('*').length / 2 - 1,
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
-		initialPixel.append('<player-pixel></player-pixel>')
+		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><i class="body"></i><i class="wings"></i></player-pixel>')
 	}
 
 	//CONTROL PLAYER
