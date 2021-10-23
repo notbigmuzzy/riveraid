@@ -8,6 +8,7 @@ $(document).ready(function(){
 		difficulty = $body.attr('data-diff'),
 		gameScreen = $('game-screen'),
 		gameSpeed = $body.attr('data-spid');
+		score = 0;
 	setupGamingScreen(screenWidth,screenHeight,gameScreen)
 	philScreen(screenWidth,screenHeight,pixelSize,difficulty,gameScreen);
 	setupPlayer();
@@ -220,7 +221,8 @@ $(document).ready(function(){
 				if(!hitEnemy.hasClass('zeds-dead')) {
 					eachFirePixel.remove();	
 				}
-				hitEnemy.addClass('zeds-dead')
+				hitEnemy.addClass('zeds-dead');
+				updateScore();
 			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
 			}
@@ -266,6 +268,13 @@ $(document).ready(function(){
 			gameEnded(interval);
 			crashMessage();
 		}
+	}
+
+	//SCORE
+	function updateScore() {
+		score = score + 100;
+		$('#score-label').html(score)
+		return score;
 	}
 
 	//GAMEND
@@ -357,6 +366,7 @@ $(document).ready(function(){
 
 		interval = setInterval(function() {
 			difficulty = $body.attr('data-diff');
+			console.log(score)
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
