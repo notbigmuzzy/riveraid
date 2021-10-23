@@ -197,6 +197,7 @@ mountain-pixel:before {
 	border-bottom: 32px solid #7abfc7;
 	z-index: 1;
 }
+
 mountain-pixel:after {
 	content: "";
 	display: block;
@@ -287,6 +288,70 @@ enemy-pixel {
 	background-color: #7c6fdb;
 }
 
+enemy-pixel.boat:before {
+	content: "";
+	position: absolute;
+	bottom: 4px;
+	left: 0;
+	right: 0;
+	border-top: 12px solid #d71818;
+	border-left: 12px solid transparent;
+	border-right: 12px solid transparent;
+}
+
+enemy-pixel.boat:after {
+    content: "";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 10px;
+    height: 50%;
+    background-color: #d71818;
+}
+
+enemy-pixel.chopper:before {
+	content: "";
+	width: 100%;
+	height: 5px;
+	background-color: #9c27b0;
+	display: block;
+}
+
+enemy-pixel.chopper:after {
+	content: "";
+	position: absolute;
+	width: 16px;
+	top: 4px;
+	height: 16px;
+	background-color: #9c27b0;
+	display: block;
+	left: 4px;
+}
+
+enemy-pixel.baloon {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+enemy-pixel.baloon:before {
+	content: "";
+	width: 22px;
+	height: 22px;
+	background-color: #673ab7;
+	display: block;
+	border-radius: 8px;
+}
+
+enemy-pixel.baloon:after {
+	content: "";
+	width: 8px;
+	height: 8px;
+	background-color: #673ab7;
+	display: block;
+	border-radius: 8px;
+}
+
 enemy-pixel.zeds-dead {
 	background-color: #7367c8;
 }
@@ -302,7 +367,7 @@ enemy-pixel.zeds-dead:after {
 	border-right: 0;
 	height: 8px;
 	width: 16px;
-	background: red;
+	background: #ccc;
 	border-radius: 6px;
 }
 
@@ -317,27 +382,6 @@ enemy-pixel.zeds-dead:before {
 	border-right: 0;
 	height: 8px;
 	width: 16px;
-	background: red;
+	background: #333;
 	border-radius: 6px;
-}
-
-enemy-pixel:before {
-	content: "";
-	position: absolute;
-	bottom: 4px;
-	left: 0;
-	right: 0;
-	border-top: 12px solid #d71818;
-	border-left: 12px solid transparent;
-	border-right: 12px solid transparent;
-}
-
-enemy-pixel:after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 10px;
-    height: 50%;
-    background-color: #d71818;
 }

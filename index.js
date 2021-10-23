@@ -33,8 +33,12 @@ $(document).ready(function(){
 			whichPixel = '<coast-pixel class="left" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
 		} else if (pixelType == 'coastright') {
 			whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
-		} else if (pixelType == 'enemy') {
-			whichPixel = '<enemy-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
+		} else if (pixelType == 'enemy-boat') {
+			whichPixel = '<enemy-pixel class="boat" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
+		} else if (pixelType == 'enemy-chopper') {
+			whichPixel = '<enemy-pixel class="chopper" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
+		} else if (pixelType == 'enemy-baloon') {
+			whichPixel = '<enemy-pixel class="baloon" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
 		}
 
 		thisRow.append(whichPixel)
@@ -42,7 +46,6 @@ $(document).ready(function(){
 
 	function philRow(numberOfPixelsW,rowIndex,pixelSize,difficulty,gameScreen) {
 		gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
-
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setDifficulty(pixelSize,difficulty);
 			howMuchGrass = getRandomInt(getDiff.from,getDiff.to),
@@ -52,9 +55,26 @@ $(document).ready(function(){
 			riverStart = leftGrassStart + leftGrass,
 			rightGrass = howMuchGrass - leftGrass,
 			rightGrassStart = riverStart + riverWidth,
-			willRowContainEnemy = getRandomInt(0,4),
 			willRowContainForest = getRandomInt(0,2),
-			willContaintMountain = getRandomInt(0,10);
+			willContaintMountain = getRandomInt(0,8);
+		switch (difficulty) {
+		case "journo":
+			var	willRowContainEnemy = getRandomInt(0,2),
+				willRowContainEnemyControl = getRandomInt(0,2);
+			break;
+		case "easy":
+			var	willRowContainEnemy = getRandomInt(0,3),
+				willRowContainEnemyControl = getRandomInt(0,3);
+			break;
+		case "normal":
+			var	willRowContainEnemy = getRandomInt(0,4),
+				willRowContainEnemyControl = getRandomInt(0,4);
+			break;
+		case "hard":
+			var	willRowContainEnemy = getRandomInt(0,5),
+				willRowContainEnemyControl = getRandomInt(0,5);
+			break;
+		}
 
 		for (let j = 0; j < numberOfPixelsW; j++) {
 			switch (true) {
@@ -65,7 +85,7 @@ $(document).ready(function(){
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == getRandomInt(0,10) && j == leftGrassStart + getRandomInt(0,leftGrassStart + riverStart - 1)) {
+					} else if (willContaintMountain == getRandomInt(0,8) && j == leftGrassStart + getRandomInt(0,leftGrassStart + riverStart - 1)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'mountain');
 						} else {
@@ -83,8 +103,19 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (willRowContainEnemy == getRandomInt(0,4) && j == riverStart + getRandomInt(0,riverWidth)) {
-							generatePixel(thisRow, j, pixelSize, 'enemy');
+						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomInt(0,riverWidth)) {
+							var whatTypeOfEnemy = getRandomInt(0,20);
+							switch (true) {
+							case (whatTypeOfEnemy <= 10):
+								generatePixel(thisRow, j, pixelSize, 'enemy-boat');
+								break;
+							case (whatTypeOfEnemy > 10 && whatTypeOfEnemy <= 15):
+								generatePixel(thisRow, j, pixelSize, 'enemy-chopper');
+								break;
+							case (whatTypeOfEnemy > 15):
+								generatePixel(thisRow, j, pixelSize, 'enemy-baloon');
+								break;
+							}
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'river');
 						}
@@ -97,7 +128,7 @@ $(document).ready(function(){
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == getRandomInt(0,10) && j == rightGrassStart + getRandomInt(0,numberOfPixelsW - rightGrassStart)) {
+					} else if (willContaintMountain == getRandomInt(0,8) && j == rightGrassStart + getRandomInt(0,numberOfPixelsW - rightGrassStart)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'mountain');
 						} else {
@@ -250,7 +281,7 @@ $(document).ready(function(){
 	}
 
 	//KEYBOARD CONTROLS
-	document.addEventListener('keydown', function(e) {
+	document.addEventListener('keyup', function(e) {
 		var isStarted = $body.attr('data-gamestarted'),
 			isEnded = $body.attr('data-gameended');
 		switch (event.keyCode) {
@@ -313,7 +344,6 @@ $(document).ready(function(){
 				to = from + 3;
 				break;
 			default:
-				console.log('123')
 				from = Math.ceil(pixelSize / 1.75);
 				to = from + 4;
 				break;
@@ -326,6 +356,7 @@ $(document).ready(function(){
 		var	startMoment = Date.now();
 
 		interval = setInterval(function() {
+			difficulty = $body.attr('data-diff');
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
