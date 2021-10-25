@@ -35,11 +35,11 @@ $(document).ready(function(){
 		} else if (pixelType == 'coastright') {
 			whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
 		} else if (pixelType == 'enemy-boat') {
-			whichPixel = '<enemy-pixel class="boat" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="boat"></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-chopper') {
-			whichPixel = '<enemy-pixel class="chopper" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="chopper"></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-baloon') {
-			whichPixel = '<enemy-pixel class="baloon" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></enemy-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="baloon"></enemy-pixel></river-pixel>';
 		}
 
 		thisRow.append(whichPixel)
@@ -184,7 +184,7 @@ $(document).ready(function(){
 	//SETUP PLAYER
 	function setupPlayer() {
 		var initialRow = $('#row1'),
-			middlePixel = initialRow.find('*').length / 2 - 1,
+			middlePixel = 15,
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
 		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><i class="body"></i><i class="wings"></i></player-pixel>')
@@ -214,7 +214,7 @@ $(document).ready(function(){
 				fireNextRow = fireCurrentRow.next(),
 				fireNextPixel = fireNextRow.find('#' + fireCurrentPixelID),
 				containingPixel = eachFirePixel.parent('river-pixel'),
-				hitEnemy = eachFirePixel.parent('enemy-pixel');
+				hitEnemy = eachFirePixel.parent('river-pixel').find('enemy-pixel');
 			eachFirePixel.detach().appendTo(fireNextPixel);
 
 			if (hitEnemy.length) {
@@ -257,14 +257,20 @@ $(document).ready(function(){
 		playerCrashCheck(interval);
 	}
 
+	//ENEMY AI
+	function moveChoppers () {
+
+	}
+
 	//COLLISION DETECTION
 	function playerCrashCheck(interval) {
 		var playerPixel = $('player-pixel'),
-			containingPixel = playerPixel.parent('river-pixel');
+			containingPixel = playerPixel.parent('river-pixel')
+			containingPixelHasEnemy = containingPixel.find('enemy-pixel').not('.zeds-dead');
 
 		if (playerPixel.parent().hasClass('zeds-dead')) {
 			return;
-		} else if (!containingPixel.length) {
+		} else if (!containingPixel.length || containingPixelHasEnemy.length) {
 			gameEnded(interval);
 			crashMessage();
 		}
@@ -375,6 +381,8 @@ $(document).ready(function(){
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
+			//ENEMY AI
+			moveChoppers();
 			// //SCROLL PLAYER
 			scrollPlayer();
 			playerCrashCheck(interval);
