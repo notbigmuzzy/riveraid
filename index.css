@@ -360,6 +360,7 @@ enemy-pixel.baloon:after {
 
 enemy-pixel.zeds-dead {
 	background-color: #7367c8;
+	position: absolute;
 }
 
 enemy-pixel.zeds-dead:after {

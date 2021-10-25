@@ -21,6 +21,7 @@ $(document).ready(function(){
 	//ROW OF PIXELS PHILES IT
 	function generatePixel(thisRow,pixelIndex,pixelSize,pixelType) {
 		var whichPixel = '';
+			enemyDirection = getRandomIntIncInc(0,1);
 
 		if (pixelType == 'grass') {
 			whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
@@ -37,7 +38,7 @@ $(document).ready(function(){
 		} else if (pixelType == 'enemy-boat') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="boat"></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-chopper') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="chopper"></enemy-pixel></river-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" class="chopper"></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-baloon') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="baloon"></enemy-pixel></river-pixel>';
 		}
@@ -107,24 +108,20 @@ $(document).ready(function(){
 						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
 							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
-							case (whatTypeOfEnemy <= 10):
+							case (whatTypeOfEnemy < 10):
 								generatePixel(thisRow, j, pixelSize, 'enemy-boat');
 								break;
-							case (whatTypeOfEnemy > 10 && whatTypeOfEnemy <= 15):
+							case (whatTypeOfEnemy >= 10 && whatTypeOfEnemy <= 15):
 								if(thisRow.find('.chopper').length == 0 && thisRow.find('.baloon').length == 0) {
-									console.log('1')
 									generatePixel(thisRow, j, pixelSize, 'enemy-chopper');
 								} else {
-									console.log('2')
 									generatePixel(thisRow, j, pixelSize, 'enemy-boat');
 								}
 								break;
 							case (whatTypeOfEnemy > 15):
 								if(thisRow.find('.chopper').length == 0 && thisRow.find('.baloon').length == 0) {
-									console.log('1')
 									generatePixel(thisRow, j, pixelSize, 'enemy-baloon');
 								} else {
-									console.log('2')
 									generatePixel(thisRow, j, pixelSize, 'enemy-boat');
 								}
 								break;
@@ -241,29 +238,27 @@ $(document).ready(function(){
 		})
 	}
 
-	function stearLeft() {
-		var playerPixel = $('player-pixel'),
-			playerCurrentPixelID = playerPixel.parent().attr('id'),
-			playerCurrentIDNum = playerCurrentPixelID.substring(5)
-			playerCurrentRow = playerPixel.parents('screen-row'),
-			playerNextPixel = playerCurrentRow.find('#pixel' + (Number(playerCurrentIDNum) - 1));
+	function stearLeft(controlledPixel) {
+		var controlledCurrentPixelID = controlledPixel.parent().attr('id'),
+			controlledCurrentIDNum = controlledCurrentPixelID.substring(5)
+			controlledCurrentRow = controlledPixel.parents('screen-row'),
+			controlledNextPixel = controlledCurrentRow.find('#pixel' + (Number(controlledCurrentIDNum) - 1));
 
-		if (playerNextPixel.length) {
-			playerPixel.detach().appendTo(playerNextPixel);	
+		if (controlledNextPixel.length) {
+			controlledPixel.detach().appendTo(controlledNextPixel);	
 		}
 
 		playerCrashCheck(interval);
 	}
 
-	function stearRight() {
-		var playerPixel = $('player-pixel'),
-			playerCurrentPixelID = playerPixel.parent().attr('id'),
-			playerCurrentIDNum = playerCurrentPixelID.substring(5)
-			playerCurrentRow = playerPixel.parents('screen-row'),
-			playerNextPixel = playerCurrentRow.find('#pixel' + (Number(playerCurrentIDNum) + 1));
+	function stearRight(controlledPixel) {
+		var controlledCurrentPixelID = controlledPixel.parent().attr('id'),
+			controlledCurrentIDNum = controlledCurrentPixelID.substring(5)
+			controlledCurrentRow = controlledPixel.parents('screen-row'),
+			controlledNextPixel = controlledCurrentRow.find('#pixel' + (Number(controlledCurrentIDNum) + 1));
 
-		if (playerNextPixel.length) {
-			playerPixel.detach().appendTo(playerNextPixel)
+		if (controlledNextPixel.length) {
+			controlledPixel.detach().appendTo(controlledNextPixel)
 		}
 
 		playerCrashCheck(interval);
@@ -273,12 +268,37 @@ $(document).ready(function(){
 	function moveChoppers () {
 		var choppers = $('.chopper').not('.zeds-dead');
 
-		//console.log(choppers.length)
-
 		choppers.each(function() {
-			var thisChopper = $(this);
+			var thisChopper = $(this),
+				thisChopperDirection = thisChopper.data('direction'),
+				thisCurrentPixelID = thisChopper.parent().attr('id'),
+				thisCurrentIDNum = thisCurrentPixelID.substring(5)
+				thisCurrentRow = thisChopper.parents('screen-row'),
+				thisLeftPixel = thisCurrentRow.find('#pixel' + (Number(thisCurrentIDNum) - 1)),
+				thisRightPixel = thisCurrentRow.find('#pixel' + (Number(thisCurrentIDNum) + 1)),
+				clearToGoLeft = thisLeftPixel.is('river-pixel') && thisLeftPixel.find('enemy-pixel').not('.zeds-dead').length == 0,
+				clearToGoRight = thisRightPixel.is('river-pixel') && thisRightPixel.find('enemy-pixel').not('.zeds-dead').length == 0;
 
-			//console.log(thisChopper)
+			switch (thisChopperDirection) {
+			case '0-direction':
+				if ( clearToGoLeft ) {
+					stearLeft(thisChopper)
+					break;
+				} else {
+					stearRight(thisChopper)
+					thisChopper.data('direction','1-direction')
+					break;
+				}
+			case '1-direction':
+				if ( clearToGoRight ) {
+					stearRight(thisChopper)
+					break;
+				} else {
+					stearLeft(thisChopper)
+					thisChopper.data('direction','0-direction')
+					break;
+				}
+			}
 		})
 	}
 
@@ -332,13 +352,15 @@ $(document).ready(function(){
 		case 37: // LEFT ARROW
 			e.preventDefault();
 			if (isStarted == "yes" && isEnded == "no") {
-				stearLeft();
+				var playerPixel = $('player-pixel');
+				stearLeft(playerPixel);
 			}
 			break;
 		case 39: // RIGHT ARROW
 			e.preventDefault();
 			if (isStarted == "yes" && isEnded == "no") {
-				stearRight();
+				var playerPixel = $('player-pixel');
+				stearRight(playerPixel);
 			}
 			break;
 		case 13: //ENTER AFTER END TO START NEW
@@ -398,6 +420,7 @@ $(document).ready(function(){
 
 		interval = setInterval(function() {
 			difficulty = $body.attr('data-diff');
+			
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
