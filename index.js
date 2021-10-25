@@ -64,16 +64,16 @@ $(document).ready(function(){
 				willRowContainEnemyControl = getRandomIntIncExc(0,2);
 			break;
 		case "easy":
+			var	willRowContainEnemy = getRandomIntIncExc(0,2),
+				willRowContainEnemyControl = getRandomIntIncExc(0,2);
+			break;
+		case "normal":
 			var	willRowContainEnemy = getRandomIntIncExc(0,3),
 				willRowContainEnemyControl = getRandomIntIncExc(0,3);
 			break;
-		case "normal":
+		case "hard":
 			var	willRowContainEnemy = getRandomIntIncExc(0,4),
 				willRowContainEnemyControl = getRandomIntIncExc(0,4);
-			break;
-		case "hard":
-			var	willRowContainEnemy = getRandomIntIncExc(0,5),
-				willRowContainEnemyControl = getRandomIntIncExc(0,5);
 			break;
 		}
 
@@ -104,17 +104,29 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncExc(0,riverWidth)) {
+						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
 							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
 							case (whatTypeOfEnemy <= 10):
 								generatePixel(thisRow, j, pixelSize, 'enemy-boat');
 								break;
 							case (whatTypeOfEnemy > 10 && whatTypeOfEnemy <= 15):
-								generatePixel(thisRow, j, pixelSize, 'enemy-chopper');
+								if(thisRow.find('.chopper').length == 0 && thisRow.find('.baloon').length == 0) {
+									console.log('1')
+									generatePixel(thisRow, j, pixelSize, 'enemy-chopper');
+								} else {
+									console.log('2')
+									generatePixel(thisRow, j, pixelSize, 'enemy-boat');
+								}
 								break;
 							case (whatTypeOfEnemy > 15):
-								generatePixel(thisRow, j, pixelSize, 'enemy-baloon');
+								if(thisRow.find('.chopper').length == 0 && thisRow.find('.baloon').length == 0) {
+									console.log('1')
+									generatePixel(thisRow, j, pixelSize, 'enemy-baloon');
+								} else {
+									console.log('2')
+									generatePixel(thisRow, j, pixelSize, 'enemy-boat');
+								}
 								break;
 							}
 						} else {
@@ -192,7 +204,7 @@ $(document).ready(function(){
 
 	//CONTROL PLAYER
 	function fire() {
-		if ($('fire-pixel').length < 3) {
+		if ($('fire-pixel').length < 2) {
 			var firePixel = $('<fire-pixel id="' + Date.now() + '"></fire-pixel>'),
 				playerPixel = $('player-pixel'),
 				playerCurrentPixelID = playerPixel.parent().attr('id'),
@@ -259,7 +271,15 @@ $(document).ready(function(){
 
 	//ENEMY AI
 	function moveChoppers () {
+		var choppers = $('.chopper').not('.zeds-dead');
 
+		//console.log(choppers.length)
+
+		choppers.each(function() {
+			var thisChopper = $(this);
+
+			//console.log(thisChopper)
+		})
 	}
 
 	//COLLISION DETECTION
@@ -387,6 +407,7 @@ $(document).ready(function(){
 			scrollPlayer();
 			playerCrashCheck(interval);
 			//SCROLL FIRE
+			scrollFire();
 			scrollFire();
 			scrollFire();
 			scrollFire();
