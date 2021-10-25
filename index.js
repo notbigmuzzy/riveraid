@@ -49,44 +49,44 @@ $(document).ready(function(){
 		gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setDifficulty(pixelSize,difficulty);
-			howMuchGrass = getRandomInt(getDiff.from,getDiff.to),
+			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
 			leftGrass = Math.floor(howMuchGrass / 2),
 			leftGrassStart = 0,
 			riverWidth = numberOfPixelsW - howMuchGrass,
 			riverStart = leftGrassStart + leftGrass,
 			rightGrass = howMuchGrass - leftGrass,
 			rightGrassStart = riverStart + riverWidth,
-			willRowContainForest = getRandomInt(0,2),
-			willContaintMountain = getRandomInt(0,8);
+			willRowContainForest = getRandomIntIncInc(0,2),
+			willContaintMountain = getRandomIntIncInc(0,8);
 		switch (difficulty) {
 		case "journo":
-			var	willRowContainEnemy = getRandomInt(0,2),
-				willRowContainEnemyControl = getRandomInt(0,2);
+			var	willRowContainEnemy = getRandomIntIncExc(0,2),
+				willRowContainEnemyControl = getRandomIntIncExc(0,2);
 			break;
 		case "easy":
-			var	willRowContainEnemy = getRandomInt(0,3),
-				willRowContainEnemyControl = getRandomInt(0,3);
+			var	willRowContainEnemy = getRandomIntIncExc(0,3),
+				willRowContainEnemyControl = getRandomIntIncExc(0,3);
 			break;
 		case "normal":
-			var	willRowContainEnemy = getRandomInt(0,4),
-				willRowContainEnemyControl = getRandomInt(0,4);
+			var	willRowContainEnemy = getRandomIntIncExc(0,4),
+				willRowContainEnemyControl = getRandomIntIncExc(0,4);
 			break;
 		case "hard":
-			var	willRowContainEnemy = getRandomInt(0,5),
-				willRowContainEnemyControl = getRandomInt(0,5);
+			var	willRowContainEnemy = getRandomIntIncExc(0,5),
+				willRowContainEnemyControl = getRandomIntIncExc(0,5);
 			break;
 		}
 
 		for (let j = 0; j < numberOfPixelsW; j++) {
 			switch (true) {
 				case (j >= leftGrassStart && j < riverStart):
-					if (willRowContainForest == getRandomInt(0,2) && j == leftGrassStart + getRandomInt(0,leftGrassStart + riverStart - 1)) {
+					if (willRowContainForest == getRandomIntIncInc(0,2) && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'forest');
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == getRandomInt(0,8) && j == leftGrassStart + getRandomInt(0,leftGrassStart + riverStart - 1)) {
+					} else if (willContaintMountain == getRandomIntIncInc(0,8) && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'mountain');
 						} else {
@@ -104,8 +104,8 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomInt(0,riverWidth)) {
-							var whatTypeOfEnemy = getRandomInt(0,20);
+						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncExc(0,riverWidth)) {
+							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
 							case (whatTypeOfEnemy <= 10):
 								generatePixel(thisRow, j, pixelSize, 'enemy-boat');
@@ -123,13 +123,13 @@ $(document).ready(function(){
 						break;
 					}
 				case (j >= rightGrassStart && j < numberOfPixelsW):
-					if (willRowContainForest == getRandomInt(0,2) && j == rightGrassStart + getRandomInt(0,numberOfPixelsW - rightGrassStart)) {
+					if (willRowContainForest == getRandomIntIncInc(0,2) && j == rightGrassStart + getRandomIntIncInc(0,numberOfPixelsW - rightGrassStart)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'forest');
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == getRandomInt(0,8) && j == rightGrassStart + getRandomInt(0,numberOfPixelsW - rightGrassStart)) {
+					} else if (willContaintMountain == getRandomIntIncInc(0,8) && j == rightGrassStart + getRandomIntIncInc(0,numberOfPixelsW - rightGrassStart)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'mountain');
 						} else {
@@ -325,13 +325,19 @@ $(document).ready(function(){
 	});
 
 	//HELPER FUNCT
-	function getRandomInt(min,max) {
+	function getRandomIntIncInc(min,max) {//MIN and MAX inclusive
 		min = Math.ceil(min);
 		max = Math.floor(max);
-		return Math.floor(Math.random() * (max - min) + min);
+		return Math.floor(Math.random() * (max - min + 1) + min);
 	}
 
-	function setDifficulty(pixelSize, difficulty) {
+	function getRandomIntIncExc(min,max) {//MIN inclusive and MAX exclusive
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		return Math.floor(Math.random() * (max - min) + min); 
+	}
+
+	function setDifficulty(pixelSize,difficulty) {
 		var from = 0,
 			to = 0;
 
@@ -361,12 +367,11 @@ $(document).ready(function(){
 		return {from,to};
 	}
 
-	function initTimingStuff(gameSpeed, started) {
+	function initTimingStuff(gameSpeed,started) {
 		var	startMoment = Date.now();
 
 		interval = setInterval(function() {
 			difficulty = $body.attr('data-diff');
-			console.log(score)
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
