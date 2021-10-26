@@ -201,7 +201,7 @@ $(document).ready(function(){
 	//CONTROL PLAYER
 	function fire() {
 		if ($('fire-pixel').length < 2) {
-			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/grass.svg"/></fire-pixel>'),
+			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
 				playerPixel = $('player-pixel'),
 				playerCurrentPixelID = playerPixel.parent().attr('id'),
 				playerCurrentRow = playerPixel.parents('screen-row'),

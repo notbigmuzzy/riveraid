@@ -1,47 +1,106 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 489 489" style="enable-background:new 0 0 489 489;" xml:space="preserve">
-<g>
-	<g>
-		<path d="M468.2,69.25c11.4,0,20.8-9.4,20.8-20.8s-9.4-20.8-20.8-20.8l-298.6,1c-11.4,0-20.8,9.4-20.8,20.8s9.4,20.8,20.8,20.8
-			l128.1-0.4l0.6,56.6H186.2c-11.4,0-20.8,9.4-20.8,20.8v83.3H41.6v-24c0-11.4-9.4-20.8-20.8-20.8S0,195.15,0,206.55v89.5
-			c0,11.4,9.4,20.8,20.8,20.8c10.4,0,19.8-9.4,20.8-19.8v-25h123.8v83.2c0,11.4,9.4,20.8,20.8,20.8h30.2v43.7h-22.9
-			c-11.4,0-20.8,9.4-20.8,20.8s9.4,20.8,20.8,20.8h249.7c11.4,0,20.8-9.4,20.8-20.8s-9.4-20.8-20.8-20.8h-22.9v-43.7h31.2
-			c11.4,0,19.8-9.4,19.8-21.8v-73.9c0-78-57.4-142-132.3-152.5l-0.6-58.3L468.2,69.25z M378.7,419.85H258v-43.7h120.7V419.85z
-			 M430.7,281.45v54.1H206v-167.5h111.3C379.7,168.05,430.7,219.05,430.7,281.45z"/>
-		<polygon points="308,209.65 308,251.35 265.3,251.35 265.3,272.15 309,272.15 309,314.75 327.7,314.75 327.7,272.15 370.4,272.15 
-			370.4,251.35 327.7,251.35 327.7,209.65 		"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 489 489"
+   style="enable-background:new 0 0 489 489;"
+   xml:space="preserve"
+   sodipodi:docname="chopper.svg"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"><metadata
+   id="metadata275"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+   id="defs273" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1360"
+   inkscape:window-height="901"
+   id="namedview271"
+   showgrid="false"
+   inkscape:zoom="1.4948875"
+   inkscape:cx="244.5"
+   inkscape:cy="241.15527"
+   inkscape:window-x="0"
+   inkscape:window-y="24"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="Layer_1" />
+<g
+   id="g238"
+   style="fill:#800080">
+	<g
+   id="g236"
+   style="fill:#800080">
+		<path
+   d="M468.2,69.25c11.4,0,20.8-9.4,20.8-20.8s-9.4-20.8-20.8-20.8l-298.6,1c-11.4,0-20.8,9.4-20.8,20.8s9.4,20.8,20.8,20.8    l128.1-0.4l0.6,56.6H186.2c-11.4,0-20.8,9.4-20.8,20.8v83.3H41.6v-24c0-11.4-9.4-20.8-20.8-20.8S0,195.15,0,206.55v89.5    c0,11.4,9.4,20.8,20.8,20.8c10.4,0,19.8-9.4,20.8-19.8v-25h123.8v83.2c0,11.4,9.4,20.8,20.8,20.8h30.2v43.7h-22.9    c-11.4,0-20.8,9.4-20.8,20.8s9.4,20.8,20.8,20.8h249.7c11.4,0,20.8-9.4,20.8-20.8s-9.4-20.8-20.8-20.8h-22.9v-43.7h31.2    c11.4,0,19.8-9.4,19.8-21.8v-73.9c0-78-57.4-142-132.3-152.5l-0.6-58.3L468.2,69.25z M378.7,419.85H258v-43.7h120.7V419.85z     M430.7,281.45v54.1H206v-167.5h111.3C379.7,168.05,430.7,219.05,430.7,281.45z"
+   id="path232"
+   style="fill:#800080" />
+		<polygon
+   points="308,209.65 308,251.35 265.3,251.35 265.3,272.15 309,272.15 309,314.75 327.7,314.75 327.7,272.15 370.4,272.15     370.4,251.35 327.7,251.35 327.7,209.65   "
+   id="polygon234"
+   style="fill:#800080" />
 	</g>
 </g>
-<g>
+<g
+   id="g240">
 </g>
-<g>
+<g
+   id="g242">
 </g>
-<g>
+<g
+   id="g244">
 </g>
-<g>
+<g
+   id="g246">
 </g>
-<g>
+<g
+   id="g248">
 </g>
-<g>
+<g
+   id="g250">
 </g>
-<g>
+<g
+   id="g252">
 </g>
-<g>
+<g
+   id="g254">
 </g>
-<g>
+<g
+   id="g256">
 </g>
-<g>
+<g
+   id="g258">
 </g>
-<g>
+<g
+   id="g260">
 </g>
-<g>
+<g
+   id="g262">
 </g>
-<g>
+<g
+   id="g264">
 </g>
-<g>
+<g
+   id="g266">
 </g>
-<g>
+<g
+   id="g268">
 </g>
-</svg>
+<path
+   style="fill:#ff00ff;stroke-width:0.668947"
+   d="m 206.37004,251.85841 v -83.61833 h 57.55578 c 58.80867,0 64.67322,0.20591 76.74095,2.6944 38.83945,8.0091 71.57003,37.48831 84.05932,75.7091 5.01167,15.33715 5.71486,22.64786 5.72949,59.56675 l 0.0116,29.26641 H 318.4186 206.37004 Z m 121.59045,41.97641 0.17663,-21.23906 h 21.3969 21.3969 v -10.70315 -10.70314 h -21.4063 -21.40629 v -21.08925 -21.08924 l -10.20144,0.18466 -10.20143,0.18466 -0.17677,20.90458 -0.17676,20.90459 h -21.0623 -21.06228 v 10.70314 10.70315 h 21.74076 21.74077 v 20.96033 c 0,11.52818 0.2088,21.16913 0.464,21.42432 0.2552,0.25521 4.54482,0.38063 9.53249,0.27873 l 9.06849,-0.18527 z"
+   id="path277" /></svg>
