@@ -5,12 +5,12 @@ $(document).ready(function(){
 		screenWidth = $body.attr('data-width'),
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
-		difficulty = $body.attr('data-diff'),
+		playWidth = $body.attr('data-playwidth'),
 		gameScreen = $('game-screen'),
 		gameSpeed = $body.attr('data-spid');
 		score = 0;
 	setupGamingScreen(screenWidth,screenHeight,gameScreen)
-	philScreen(screenWidth,screenHeight,pixelSize,difficulty,gameScreen);
+	philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
 	setupPlayer();
 
 	//GENERATE SCREEN
@@ -40,16 +40,16 @@ $(document).ready(function(){
 		} else if (pixelType == 'enemy-chopper') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" class="chopper"></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-baloon') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="baloon"></enemy-pixel></river-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" data-move="no" class="baloon"></enemy-pixel></river-pixel>';
 		}
 
 		thisRow.append(whichPixel)
 	}
 
-	function philRow(numberOfPixelsW,rowIndex,pixelSize,difficulty,gameScreen) {
+	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen) {
 		gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
 		var thisRow = $('#row' + rowIndex),
-			getDiff = setDifficulty(pixelSize,difficulty);
+			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
 			leftGrass = Math.floor(howMuchGrass / 2),
 			leftGrassStart = 0,
@@ -59,20 +59,16 @@ $(document).ready(function(){
 			rightGrassStart = riverStart + riverWidth,
 			willRowContainForest = getRandomIntIncInc(0,2),
 			willContaintMountain = getRandomIntIncInc(0,8);
-		switch (difficulty) {
-		case "journo":
-			var	willRowContainEnemy = getRandomIntIncExc(0,2),
-				willRowContainEnemyControl = getRandomIntIncExc(0,2);
-			break;
-		case "easy":
-			var	willRowContainEnemy = getRandomIntIncExc(0,2),
-				willRowContainEnemyControl = getRandomIntIncExc(0,2);
+		switch (playWidth) {
+		case "wide":
+			var	willRowContainEnemy = getRandomIntIncExc(0,1000),
+				willRowContainEnemyControl = getRandomIntIncExc(0,10000);
 			break;
 		case "normal":
 			var	willRowContainEnemy = getRandomIntIncExc(0,3),
 				willRowContainEnemyControl = getRandomIntIncExc(0,3);
 			break;
-		case "hard":
+		case "narrow":
 			var	willRowContainEnemy = getRandomIntIncExc(0,4),
 				willRowContainEnemyControl = getRandomIntIncExc(0,4);
 			break;
@@ -152,12 +148,12 @@ $(document).ready(function(){
 		}
 	}
 
-	function philScreen(screenWidth,screenHeight,pixelSize,difficulty,gameScreen) {
+	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen) {
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize;
 
 		for (let rowIndex = 0; rowIndex < numberOfPixelsH; rowIndex++) {
-			philRow(numberOfPixelsW, rowIndex, pixelSize,difficulty,gameScreen)
+			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,gameScreen)
 		}
 	}
 
@@ -168,7 +164,7 @@ $(document).ready(function(){
 			numberOfPixelsH = screenHeight / pixelSize,
 			rowIndex = numberOfPixelsH + Number(timeDiff);
 
-		philRow(numberOfPixelsW,rowIndex,pixelSize,difficulty,gameScreen)
+		philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen)
 	}
 
 	function sanitizeRowsAfterScroll() {
@@ -302,6 +298,58 @@ $(document).ready(function(){
 		})
 	}
 
+	function moveBaloon () {
+		var baloons = $('.baloon').not('.zeds-dead');
+
+		baloons.each(function() {
+			var thisBaloon = $(this),
+				thisBaloonDirection = thisBaloon.data('direction'),
+				thisBaloonShouldMove = thisBaloon.data('move'),
+				thisCurrentPixelID = thisBaloon.parent().attr('id'),
+				thisCurrentIDNum = thisCurrentPixelID.substring(5)
+				thisCurrentRow = thisBaloon.parents('screen-row'),
+				thisLeftPixel = thisCurrentRow.find('#pixel' + (Number(thisCurrentIDNum) - 1)),
+				thisRightPixel = thisCurrentRow.find('#pixel' + (Number(thisCurrentIDNum) + 1)),
+				clearToGoLeft = thisLeftPixel.is('river-pixel') && thisLeftPixel.find('enemy-pixel').not('.zeds-dead').length == 0,
+				clearToGoRight = thisRightPixel.is('river-pixel') && thisRightPixel.find('enemy-pixel').not('.zeds-dead').length == 0;
+
+			switch (thisBaloonDirection) {
+			case '0-direction':
+				if (thisBaloonShouldMove == 'no') {
+					thisBaloon.data('move', 'yes')
+				} else {
+					if (clearToGoLeft) {
+						stearLeft(thisBaloon)
+						thisBaloon.data('move', 'no')
+						break;
+					} else {
+						stearRight(thisBaloon)
+						thisBaloon.data('direction','1-direction')
+						thisBaloon.data('move', 'no')
+						break;
+					}
+				}
+			case '1-direction':
+
+				if (thisBaloonShouldMove == 'no') {
+					thisBaloon.data('move', 'yes')
+				} else {
+					if (clearToGoRight) {
+						stearRight(thisBaloon)
+						thisBaloon.data('move', 'no')
+						break;
+					} else {
+						stearLeft(thisBaloon)
+						thisBaloon.data('direction','0-direction')
+						thisBaloon.data('move', 'no')
+						break;
+					}
+				}
+			}
+		})
+	}
+
+
 	//COLLISION DETECTION
 	function playerCrashCheck(interval) {
 		var playerPixel = $('player-pixel'),
@@ -385,12 +433,12 @@ $(document).ready(function(){
 		return Math.floor(Math.random() * (max - min) + min); 
 	}
 
-	function setDifficulty(pixelSize,difficulty) {
+	function setplayWidth(pixelSize,playWidth) {
 		var from = 0,
 			to = 0;
 
-		switch(difficulty) {
-			case "hard":
+		switch(playWidth) {
+			case "narrow":
 				from = Math.ceil(pixelSize / 1.25);
 				to = from + 3;
 				break;
@@ -398,13 +446,9 @@ $(document).ready(function(){
 				from = Math.ceil(pixelSize / 1.75);
 				to = from + 4;
 				break;
-			case "easy":
+			case "wide":
 				from = Math.ceil(pixelSize / 2.5);
 				to = from + 5;
-				break;
-			case "journo":
-				from = Math.ceil(pixelSize / 5);
-				to = from + 3;
 				break;
 			default:
 				from = Math.ceil(pixelSize / 1.75);
@@ -419,13 +463,14 @@ $(document).ready(function(){
 		var	startMoment = Date.now();
 
 		interval = setInterval(function() {
-			difficulty = $body.attr('data-diff');
+			playWidth = $body.attr('data-playwidth');
 			
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
 			//ENEMY AI
 			moveChoppers();
+			moveBaloon();
 			// //SCROLL PLAYER
 			scrollPlayer();
 			playerCrashCheck(interval);
