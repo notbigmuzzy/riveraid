@@ -200,7 +200,7 @@ $(document).ready(function(){
 
 	//CONTROL PLAYER
 	function fire() {
-		if ($('fire-pixel').length < 2) {
+		if ($('fire-pixel').length < 3) {
 			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
 				playerPixel = $('player-pixel'),
 				playerCurrentPixelID = playerPixel.parent().attr('id'),
@@ -281,20 +281,24 @@ $(document).ready(function(){
 			switch (thisChopperDirection) {
 			case '0-direction':
 				if ( clearToGoLeft ) {
-					stearLeft(thisChopper)
+					thisChopper.css('transform','scaleX(-1)');
+					stearLeft(thisChopper);
 					break;
 				} else {
-					stearRight(thisChopper)
-					thisChopper.data('direction','1-direction')
+					thisChopper.css('transform','scaleX(1)');
+					stearRight(thisChopper);
+					thisChopper.data('direction','1-direction');
 					break;
 				}
 			case '1-direction':
 				if ( clearToGoRight ) {
-					stearRight(thisChopper)
+					thisChopper.css('transform','scaleX(1)');
+					stearRight(thisChopper);
 					break;
 				} else {
-					stearLeft(thisChopper)
-					thisChopper.data('direction','0-direction')
+					thisChopper.css('transform','scaleX(-1)');
+					stearLeft(thisChopper);
+					thisChopper.data('direction','0-direction');
 					break;
 				}
 			}
@@ -351,7 +355,6 @@ $(document).ready(function(){
 			}
 		})
 	}
-
 
 	//COLLISION DETECTION
 	function playerCrashCheck(interval) {
@@ -447,11 +450,11 @@ $(document).ready(function(){
 				break;
 			case "normal":
 				from = Math.ceil(pixelSize / 1.8);
-				to = from + 4;
+				to = from + 5;
 				break;
 			case "wide":
 				from = Math.ceil(pixelSize / 3.5);
-				to = from + 5;
+				to = from + 7;
 				break;
 			default:
 				from = Math.ceil(pixelSize / 1.75);
