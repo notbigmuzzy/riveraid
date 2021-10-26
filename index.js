@@ -195,7 +195,7 @@ $(document).ready(function(){
 			middlePixel = 15,
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
-		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><i class="body"></i><i class="wings"></i></player-pixel>')
+		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/airplane.svg"/></player-pixel>')
 	}
 
 	//CONTROL PLAYER
