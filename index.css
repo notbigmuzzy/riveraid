@@ -40,6 +40,7 @@ game-stats {
 	height: 128px;
 	background-color: #888888;
 }
+
 game-label {
 	display: flex;
 	flex-direction: column;
@@ -212,40 +213,30 @@ enemy-pixel.baloon img {
 }
 
 enemy-pixel.zeds-dead {
-	background-color: #7367c8;
+	background-image: url("graphics/destroyed.svg");
+	background-position: center;
+	background-size: contain;
 	position: absolute;
+	opacity: 0.25;
 }
 
 enemy-pixel.zeds-dead img {
 	display: none;
 }
 
-enemy-pixel.zeds-dead:after {
-	content: "";
-	position: absolute;
-	bottom: 14px;
-	left: 4px;
-	right: 0;
-	border-top: 0;
-	border-left: 0;
-	border-right: 0;
-	height: 8px;
-	width: 16px;
-	background: #ccc;
-	border-radius: 6px;
+
+.bubbles screen-row:nth-child(n+11) {
+	opacity: 0.5;
 }
 
-enemy-pixel.zeds-dead:before {
-	content: "";
-	position: absolute;
-	bottom: 4px;
-	left: 13px;
-	right: 0;
-	border-top: 0;
-	border-left: 0;
-	border-right: 0;
-	height: 8px;
-	width: 16px;
-	background: #333;
-	border-radius: 6px;
+.bubbles screen-row:nth-child(n+14) {
+	opacity: 0.25;
+}
+
+.bubbles screen-row:nth-child(n+17) {
+	opacity: 0.1;
+}
+
+.bubbles screen-row:nth-child(n+19) {
+	opacity: 0.05;
 }

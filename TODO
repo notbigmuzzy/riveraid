@@ -10,7 +10,10 @@ TODO:
 4) Persistant score
 5) Start screen / Death screen
 6) Mutators
-
+	- default
+	- sepia ( no bullet )
+	- no top half screen
+	- no left/right half screen
 ...
 
 99 ) Sound
