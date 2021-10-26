@@ -21,14 +21,15 @@ $(document).ready(function(){
 	//ROW OF PIXELS PHILES IT
 	function generatePixel(thisRow,pixelIndex,pixelSize,pixelType) {
 		var whichPixel = '';
-			enemyDirection = getRandomIntIncInc(0,1);
+			enemyDirection = getRandomIntIncInc(0,1),
+			whichGraph = getRandomIntIncInc(1,3);
 
 		if (pixelType == 'grass') {
 			whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
 		} else if (pixelType == 'forest') {
-			whichPixel = '<forest-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><i></i><i></i><i></i><i></i></forest-pixel>';
+			whichPixel = '<forest-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/forest-' + whichGraph + '.svg" /></forest-pixel>';
 		} else if (pixelType == 'mountain') {
-			whichPixel = '<mountain-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></mountain-pixel>';
+			whichPixel = '<mountain-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/mountain-' + whichGraph + '.svg" /></mountain-pixel>';
 		} else if (pixelType == 'river') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
 		} else if (pixelType == 'coastleft') {
@@ -36,11 +37,11 @@ $(document).ready(function(){
 		} else if (pixelType == 'coastright') {
 			whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
 		} else if (pixelType == 'enemy-boat') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="boat"></enemy-pixel></river-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="boat"><img src="graphics/boat.svg" /></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-chopper') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" class="chopper"></enemy-pixel></river-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" class="chopper"><img src="graphics/chopper.svg" /></enemy-pixel></river-pixel>';
 		} else if (pixelType == 'enemy-baloon') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" data-move="no" class="baloon"></enemy-pixel></river-pixel>';
+			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" data-move="no" class="baloon"><img src="graphics/ballon.svg" /></enemy-pixel></river-pixel>';
 		}
 
 		thisRow.append(whichPixel)
@@ -57,12 +58,14 @@ $(document).ready(function(){
 			riverStart = leftGrassStart + leftGrass,
 			rightGrass = howMuchGrass - leftGrass,
 			rightGrassStart = riverStart + riverWidth,
-			willRowContainForest = getRandomIntIncInc(0,2),
-			willContaintMountain = getRandomIntIncInc(0,8);
+			willRowContainForest = getRandomIntIncInc(0,1),
+			willRowContainForestControl = getRandomIntIncInc(0,1),
+			willContaintMountain = getRandomIntIncInc(0,5),
+			willContaintMountainControl = getRandomIntIncInc(0,5);
 		switch (playWidth) {
 		case "wide":
-			var	willRowContainEnemy = getRandomIntIncExc(0,1000),
-				willRowContainEnemyControl = getRandomIntIncExc(0,10000);
+			var	willRowContainEnemy = getRandomIntIncExc(0,2),
+				willRowContainEnemyControl = getRandomIntIncExc(0,2);
 			break;
 		case "normal":
 			var	willRowContainEnemy = getRandomIntIncExc(0,3),
@@ -77,13 +80,13 @@ $(document).ready(function(){
 		for (let j = 0; j < numberOfPixelsW; j++) {
 			switch (true) {
 				case (j >= leftGrassStart && j < riverStart):
-					if (willRowContainForest == getRandomIntIncInc(0,2) && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
+					if (willRowContainForest == willRowContainForestControl && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'forest');
 						} else {
 							generatePixel(thisRow, j, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == getRandomIntIncInc(0,8) && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
+					} else if (willContaintMountain == willContaintMountainControl && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
 						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
 							generatePixel(thisRow, j, pixelSize, 'mountain');
 						} else {
@@ -198,7 +201,7 @@ $(document).ready(function(){
 	//CONTROL PLAYER
 	function fire() {
 		if ($('fire-pixel').length < 2) {
-			var firePixel = $('<fire-pixel id="' + Date.now() + '"></fire-pixel>'),
+			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/grass.svg"/></fire-pixel>'),
 				playerPixel = $('player-pixel'),
 				playerCurrentPixelID = playerPixel.parent().attr('id'),
 				playerCurrentRow = playerPixel.parents('screen-row'),
@@ -439,15 +442,15 @@ $(document).ready(function(){
 
 		switch(playWidth) {
 			case "narrow":
-				from = Math.ceil(pixelSize / 1.25);
+				from = Math.floor(pixelSize / 1.3);
 				to = from + 3;
 				break;
 			case "normal":
-				from = Math.ceil(pixelSize / 1.75);
+				from = Math.ceil(pixelSize / 1.8);
 				to = from + 4;
 				break;
 			case "wide":
-				from = Math.ceil(pixelSize / 2.5);
+				from = Math.ceil(pixelSize / 3.5);
 				to = from + 5;
 				break;
 			default:

@@ -111,104 +111,22 @@ grass-pixel {
 }
 
 forest-pixel {
-	display: flex;
-	flex-direction: row;
-	background-color: #5d943c;
 	position: relative;
-	justify-content: center;
+	background-color: #5d943c;
 }
 
-forest-pixel:before {
-	content: '';
-	display: block;
-	width: 8px;
-	height: 85%;
-	background-color: #193607;
-	margin-left: 6px;
-	margin-right: 1px;
-}
-
-forest-pixel:after {
-	content: '';
-	display: block;
-	width: 8px;
-	height: 100%;
-	background-color: #193607;
-}
-
-forest-pixel i:nth-child(1) {
-	display: block;
-	position: absolute;
-	top: -5px;
-	left: -5px;
-	height: 20px;
-	width: 20px;
-	background-color: #274c11;
-	border-radius: 30% 70% 47% 53% / 30% 52% 48% 70%;
-}
-
-forest-pixel i:nth-child(2) {
-	display: block;
-	position: absolute;
-	top: -15px;
-	left: 5px;
-	height: 20px;
-	width: 20px;
-	background-color: #274c11;
-	border-radius: 36% 64% 100% 0% / 30% 100% 0% 70%;
-}
-
-forest-pixel i:nth-child(3) {
-	display: block;
-	position: absolute;
-	top: -15px;
-	left: 13px;
-	height: 20px;
-	width: 20px;
-	background-color: #274c11;
-	border-radius: 58% 42% 91% 9% / 67% 77% 23% 33%;
-}
-
-forest-pixel i:nth-child(4) {
-	display: block;
-	position: absolute;
-	top: -5px;
-	left: 23px;
-	height: 20px;
-	width: 20px;
-	background-color: #274c11;
-	border-radius: 83% 17% 54% 46% / 43% 44% 56% 57%;
+forest-pixel img {
+	transform: scale(1.5);
 }
 
 mountain-pixel {
 	position: relative;
-	display: flex;
-	flex-direction: row-reverse;
-	background-color: #68a940;
+	background-color: #7abfc7;
 }
 
-mountain-pixel:before {
-	content: "";
-	display: block;
-	position: absolute;
-	width: 0; 
-	height: 0; 
-	border-left: 24px solid transparent;
-	border-right: 10px solid transparent;
-	border-bottom: 32px solid #7abfc7;
-	z-index: 1;
-}
-
-mountain-pixel:after {
-	content: "";
-	display: block;
-	position: absolute;
-	margin-right: -10px;
-	width: 0;
-	height: 0;
-	border-left: 10px solid transparent;
-	border-right: 19px solid transparent;
-	border-bottom: 32px solid #72a2ec;
+mountain-pixel img {
+	transform: scale(1.75);
+	margin-top: -25%;
 }
 
 coast-pixel {
@@ -271,19 +189,16 @@ player-pixel .body {
 }
 
 fire-pixel {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	height: 100%;
+	display: block;
+	position: relative;
+	background-color: #dedf38;
+	width: 32px;
+	height: 32px;
 }
 
-fire-pixel:before {
-	content: "";
-	display: block;
-	width: 6px;
-	height: 6px;
-	background-color: #dedf38;
+fire-pixel img {
+	width: 100%;
+	height: auto;
 }
 
 enemy-pixel {
@@ -294,73 +209,46 @@ enemy-pixel {
 	background-color: #7c6fdb;
 }
 
-enemy-pixel.boat:before {
-	content: "";
-	position: absolute;
-	bottom: 4px;
-	left: 0;
-	right: 0;
-	border-top: 12px solid #d71818;
-	border-left: 12px solid transparent;
-	border-right: 12px solid transparent;
+enemy-pixel.boat {
+	position: relative;
+	background-color: #d71818;
 }
 
-enemy-pixel.boat:after {
-    content: "";
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 10px;
-    height: 50%;
-    background-color: #d71818;
-}
-
-enemy-pixel.chopper:before {
-	content: "";
+enemy-pixel.boat img {
 	width: 100%;
-	height: 5px;
-	background-color: #9c27b0;
-	display: block;
+	height: auto;
+	filter: invert(1);
 }
 
-enemy-pixel.chopper:after {
-	content: "";
-	position: absolute;
-	width: 16px;
-	top: 4px;
-	height: 16px;
+enemy-pixel.chopper {
+	position: relative;
 	background-color: #9c27b0;
-	display: block;
-	left: 4px;
+}
+
+enemy-pixel.chopper img {
+	width: 100%;
+	height: auto;
+	filter: invert(1);
 }
 
 enemy-pixel.baloon {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+	position: relative;
+	background-color: #673ab7;
 }
 
-enemy-pixel.baloon:before {
-	content: "";
-	width: 22px;
-	height: 22px;
-	background-color: #673ab7;
-	display: block;
-	border-radius: 8px;
-}
-
-enemy-pixel.baloon:after {
-	content: "";
-	width: 8px;
-	height: 8px;
-	background-color: #673ab7;
-	display: block;
-	border-radius: 8px;
+enemy-pixel.baloon img {
+	width: 100%;
+	height: auto;
+	filter: invert(1);
 }
 
 enemy-pixel.zeds-dead {
 	background-color: #7367c8;
 	position: absolute;
+}
+
+enemy-pixel.zeds-dead img {
+	display: none;
 }
 
 enemy-pixel.zeds-dead:after {
