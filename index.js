@@ -1,21 +1,53 @@
 $(document).ready(function(){
 
-	//START GAME
+	//SET DEFAULT VALUES FOR PERSISTENCY
+	localStorage.getItem('RUN') != null ? "" : localStorage.setItem('RUN','1');
+	localStorage.getItem('BRIDGE') != null ? "" : localStorage.setItem('BRIDGE','0');
+	localStorage.getItem('PILOT') != null ? "" : localStorage.setItem('PILOT','Bob');
+
+	//SET GLOBAL VARS
 	var $body = $('body'),interval,
 		screenWidth = $body.attr('data-width'),
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
 		playWidth = $body.attr('data-playwidth'),
-		gameScreen = $('game-screen'),
+		$gameScreen = $('game-screen'),
 		gameSpeed = $body.attr('data-spid');
-		score = 0;
-	setupGamingScreen(screenWidth,screenHeight,gameScreen)
-	philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
-	setupPlayer();
+		gameScore = 0,
+		storageCurrentRun = localStorage.getItem('RUN'),
+		storageTotalBridge = localStorage.getItem('BRIDGE'),
+		storageLastPilot = localStorage.getItem('PILOT');
+
+	//SETUP GAME
+	setupBottomStatsScreen();
+	switch(storageCurrentRun) {
+	case '1':
+		showSelectPilotScreen($gameScreen,'start');
+		break;
+	default:
+		setupGamingScreen(screenWidth,screenHeight,$gameScreen)
+		philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen);
+		setupPlayer();
+		initTimingStuff(gameSpeed)
+		$body.attr('data-gamestarted','yes');
+		break;
+	}
+
+	//MUTATORS
 
 	//GENERATE SCREEN
-	function setupGamingScreen(screenWidth,screenHeight,gameScreen) {
-		gameScreen.css('width',screenWidth).css('height',screenHeight)
+	function setupGamingScreen(screenWidth,screenHeight,$gameScreen) {
+		$gameScreen.css('width',screenWidth).css('height',screenHeight)
+	}
+
+	function setupBottomStatsScreen() {
+		storageCurrentRun = localStorage.getItem('RUN'),
+		storageTotalBridge = localStorage.getItem('BRIDGE'),
+		storageLastPilot = localStorage.getItem('PILOT');
+
+		$('#score-bridge').html(storageTotalBridge)
+		$('#score-pilot').html(storageLastPilot)
+		$('#score-run').html(storageCurrentRun)
 	}
 
 	//ROW OF PIXELS PHILES IT
@@ -47,8 +79,8 @@ $(document).ready(function(){
 		thisRow.append(whichPixel)
 	}
 
-	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen) {
-		gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
+	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,$gameScreen) {
+		$gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
@@ -151,12 +183,12 @@ $(document).ready(function(){
 		}
 	}
 
-	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen) {
+	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen) {
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize;
 
 		for (let rowIndex = 0; rowIndex < numberOfPixelsH; rowIndex++) {
-			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,gameScreen)
+			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,$gameScreen)
 		}
 	}
 
@@ -167,7 +199,7 @@ $(document).ready(function(){
 			numberOfPixelsH = screenHeight / pixelSize,
 			rowIndex = numberOfPixelsH + Number(timeDiff);
 
-		philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen)
+		philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,$gameScreen)
 	}
 
 	function sanitizeRowsAfterScroll() {
@@ -196,6 +228,24 @@ $(document).ready(function(){
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
 		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/airplane.svg"/></player-pixel>')
+	}
+
+	function showSelectPilotScreen($gameScreen,screenState) {
+		$('pilot-choose').remove()
+		$gameScreen.append("<pilot-choose><session-title></session-title><pilot-chooser></pilot-chooser></pilot-choose>")
+
+		switch(screenState) {
+		case "start":
+			$('session-title').append("<h1>River Rogue | Legacy Raid</h2>")
+			$('pilot-chooser').append("<div><a href='#' data-pilotname='Bob' id='first-start'>Bob</a></div>")
+			$('pilot-chooser a').focus();
+			break;
+		case "end":
+			$('session-title').append("<h1>Choose your new pilot</h2>")
+			$('pilot-chooser').append("<div><a href='#' class='pick-a-pilot' data-pilotname='Bob'><img src='graphics/airplane.svg'/><span>Bob</span></a><a href='#'class='pick-a-pilot' data-pilotname='Dave'><img src='graphics/chopper.svg'/><span>Dave</span></a><a href='#' class='pick-a-pilot' data-pilotname='Caren'><img src='graphics/forest-1.svg'/><span>Caren</span></a></div><br/><span>OR</span><br/><a href='#' id='restart-game'>Restart Game</a>")
+			$('pilot-chooser a').first().next().focus();
+			break;
+		}
 	}
 
 	//CONTROL PLAYER
@@ -230,7 +280,7 @@ $(document).ready(function(){
 					eachFirePixel.remove();	
 				}
 				hitEnemy.addClass('zeds-dead');
-				updateScore();
+				updategameScore();
 			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
 			}
@@ -366,65 +416,24 @@ $(document).ready(function(){
 			return;
 		} else if (!containingPixel.length || containingPixelHasEnemy.length) {
 			gameEnded(interval);
-			crashMessage();
 		}
 	}
 
-	//SCORE
-	function updateScore() {
-		score = score + 100;
-		$('#score-label').html(score)
-		return score;
+	//GAME SCORE
+	function updategameScore() {
+		gameScore = gameScore + 100;
+		$('#score-label').html(gameScore)
+		return gameScore;
 	}
 
 	//GAMEND
 	function gameEnded(interval) {
+		localStorage.setItem('RUN', Number(storageCurrentRun) + 1);
 		clearInterval(interval);
 		interval = null;
-		$('game-screen').css('opacity','0.25');
 		$body.attr('data-gameended','yes');
+		showSelectPilotScreen($gameScreen,'end');
 	}
-
-	function crashMessage() {
-		$('body').addClass('end-message crashed')
-	}
-
-	//KEYBOARD CONTROLS
-	document.addEventListener('keyup', function(e) {
-		var isStarted = $body.attr('data-gamestarted'),
-			isEnded = $body.attr('data-gameended');
-		switch (event.keyCode) {
-		case 32: //SPACEBAR
-			e.preventDefault();
-			if (isStarted == "no" && isEnded == "no") {
-				initTimingStuff(gameSpeed)
-				$body.attr('data-gamestarted','yes');
-			} else if (isStarted == "yes" && isEnded == "no") {
-				fire();
-			}
-			break;
-		case 37: // LEFT ARROW
-			e.preventDefault();
-			if (isStarted == "yes" && isEnded == "no") {
-				var playerPixel = $('player-pixel');
-				stearLeft(playerPixel);
-			}
-			break;
-		case 39: // RIGHT ARROW
-			e.preventDefault();
-			if (isStarted == "yes" && isEnded == "no") {
-				var playerPixel = $('player-pixel');
-				stearRight(playerPixel);
-			}
-			break;
-		case 13: //ENTER AFTER END TO START NEW
-			e.preventDefault()
-			if (isStarted == "yes" && isEnded == "yes") {
-				location.reload();
-			}
-			break;
-		}
-	});
 
 	//HELPER FUNCT
 	function getRandomIntIncInc(min,max) {//MIN and MAX inclusive
@@ -484,7 +493,63 @@ $(document).ready(function(){
 			scrollFire();
 			scrollFire();
 			scrollFire();
-			scrollFire();
 		}, gameSpeed);
 	}
+
+	//KEYBOARD CONTROLS
+	document.addEventListener('keyup', function(e) {
+		var isStarted = $body.attr('data-gamestarted'),
+			isEnded = $body.attr('data-gameended');
+		switch (event.keyCode) {
+		case 32: //SPACEBAR
+			e.preventDefault();
+			fire();
+			break;
+		case 37: // LEFT ARROW
+			e.preventDefault();
+			if (isStarted == "yes" && isEnded == "no") {
+				var playerPixel = $('player-pixel');
+				stearLeft(playerPixel);
+			}
+			break;
+		case 39: // RIGHT ARROW
+			e.preventDefault();
+			if (isStarted == "yes" && isEnded == "no") {
+				var playerPixel = $('player-pixel');
+				stearRight(playerPixel);
+			}
+			break;
+		}
+	});
+
+
+	//CLICK ON PILOT CHOOSER ACTIONS
+	$(document).on('click','pilot-chooser #first-start', function(e) {
+		$('pilot-choose').remove();
+		setupGamingScreen(screenWidth,screenHeight,$gameScreen)
+		philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen);
+		setupPlayer();
+		initTimingStuff(gameSpeed)
+		$body.attr('data-gamestarted','yes');
+	})
+
+	$(document).on('click','pilot-chooser .pick-a-pilot', function(e) {
+		e.preventDefault()
+		var isStarted = $body.attr('data-gamestarted'),
+			isEnded = $body.attr('data-gameended');
+		
+		if (isStarted == "yes" && isEnded == "yes") {
+			var thisPilot = $(this).attr('data-pilotname');
+			localStorage.setItem('PILOT',thisPilot);
+			location.reload();
+		}
+	})
+
+	$(document).on('click','pilot-chooser #restart-game', function(e) {
+		e.preventDefault()
+		localStorage.setItem('RUN','1');
+		localStorage.setItem('BRIDGE','0');
+		localStorage.setItem('PILOT','Bob');
+		location.reload();
+	})
 });

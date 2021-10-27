@@ -4,16 +4,23 @@ TODO:
 2) Clean starting position
 3) River meandering
 4) Wide river islands
+5) Fuel mechanic
 
 ...
 
 4) Persistant score
 5) Start screen / Death screen
 6) Mutators
-	- default
-	- sepia ( no bullet )
-	- no top half screen
-	- no left/right half screen
+	- Bob			- Default
+	- Vinston 		- sepia ( no bullet )
+	- Betty			- no top half screen
+	- Jack(one eyed)- no left/right half screen
+	- New guy 		- one bullet on screen
+	- Rosanna		- dark map / night mode
+	- Phil 			- random controls, random bullets ++
+	- Speed king	- fast
+	- Contrarian	- top-bottom, left-right
+
 ...
 
 99 ) Sound
