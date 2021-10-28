@@ -33,8 +33,6 @@ $(document).ready(function(){
 		break;
 	}
 
-	//MUTATORS
-
 	//GENERATE SCREEN
 	function setupGamingScreen(screenWidth,screenHeight,$gameScreen) {
 		$gameScreen.css('width',screenWidth).css('height',screenHeight)
@@ -44,6 +42,8 @@ $(document).ready(function(){
 		storageCurrentRun = localStorage.getItem('RUN'),
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT');
+
+		$('game-stats').append('<game-label><span>Bridge</span><label id="score-bridge">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><label>River Rogue</label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
 
 		$('#score-bridge').html(storageTotalBridge)
 		$('#score-pilot').html(storageLastPilot)
@@ -207,7 +207,7 @@ $(document).ready(function(){
 
 		setTimeout(function() {
 			$('screen-row').first().remove();
-		},240)
+		},280)
 	}
 
 	function scrollPlayer() {
