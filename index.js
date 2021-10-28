@@ -16,9 +16,12 @@ $(document).ready(function(){
 		gameScore = 0,
 		storageCurrentRun = localStorage.getItem('RUN'),
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
-		storageLastPilot = localStorage.getItem('PILOT');
+		storageLastPilot = localStorage.getItem('PILOT'),
+		pilotNames = $('pilot-list').attr('data-pilotlist'),
+		listOfPilots = pilotNames.split(',');
 
 	//SETUP GAME
+	$body.addClass("pilot-" + storageLastPilot.toLowerCase())
 	setupBottomStatsScreen();
 	switch(storageCurrentRun) {
 	case '1':
@@ -231,20 +234,34 @@ $(document).ready(function(){
 	}
 
 	function showSelectPilotScreen($gameScreen,screenState) {
-		$('pilot-choose').remove()
-		$gameScreen.append("<pilot-choose><session-title></session-title><pilot-chooser></pilot-chooser></pilot-choose>")
+		$('body').attr('data-screenchoose','yes');
+		$('pilot-choose').remove();
+		$gameScreen.append("<pilot-choose><session-title></session-title><pilot-chooser></pilot-chooser></pilot-choose>");
 
 		switch(screenState) {
-		case "start":
-			$('session-title').append("<h1>River Rogue | Legacy Raid</h2>")
-			$('pilot-chooser').append("<div><a href='#' data-pilotname='Bob' id='first-start'>Bob</a></div>")
-			$('pilot-chooser a').focus();
-			break;
-		case "end":
-			$('session-title').append("<h1>Choose your new pilot</h2>")
-			$('pilot-chooser').append("<div><a href='#' class='pick-a-pilot' data-pilotname='Bob'><img src='graphics/airplane.svg'/><span>Bob</span></a><a href='#'class='pick-a-pilot' data-pilotname='Dave'><img src='graphics/chopper.svg'/><span>Dave</span></a><a href='#' class='pick-a-pilot' data-pilotname='Caren'><img src='graphics/forest-1.svg'/><span>Caren</span></a></div><br/><span>OR</span><br/><a href='#' id='restart-game'>Restart Game</a>")
-			$('pilot-chooser a').first().next().focus();
-			break;
+			case "start":
+				$('session-title').append("<h1>River Rogue <br> Legacy Raid</h2>")
+				$('pilot-choose').addClass('start-screen')
+				$('pilot-chooser').append("<div><a href='#' class='pick-a-pilot' data-pilotname='Bob' id='first-start'><img src='graphics/characters/Bob.svg'/><b>Bob</b><i>(New guy)</i></a></div>")
+				$('pilot-chooser a').focus().addClass('focused');
+				break;
+			case "end":
+				$('session-title').append("<h1>Choose your new pilot</h2>")
+				$('pilot-choose').addClass('end-screen')
+				var useMePilotNames = [];
+				while(useMePilotNames.length < 3){
+					var r = Math.floor(Math.random() * listOfPilots.length);
+					if(useMePilotNames.indexOf(r) === -1) useMePilotNames.push(r);
+				}
+				$('pilot-chooser').append("<div class='pilot-list'></div><br/><span>OR</span><br/><a href='#' id='restart-game'>Restart Game</a>")
+				$(useMePilotNames).each(function(i, name){
+					var thisPilot = listOfPilots[name],
+						thisPilotDescription = $('pilot-list').attr('data-' + thisPilot);
+
+					$('.pilot-list').append("<a href='#' class='pick-a-pilot' data-pilotname='" + thisPilot + "'><img src='graphics/characters/" + thisPilot + ".svg'/><b>" + thisPilot + "</b><i>(" + thisPilotDescription + ")</i>")
+				})
+				$('pilot-chooser a').first().next().focus().addClass('focused');
+				break;
 		}
 	}
 
@@ -496,35 +513,9 @@ $(document).ready(function(){
 		}, gameSpeed);
 	}
 
-	//KEYBOARD CONTROLS
-	document.addEventListener('keyup', function(e) {
-		var isStarted = $body.attr('data-gamestarted'),
-			isEnded = $body.attr('data-gameended');
-		switch (event.keyCode) {
-		case 32: //SPACEBAR
-			e.preventDefault();
-			fire();
-			break;
-		case 37: // LEFT ARROW
-			e.preventDefault();
-			if (isStarted == "yes" && isEnded == "no") {
-				var playerPixel = $('player-pixel');
-				stearLeft(playerPixel);
-			}
-			break;
-		case 39: // RIGHT ARROW
-			e.preventDefault();
-			if (isStarted == "yes" && isEnded == "no") {
-				var playerPixel = $('player-pixel');
-				stearRight(playerPixel);
-			}
-			break;
-		}
-	});
-
-
 	//CLICK ON PILOT CHOOSER ACTIONS
 	$(document).on('click','pilot-chooser #first-start', function(e) {
+		$('body').attr('data-screenchoose','no')
 		$('pilot-choose').remove();
 		setupGamingScreen(screenWidth,screenHeight,$gameScreen)
 		philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen);
@@ -552,4 +543,40 @@ $(document).ready(function(){
 		localStorage.setItem('PILOT','Bob');
 		location.reload();
 	})
+
+	//KEYBOARD CONTROLS
+	document.addEventListener('keyup', function(e) {
+		var isStarted = $body.attr('data-gamestarted'),
+			isEnded = $body.attr('data-gameended');
+		switch (event.keyCode) {
+		case 32: //SPACEBAR
+			e.preventDefault();
+			fire();
+			break;
+		case 37: // LEFT ARROW
+			e.preventDefault();
+			if (isStarted == 'yes' && isEnded == 'no') {
+				var playerPixel = $('player-pixel');
+				stearLeft(playerPixel);
+			}
+			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
+				if ($('.pick-a-pilot.focused').prev().length) {
+					$('.pick-a-pilot.focused').removeClass('focused').prev().addClass('focused').focus()		
+				}
+			}
+			break;
+		case 39: // RIGHT ARROW
+			e.preventDefault();
+			if (isStarted == 'yes' && isEnded == 'no') {
+				var playerPixel = $('player-pixel');
+				stearRight(playerPixel);
+			}
+			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
+				if ($('.pick-a-pilot.focused').next().length) {
+					$('.pick-a-pilot.focused').removeClass('focused').next().addClass('focused').focus()
+				}
+			}
+			break;
+		}
+	});
 });
