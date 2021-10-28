@@ -317,7 +317,6 @@ enemy-pixel.zeds-dead img {
 	display: none;
 }
 
-
 .bubbles screen-row:nth-child(n+11) {
 	opacity: 0.5;
 }
@@ -332,4 +331,18 @@ enemy-pixel.zeds-dead img {
 
 .bubbles screen-row:nth-child(n+19) {
 	opacity: 0.05;
+}
+
+body.pilot-alexei game-screen {
+	flex-direction: column;
+}
+body.pilot-alexei player-pixel img {
+	transform: rotate(180deg);
+}
+
+body.pilot-vinston screen-row {
+	filter: grayscale(100%);
+}
+body.pilot-vinston fire-pixel img {
+	opacity: 0.25;
 }

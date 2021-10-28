@@ -267,7 +267,15 @@ $(document).ready(function(){
 
 	//CONTROL PLAYER
 	function fire() {
-		if ($('fire-pixel').length < 2) {
+		var numberOfFirePixelsPerShot = 1;
+		if (storageLastPilot == 'Alexei') {
+			numberOfFirePixelsPerShot = 3;
+		} else {
+			numberOfFirePixelsPerShot = 2;
+		}
+		
+
+		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {
 			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
 				playerPixel = $('player-pixel'),
 				playerCurrentPixelID = playerPixel.parent().attr('id'),
@@ -557,7 +565,11 @@ $(document).ready(function(){
 			e.preventDefault();
 			if (isStarted == 'yes' && isEnded == 'no') {
 				var playerPixel = $('player-pixel');
-				stearLeft(playerPixel);
+				if (storageLastPilot == 'Alexei') {
+					stearRight(playerPixel);
+				} else {
+					stearLeft(playerPixel);
+				}
 			}
 			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
 				if ($('.pick-a-pilot.focused').prev().length) {
@@ -569,7 +581,11 @@ $(document).ready(function(){
 			e.preventDefault();
 			if (isStarted == 'yes' && isEnded == 'no') {
 				var playerPixel = $('player-pixel');
-				stearRight(playerPixel);
+				if (storageLastPilot == 'Alexei') {
+					stearLeft(playerPixel);
+				} else {
+					stearRight(playerPixel);
+				}
 			}
 			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
 				if ($('.pick-a-pilot.focused').next().length) {
