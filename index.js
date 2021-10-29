@@ -12,13 +12,17 @@ $(document).ready(function(){
 		pixelSize = $body.attr('data-pxsize'),
 		playWidth = $body.attr('data-playwidth'),
 		$gameScreen = $('game-screen'),
-		gameSpeed = $body.attr('data-spid');
+		gameSpeed = Number($body.attr('data-spid'));
 		gameScore = 0,
 		storageCurrentRun = localStorage.getItem('RUN'),
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT'),
 		pilotNames = $('pilot-list').attr('data-pilotlist'),
 		listOfPilots = pilotNames.split(',');
+
+	if (storageLastPilot == 'Speedking') {
+		gameSpeed = 140;
+	}
 
 	//SETUP GAME
 	$body.addClass("pilot-" + storageLastPilot.toLowerCase())
@@ -83,7 +87,7 @@ $(document).ready(function(){
 	}
 
 	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,$gameScreen) {
-		$gameScreen.append('<screen-row style="height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
+		$gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
@@ -210,7 +214,7 @@ $(document).ready(function(){
 
 		setTimeout(function() {
 			$('screen-row').first().remove();
-		},280)
+		},gameSpeed-40)
 	}
 
 	function scrollPlayer() {
@@ -275,7 +279,7 @@ $(document).ready(function(){
 
 		if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
 			numberOfFirePixelsPerShot = 3;
-		} else if (storageLastPilot == 'Bob' || storageLastPilot == 'Rosanna') {
+		} else if (storageLastPilot == 'Bob' || storageLastPilot == 'Rosanna' || storageLastPilot == 'Speedking') {
 			numberOfFirePixelsPerShot = 1;
 		}
 
@@ -515,7 +519,7 @@ $(document).ready(function(){
 			//ENEMY AI
 			moveChoppers();
 			moveBaloon();
-			if (storageLastPilot == 'Betty') {
+			if (storageLastPilot == 'Betty' || storageLastPilot == 'Speedking') {
 				moveBaloon();
 			} else if (storageLastPilot == 'Vinston') {
 				moveChoppers();
@@ -577,6 +581,10 @@ $(document).ready(function(){
 				var playerPixel = $('player-pixel');
 				if (storageLastPilot == 'Alexei') {
 					stearRight(playerPixel);
+				} else if (storageLastPilot == 'Speedking') {
+					var firePixel = $('fire-pixel');
+					stearLeft(playerPixel);
+					stearLeft(firePixel);
 				} else {
 					stearLeft(playerPixel);
 				}
@@ -593,6 +601,10 @@ $(document).ready(function(){
 				var playerPixel = $('player-pixel');
 				if (storageLastPilot == 'Alexei') {
 					stearLeft(playerPixel);
+				} else if (storageLastPilot == 'Speedking') {
+					var firePixel = $('fire-pixel');
+					stearRight(playerPixel);
+					stearRight(firePixel);
 				} else {
 					stearRight(playerPixel);
 				}

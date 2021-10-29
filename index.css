@@ -170,7 +170,6 @@ screen-canvas {
 screen-row {
 	display: flex;
 	flex-direction: row;
-	transition: height 0.36s ease-out;
 }
 
 river-pixel {
