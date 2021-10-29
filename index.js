@@ -273,12 +273,10 @@ $(document).ready(function(){
 	function fire() {
 		var numberOfFirePixelsPerShot = 2;
 
-		if (storageLastPilot == 'Alexei') {
+		if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
 			numberOfFirePixelsPerShot = 3;
-		} else if (storageLastPilot == 'Bob') {
+		} else if (storageLastPilot == 'Bob' || storageLastPilot == 'Rosanna') {
 			numberOfFirePixelsPerShot = 1;
-		}  else if (storageLastPilot == 'Vinston') {
-			numberOfFirePixelsPerShot = 3;
 		}
 
 		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {

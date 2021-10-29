@@ -40,7 +40,7 @@ pilot-choose {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background-color: rgba(0,0,0,0.75);
+	background-color: rgba(0,0,0,0.85);
 	border: 8px solid white;
 	z-index: 99;
 }
@@ -78,7 +78,7 @@ pilot-choose pilot-chooser .pick-a-pilot {
 	height: 220px;
 	width: 160px;
 	margin: 0 10px;
-	border: 4px solid #000;
+	border: 6px solid rgba(0,0,0,0.33);
 	text-decoration: none;
 	color: #fff;
 }
@@ -105,7 +105,7 @@ pilot-choose pilot-chooser #restart-game {
 	justify-content: center;
 	align-items: center;
 	padding: 10px 20px;
-	border: 4px solid #000;
+	border: 6px solid rgba(0,0,0,0.33);
 	text-decoration: none;
 	color: #fff;
 	text-transform: uppercase;
@@ -375,13 +375,59 @@ body.pilot-betty screen-row:nth-child(n+9) enemy-pixel {
 }
 
 body.pilot-jack player-pixel:after {
-    content: '';
-    display: block;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    top: 0;
-    z-index: 1;
-    transform: translateX(16px);
+	content: '';
+	display: block;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	top: 0;
+	z-index: 1;
+	transform: translateX(16px);
+}
+
+body.pilot-rosanna screen-row river-pixel,
+body.pilot-rosanna screen-row enemy-pixel {
+	background-color: #06072d;
+}
+body.pilot-rosanna screen-row enemy-pixel img,
+body.pilot-rosanna screen-row player-pixel img {
+	filter: invert(1);
+}
+
+body.pilot-rosanna screen-row grass-pixel,
+body.pilot-rosanna screen-row mountain-pixel,
+body.pilot-rosanna screen-row forest-pixel {
+	background-color: #091501;
+	opacity: 0.25;
+}
+body.pilot-rosanna screen-row coast-pixel:after,
+body.pilot-rosanna screen-row coast-pixel:before {
+	display: none;
+}
+body.pilot-rosanna screen-row coast-pixel {
+	background-color: #060723;	
+}
+body.pilot-rosanna player-pixel:before {
+	content: '';
+	display: block;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.5);
+	top: 0;
+	z-index: 1;
+	transform: translateX(150px) rotate(5deg);
+}
+
+body.pilot-rosanna player-pixel:after {
+	content: '';
+	display: block;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.5);
+	top: 0;
+	z-index: 1;
+	transform: translateX(-110%) rotate(-5deg);
 }
