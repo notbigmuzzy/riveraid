@@ -346,3 +346,29 @@ body.pilot-vinston screen-row {
 body.pilot-vinston fire-pixel img {
 	opacity: 0.25;
 }
+
+body.pilot-betty game-screen:before {
+    content: url();
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 352px;
+    background-image: url(graphics/background/betty-horizon.png);
+    background-position: center;
+    background-size: cover;
+}
+
+body.pilot-betty screen-row {
+	filter: contrast(0.5);
+}
+body.pilot-betty screen-row:nth-child(n+11) {
+	display: none;
+}
+body.pilot-betty screen-row:nth-child(n+10) enemy-pixel {
+	opacity: 0.2;
+}
+body.pilot-betty screen-row:nth-child(n+9) enemy-pixel {
+	opacity: 0.5;
+}

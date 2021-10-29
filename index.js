@@ -226,8 +226,12 @@ $(document).ready(function(){
 
 	//SETUP PLAYER
 	function setupPlayer() {
-		var initialRow = $('#row1'),
-			middlePixel = 15,
+		var initialRow = $('#row1');
+		if (storageLastPilot == 'Betty') {
+			initialRow = $('#row0');
+		}
+		
+		var middlePixel = 15,
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
 		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/airplane.svg"/></player-pixel>')
@@ -267,13 +271,13 @@ $(document).ready(function(){
 
 	//CONTROL PLAYER
 	function fire() {
-		var numberOfFirePixelsPerShot = 1;
+		var numberOfFirePixelsPerShot = 2;
+
 		if (storageLastPilot == 'Alexei') {
 			numberOfFirePixelsPerShot = 3;
-		} else {
-			numberOfFirePixelsPerShot = 2;
+		} else if (storageLastPilot == 'Bob') {
+			numberOfFirePixelsPerShot = 1;
 		}
-		
 
 		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {
 			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
@@ -511,6 +515,9 @@ $(document).ready(function(){
 			//ENEMY AI
 			moveChoppers();
 			moveBaloon();
+			if (storageLastPilot == 'Betty') {
+				moveBaloon();
+			}
 			// //SCROLL PLAYER
 			scrollPlayer();
 			playerCrashCheck(interval);
