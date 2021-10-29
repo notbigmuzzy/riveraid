@@ -277,6 +277,8 @@ $(document).ready(function(){
 			numberOfFirePixelsPerShot = 3;
 		} else if (storageLastPilot == 'Bob') {
 			numberOfFirePixelsPerShot = 1;
+		}  else if (storageLastPilot == 'Vinston') {
+			numberOfFirePixelsPerShot = 3;
 		}
 
 		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {
@@ -516,6 +518,9 @@ $(document).ready(function(){
 			moveChoppers();
 			moveBaloon();
 			if (storageLastPilot == 'Betty') {
+				moveBaloon();
+			} else if (storageLastPilot == 'Vinston') {
+				moveChoppers();
 				moveBaloon();
 			}
 			// //SCROLL PLAYER

@@ -42,6 +42,7 @@ pilot-choose {
 	height: 100%;
 	background-color: rgba(0,0,0,0.75);
 	border: 8px solid white;
+	z-index: 99;
 }
 
 pilot-choose.start-screen {
@@ -344,7 +345,7 @@ body.pilot-vinston screen-row {
 	filter: grayscale(100%);
 }
 body.pilot-vinston fire-pixel img {
-	opacity: 0.25;
+	opacity: 0;
 }
 
 body.pilot-betty game-screen:before {
@@ -371,4 +372,16 @@ body.pilot-betty screen-row:nth-child(n+10) enemy-pixel {
 }
 body.pilot-betty screen-row:nth-child(n+9) enemy-pixel {
 	opacity: 0.5;
+}
+
+body.pilot-jack player-pixel:after {
+    content: '';
+    display: block;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    top: 0;
+    z-index: 1;
+    transform: translateX(16px);
 }
