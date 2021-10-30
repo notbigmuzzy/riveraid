@@ -179,12 +179,18 @@ river-pixel {
 	background-color: #7c6fdb;
 }
 
+river-pixel.explosion {
+	background-image: url("graphics/destroyed.svg");
+	background-position: center;
+	background-size: contain;
+}
+
 river-pixel.plane-was-here {
 	position: relative;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
-}
+}river-pixel
 
 river-pixel.plane-was-here:before {
 	content: "";
@@ -348,33 +354,24 @@ body.pilot-vinston fire-pixel img {
 	opacity: 0.5;
 }
 /**/
+body.pilot-betty game-screen:before {
+    content: url();
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 352px;
+    background-image: url(graphics/background/betty-horizon.png);
+    background-position: center;
+    background-size: cover;
+}
+
 body.pilot-betty screen-row {
 	filter: contrast(0.5);
 }
-body.pilot-betty screen-row:nth-child(n+9) enemy-pixel img,
-body.pilot-betty screen-row:nth-child(n+11) forest-pixel img,
-body.pilot-betty screen-row:nth-child(n+11) mountain-pixel img {
-	opacity: 0.5;
-}
-body.pilot-betty screen-row:nth-child(n+10) enemy-pixel img,
-body.pilot-betty screen-row:nth-child(n+11) forest-pixel img,
-body.pilot-betty screen-row:nth-child(n+11) mountain-pixel img {
-	opacity: 0.2;
-}
-body.pilot-betty screen-row:nth-child(n+12) coast-pixel,
-body.pilot-betty screen-row:nth-child(n+12) coast-pixel:before,
-body.pilot-betty screen-row:nth-child(n+12) coast-pixel:after,
-body.pilot-betty screen-row:nth-child(n+12) grass-pixel,
-body.pilot-betty screen-row:nth-child(n+12) river-pixel,
-body.pilot-betty screen-row:nth-child(n+12) enemy-pixel,
-body.pilot-betty screen-row:nth-child(n+12) forest-pixel,
-body.pilot-betty screen-row:nth-child(n+12) mountain-pixel {
-	background-color: #203c0f;
-}
-body.pilot-betty screen-row:nth-child(n+12) enemy-pixel img,
-body.pilot-betty screen-row:nth-child(n+12) forest-pixel img,
-body.pilot-betty screen-row:nth-child(n+12) mountain-pixel img {
-	transform: scale(0.5);
+body.pilot-betty screen-row:nth-child(n+11){
+	display: none;
 }
 body.pilot-betty screen-row:nth-child(n+15) {
 	opacity: 0.5;

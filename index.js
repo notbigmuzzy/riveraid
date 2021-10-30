@@ -285,7 +285,7 @@ $(document).ready(function(){
 
 		if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
 			numberOfFirePixelsPerShot = 3;
-		} else if (storageLastPilot == 'Bob' || storageLastPilot == 'Rosanna' || storageLastPilot == 'Speedking') {
+		} else if (storageLastPilot == 'Bob' || storageLastPilot == 'Speedking' || storageLastPilot == 'Betty') {
 			numberOfFirePixelsPerShot = 1;
 		}
 
@@ -298,6 +298,23 @@ $(document).ready(function(){
 				playerNextPixel = playerNextRow.find('#' + playerCurrentPixelID);
 
 			playerNextPixel.append(firePixel);
+		}
+	}
+
+	function fireSpread() {
+		var numberOfFirePixelsPerShot = 1;
+
+		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {
+			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
+				playerPixel = $('player-pixel'),
+				playerCurrentPixelID = playerPixel.parent().attr('id'),
+				playerCurrentRow = playerPixel.parents('screen-row'),
+				playerNextRow = playerCurrentRow.next(),
+				playerNextPixel = playerNextRow.find('#' + playerCurrentPixelID);
+
+			playerNextPixel.append(firePixel);
+			firePixel.clone().appendTo(playerNextPixel.prev())
+			firePixel.clone().appendTo(playerNextPixel.next())
 		}
 	}
 
@@ -314,8 +331,53 @@ $(document).ready(function(){
 				hitEnemy = eachFirePixel.parent('river-pixel').find('enemy-pixel');
 			eachFirePixel.detach().appendTo(fireNextPixel);
 
+			var shotLength = eachFirePixel.attr('data-shotlength')
+			shotLength == undefined ? shotLength = 0 : ''
+			eachFirePixel.attr('data-shotlength', shotLength + 1)
+			if (storageLastPilot == 'Vinston') {
+				if (shotLength > '111111') {
+					eachFirePixel.remove();
+				}
+			}
+
+			if (storageLastPilot == 'Betty') {
+				if (shotLength > '111111') {
+
+					var thisFirePixel = $(this),
+						fireThisPixelID = thisFirePixel.parent().attr('id'),
+						fireThisRow = thisFirePixel.parents('screen-row'),
+						fireThisNextRow = fireThisRow.next(),
+						fireThisNextPixel = fireThisNextRow.find('#' + fireThisPixelID),
+						fireThisPrevRow = fireThisRow.prev(),
+						fireThisPrevPixel = fireThisPrevRow.find('#' + fireThisPixelID);
+
+					thisFirePixel.parents('river-pixel').addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+					fireThisNextPixel.addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+					fireThisNextPixel.prev().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+					fireThisNextPixel.next().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+
+					eachFirePixel.remove();
+				}
+			}
+
 			if (hitEnemy.length) {
 				if(!hitEnemy.hasClass('zeds-dead')) {
+					if (storageLastPilot == 'Betty') {
+						var thisFirePixel = $(this),
+							fireThisPixelID = thisFirePixel.parent().attr('id'),
+							fireThisRow = thisFirePixel.parents('screen-row'),
+							fireThisNextRow = fireThisRow.next(),
+							fireThisNextPixel = fireThisNextRow.find('#' + fireThisPixelID),
+							fireThisPrevRow = fireThisRow.prev(),
+							fireThisPrevPixel = fireThisPrevRow.find('#' + fireThisPixelID);
+
+						thisFirePixel.parents('river-pixel').addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+						fireThisNextPixel.addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+						fireThisNextPixel.prev().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+						fireThisNextPixel.next().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
+
+						eachFirePixel.remove();
+					}
 					eachFirePixel.remove();	
 				}
 				hitEnemy.addClass('zeds-dead');
@@ -460,7 +522,14 @@ $(document).ready(function(){
 
 	//GAME SCORE
 	function updategameScore() {
-		gameScore = gameScore + 100;
+		var scoreForThisPilot = 100;
+
+		if (storageLastPilot == 'Betty') {
+			scoreForThisPilot = 200;
+		}
+
+
+		gameScore = gameScore + scoreForThisPilot;
 		$('#score-label').html(gameScore)
 		return gameScore;
 	}
@@ -535,9 +604,14 @@ $(document).ready(function(){
 			scrollPlayer();
 			playerCrashCheck(interval);
 			//SCROLL FIRE
-			scrollFire();
-			scrollFire();
-			scrollFire();
+			if (storageLastPilot == 'Betty') {
+				scrollFire();
+				scrollFire();	
+			} else {
+				scrollFire();
+				scrollFire();
+				scrollFire();
+			}
 		}, gameSpeed);
 	}
 
@@ -579,8 +653,13 @@ $(document).ready(function(){
 		switch (event.keyCode) {
 		case 32: //SPACEBAR
 			e.preventDefault();
-			fire();
-			break;
+			if (storageLastPilot == 'Vinston') {
+				fireSpread();
+				break;
+			} else {
+				fire();
+				break;
+			}
 		case 37: // LEFT ARROW
 			e.preventDefault();
 			if (isStarted == 'yes' && isEnded == 'no') {
