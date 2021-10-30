@@ -26,6 +26,10 @@ $(document).ready(function(){
 
 	//SETUP GAME
 	$body.addClass("pilot-" + storageLastPilot.toLowerCase())
+	if (storageLastPilot == 'Jack') {
+		var jackLeftOrRight = getRandomIntIncInc(0,1);
+		jackLeftOrRight == 0 ? $body.addClass('left') : $body.addClass('right')
+	}
 	setupBottomStatsScreen();
 	switch(storageCurrentRun) {
 	case '1':
@@ -143,7 +147,7 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
+						if (rowIndex > 10 && willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
 							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
 							case (whatTypeOfEnemy < 10):
