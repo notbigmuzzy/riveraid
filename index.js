@@ -22,6 +22,8 @@ $(document).ready(function(){
 
 	if (storageLastPilot == 'Speedking') {
 		gameSpeed = 140;
+	} else if (storageLastPilot == 'Betty') {
+		gameSpeed = 260;
 	}
 
 	//SETUP GAME

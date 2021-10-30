@@ -132,6 +132,7 @@ game-stats {
 	width: 100%;
 	height: 128px;
 	background-color: #888888;
+	z-index: 2;
 }
 
 game-label {
@@ -332,48 +333,68 @@ enemy-pixel.zeds-dead img {
 .bubbles screen-row:nth-child(n+19) {
 	opacity: 0.05;
 }
-
+/**/
 body.pilot-alexei game-screen {
 	flex-direction: column;
 }
 body.pilot-alexei player-pixel img {
 	transform: rotate(180deg);
 }
-
+/**/
 body.pilot-vinston screen-row {
 	filter: grayscale(100%);
 }
 body.pilot-vinston fire-pixel img {
-	opacity: 0;
+	opacity: 0.5;
 }
-
-body.pilot-betty game-screen:before {
-    content: url();
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 352px;
-    background-image: url(graphics/background/betty-horizon.png);
-    background-position: center;
-    background-size: cover;
-}
-
+/**/
 body.pilot-betty screen-row {
 	filter: contrast(0.5);
 }
-body.pilot-betty screen-row:nth-child(n+11) {
-	display: none;
-}
-body.pilot-betty screen-row:nth-child(n+10) enemy-pixel {
-	opacity: 0.2;
-}
-body.pilot-betty screen-row:nth-child(n+9) enemy-pixel {
+body.pilot-betty screen-row:nth-child(n+9) enemy-pixel img,
+body.pilot-betty screen-row:nth-child(n+11) forest-pixel img,
+body.pilot-betty screen-row:nth-child(n+11) mountain-pixel img {
 	opacity: 0.5;
 }
-
+body.pilot-betty screen-row:nth-child(n+10) enemy-pixel img,
+body.pilot-betty screen-row:nth-child(n+11) forest-pixel img,
+body.pilot-betty screen-row:nth-child(n+11) mountain-pixel img {
+	opacity: 0.2;
+}
+body.pilot-betty screen-row:nth-child(n+12) coast-pixel,
+body.pilot-betty screen-row:nth-child(n+12) coast-pixel:before,
+body.pilot-betty screen-row:nth-child(n+12) coast-pixel:after,
+body.pilot-betty screen-row:nth-child(n+12) grass-pixel,
+body.pilot-betty screen-row:nth-child(n+12) river-pixel,
+body.pilot-betty screen-row:nth-child(n+12) enemy-pixel,
+body.pilot-betty screen-row:nth-child(n+12) forest-pixel,
+body.pilot-betty screen-row:nth-child(n+12) mountain-pixel {
+	background-color: #203c0f;
+}
+body.pilot-betty screen-row:nth-child(n+12) enemy-pixel img,
+body.pilot-betty screen-row:nth-child(n+12) forest-pixel img,
+body.pilot-betty screen-row:nth-child(n+12) mountain-pixel img {
+	transform: scale(0.5);
+}
+body.pilot-betty screen-row:nth-child(n+15) {
+	opacity: 0.5;
+}
+body.pilot-betty screen-row:nth-child(n+18) {
+	opacity: 0.2;
+}
+/**/
 body.pilot-jack.left player-pixel:after {
+	content: '';
+	display: block;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	top: 0;
+	z-index: 1;
+	transform: translateX(-99%);
+}
+body.pilot-jack.right player-pixel:after {
 	content: '';
 	display: block;
 	position: fixed;
@@ -384,19 +405,7 @@ body.pilot-jack.left player-pixel:after {
 	z-index: 1;
 	transform: translateX(16px);
 }
-
-body.pilot-jack.right player-pixel:after {
-	content: '';
-	display: block;
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	background-color: #000;
-	top: 0;
-	z-index: 1;
-	transform: translateX(-100%);
-}
-
+/**/
 body.pilot-rosanna screen-row river-pixel,
 body.pilot-rosanna screen-row enemy-pixel {
 	background-color: #06072d;
