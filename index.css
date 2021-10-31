@@ -1,3 +1,39 @@
+body {
+	--grass-pixel: #68a940;
+	--river-pixel: #7c6fdb;
+	--coast-pixel: #274c11;
+	--coast-pixel-before: #7abfc7;
+	--coast-pixel-after: #ff9800;
+	--player-pixel: #dedf38;
+}
+
+body.pilot-vinston {
+	--grass-pixel: #949494;
+	--river-pixel: #7a7a7a;
+	--coast-pixel: #404040;
+	--coast-pixel-before: #b1b1b1;
+	--coast-pixel-after: #a3a3a3;
+	--player-pixel: #ededed;
+}
+
+body.pilot-rosanna {
+	--grass-pixel: #949494;
+	--river-pixel: #7a7a7a;
+	--coast-pixel: #404040;
+	--coast-pixel-before: #b1b1b1;
+	--coast-pixel-after: #a3a3a3;
+	--player-pixel: #ededed;
+}
+
+body.pilot-betty {
+	--grass-pixel: #949494;
+	--river-pixel: #7a7a7a;
+	--coast-pixel: #404040;
+	--coast-pixel-before: #b1b1b1;
+	--coast-pixel-after: #a3a3a3;
+	--player-pixel: #ededed;
+}
+
 * {
 	padding: 0;
 	margin: 0;
@@ -176,7 +212,7 @@ screen-row {
 river-pixel {
 	display: block;
 	position: relative;
-	background-color: #7c6fdb;
+	background-color: var(--river-pixel);
 }
 
 river-pixel.explosion {
@@ -190,30 +226,30 @@ river-pixel.plane-was-here {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-evenly;
-}river-pixel
+}
 
 river-pixel.plane-was-here:before {
 	content: "";
 	height: 100%;
 	width: 5px;
-	background-color: #dedf38;
+	background-color: var(--player-pixel);
 }
 
 river-pixel.plane-was-here:after {
 	content: "";
 	height: 100%;
 	width: 5px;
-	background-color: #dedf38;
+	background-color: var(--player-pixel);
 }
 
 grass-pixel {
 	display: block;
-	background-color: #68a940;
+	background-color: var(--grass-pixel);
 }
 
 forest-pixel {
 	position: relative;
-	background-color: #68a940;
+	background-color: var(--grass-pixel);
 }
 
 forest-pixel img {
@@ -222,7 +258,7 @@ forest-pixel img {
 
 mountain-pixel {
 	position: relative;
-	background-color: #68a940;
+	background-color: var(--grass-pixel);
 }
 
 mountain-pixel img {
@@ -234,7 +270,7 @@ coast-pixel {
 	position: relative;
 	display: flex;
 	flex-direction: row-reverse;
-	background-color: #274c11;
+	background-color: var(--coast-pixel);
 }
 
 coast-pixel.right {
@@ -245,14 +281,14 @@ coast-pixel.left:before,
 coast-pixel.right:before {
 	content: '';
 	width: 20%;
-	background-color: #7abfc7;
+	background-color: var(--coast-pixel-before);
 }
 
 coast-pixel.left:after,
 coast-pixel.right:after {
 	content: '';
 	width: 70%;
-	background-color: #ff9800;
+	background-color: var(--coast-pixel-after);
 }
 
 player-pixel {
@@ -282,7 +318,7 @@ enemy-pixel {
 	width: 100%;
 	height: 100%;
 	position: relative;
-	background-color: #7c6fdb;
+	background-color: var(--river-pixel);
 }
 
 enemy-pixel.boat {
@@ -347,11 +383,8 @@ body.pilot-alexei player-pixel img {
 	transform: rotate(180deg);
 }
 /**/
-body.pilot-vinston screen-row {
-	filter: grayscale(100%);
-}
-body.pilot-vinston fire-pixel img {
-	opacity: 0.5;
+body.pilot-vinston img {
+	filter: grayscale(1);
 }
 /**/
 body.pilot-betty game-screen:before {

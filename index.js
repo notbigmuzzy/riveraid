@@ -666,7 +666,7 @@ $(document).ready(function(){
 				var playerPixel = $('player-pixel');
 				if (storageLastPilot == 'Alexei') {
 					stearRight(playerPixel);
-				} else if (storageLastPilot == 'Speedking') {
+				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
 					var firePixel = $('fire-pixel');
 					stearLeft(playerPixel);
 					stearLeft(firePixel);
@@ -686,7 +686,7 @@ $(document).ready(function(){
 				var playerPixel = $('player-pixel');
 				if (storageLastPilot == 'Alexei') {
 					stearLeft(playerPixel);
-				} else if (storageLastPilot == 'Speedking') {
+				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
 					var firePixel = $('fire-pixel');
 					stearRight(playerPixel);
 					stearRight(firePixel);
