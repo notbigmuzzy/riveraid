@@ -17,11 +17,11 @@ body.pilot-vinston {
 }
 
 body.pilot-rosanna {
-	--grass-pixel: #949494;
-	--river-pixel: #7a7a7a;
-	--coast-pixel: #404040;
-	--coast-pixel-before: #b1b1b1;
-	--coast-pixel-after: #a3a3a3;
+	--grass-pixel: #091501;
+	--river-pixel: #06072d;
+	--coast-pixel: #060723;
+	--coast-pixel-before: transparent;
+	--coast-pixel-after: transparent;
 	--player-pixel: #ededed;
 }
 
@@ -438,7 +438,7 @@ body.pilot-jack.right player-pixel:after {
 /**/
 body.pilot-rosanna screen-row river-pixel,
 body.pilot-rosanna screen-row enemy-pixel {
-	background-color: #06072d;
+	background-color: var(--river-pixel);
 }
 body.pilot-rosanna screen-row enemy-pixel img,
 body.pilot-rosanna screen-row player-pixel img {
@@ -447,15 +447,11 @@ body.pilot-rosanna screen-row player-pixel img {
 body.pilot-rosanna screen-row grass-pixel,
 body.pilot-rosanna screen-row mountain-pixel,
 body.pilot-rosanna screen-row forest-pixel {
-	background-color: #091501;
+	background-color: var(--grass-pixel);
 	opacity: 0.25;
 }
-body.pilot-rosanna screen-row coast-pixel:after,
-body.pilot-rosanna screen-row coast-pixel:before {
-	display: none;
-}
 body.pilot-rosanna screen-row coast-pixel {
-	background-color: #060723;	
+	background-color: var(--coast-pixel);	
 }
 body.pilot-rosanna player-pixel:before {
 	content: '';
