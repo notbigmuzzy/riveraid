@@ -26,11 +26,11 @@ body.pilot-rosanna {
 }
 
 body.pilot-betty {
-	--grass-pixel: #949494;
-	--river-pixel: #7a7a7a;
-	--coast-pixel: #404040;
-	--coast-pixel-before: #b1b1b1;
-	--coast-pixel-after: #a3a3a3;
+	--grass-pixel: #749460;
+	--river-pixel: #7e77ad;
+	--coast-pixel: #4a6f49;
+	--coast-pixel-before: #bf8c40;
+	--coast-pixel-after: #7aa09c;
 	--player-pixel: #ededed;
 }
 
@@ -400,7 +400,7 @@ body.pilot-betty game-screen:before {
     background-size: cover;
 }
 
-body.pilot-betty screen-row {
+body.pilot-betty img {
 	filter: contrast(0.5);
 }
 body.pilot-betty screen-row:nth-child(n+11){
