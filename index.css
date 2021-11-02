@@ -476,7 +476,7 @@ body.pilot-jack.left player-pixel:after {
 	height: 100%;
 	background-color: #000;
 	top: 0;
-	z-index: 1;
+	z-index: 2;
 	transform: translateX(-99%);
 }
 body.pilot-jack.right player-pixel:after {
@@ -487,7 +487,7 @@ body.pilot-jack.right player-pixel:after {
 	height: 100%;
 	background-color: #000;
 	top: 0;
-	z-index: 1;
+	z-index: 2;
 	transform: translateX(16px);
 }
 /**/
