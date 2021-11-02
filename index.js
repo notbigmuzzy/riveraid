@@ -19,20 +19,24 @@ $(document).ready(function(){
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT'),
 		pilotNames = $('pilot-list').attr('data-pilotlist'),
-		listOfPilots = pilotNames.split(',');
+		listOfPilots = pilotNames.split(','),
+		fuelAmount = Number($body.attr('data-fuel')),
+		fuelLeakSpeed = Number($body.attr('data-fueleak'));
 
+	//OVERRIDE SPECIFIC PILOT CONFIG
 	if (storageLastPilot == 'Speedking') {
 		gameSpeed = Math.floor(gameSpeed / 2);
+		fuelLeakSpeed = 1;
 	} else if (storageLastPilot == 'Betty') {
 		gameSpeed = Math.floor(gameSpeed / 1.230);
+		fuelLeakSpeed = 1.5;
+	} else if (storageLastPilot == 'Jack') {
+		var jackLeftOrRight = getRandomIntIncInc(0,1);
+		jackLeftOrRight == 0 ? $body.addClass('left') : $body.addClass('right')
 	}
 
 	//SETUP GAME
 	$body.addClass("pilot-" + storageLastPilot.toLowerCase())
-	if (storageLastPilot == 'Jack') {
-		var jackLeftOrRight = getRandomIntIncInc(0,1);
-		jackLeftOrRight == 0 ? $body.addClass('left') : $body.addClass('right')
-	}
 	setupBottomStatsScreen();
 	switch(storageCurrentRun) {
 	case '1':
@@ -57,7 +61,7 @@ $(document).ready(function(){
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT');
 
-		$('game-stats').append('<game-label><span>Bridge</span><label id="score-bridge">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><label>River Rogue</label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
+		$('game-stats').append('<game-label><span>Bridge</span><label id="score-bridge">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><span>Fuel</span><label><progress id="fuel-bar" value="' + fuelAmount + '" max="100"></progress></label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
 
 		$('#score-bridge').html(storageTotalBridge)
 		$('#score-pilot').html(storageLastPilot)
@@ -78,6 +82,8 @@ $(document).ready(function(){
 			whichPixel = '<mountain-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/mountain-' + whichGraph + '.svg" /></mountain-pixel>';
 		} else if (pixelType == 'river') {
 			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
+		} else if (pixelType == 'fuel') {
+			whichPixel = '<fuel-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/fuel.svg" /></fuel-pixel>';
 		} else if (pixelType == 'coastleft') {
 			whichPixel = '<coast-pixel class="left" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
 		} else if (pixelType == 'coastright') {
@@ -138,7 +144,13 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (rowIndex > 10 && willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
+						if (rowIndex > 5 && rowIndex % (whenToChangePlayWidth - 5) == 0) {
+							if (j > (riverStart + getRandomIntIncInc(1,2)) && j < (riverStart + riverWidth - getRandomIntIncInc(1,2)) && j % getRandomIntIncInc(2,4) == 0) {
+								generatePixel(thisRow, j, pixelSize, 'fuel');
+							} else {
+								generatePixel(thisRow, j, pixelSize, 'river');
+							}
+						} else if (rowIndex > 10 && willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
 							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
 							case (whatTypeOfEnemy < 10):
@@ -272,6 +284,17 @@ $(document).ready(function(){
 		}
 	}
 
+	function updateAndCheckFuelAmount() {
+		var currentFuel = Number($('#fuel-bar').attr('value'))
+
+		if (currentFuel == 0) {
+			gameEnded(interval);
+		} else {
+			currentFuel = currentFuel - fuelLeakSpeed;
+			$('#fuel-bar').attr('value', currentFuel)
+		}
+	}
+
 	//CONTROL PLAYER
 	function fire() {
 		var numberOfFirePixelsPerShot = 2;
@@ -321,12 +344,13 @@ $(document).ready(function(){
 				fireNextRow = fireCurrentRow.next(),
 				fireNextPixel = fireNextRow.find('#' + fireCurrentPixelID),
 				containingPixel = eachFirePixel.parent('river-pixel'),
-				hitEnemy = eachFirePixel.parent('river-pixel').find('enemy-pixel');
-			eachFirePixel.detach().appendTo(fireNextPixel);
+				hitEnemy = eachFirePixel.parent('river-pixel').find('enemy-pixel')
+				hitFuel = eachFirePixel.parent('fuel-pixel'),
+				shotLength = eachFirePixel.attr('data-shotlength')
+				shotLength == undefined ? shotLength = 0 : '';
 
-			var shotLength = eachFirePixel.attr('data-shotlength')
-			shotLength == undefined ? shotLength = 0 : ''
-			eachFirePixel.attr('data-shotlength', shotLength + 1)
+			eachFirePixel.attr('data-shotlength', shotLength + 1).detach().appendTo(fireNextPixel);
+
 			if (storageLastPilot == 'Vinston') {
 				if (shotLength > '111111') {
 					eachFirePixel.remove();
@@ -353,8 +377,8 @@ $(document).ready(function(){
 				}
 			}
 
-			if (hitEnemy.length) {
-				if(!hitEnemy.hasClass('zeds-dead')) {
+			if (hitEnemy.length || hitFuel.length) {
+				if(!hitEnemy.hasClass('zeds-dead') && !hitFuel.hasClass('zeds-dead')) {
 					if (storageLastPilot == 'Betty') {
 						var thisFirePixel = $(this),
 							fireThisPixelID = thisFirePixel.parent().attr('id'),
@@ -374,6 +398,7 @@ $(document).ready(function(){
 					eachFirePixel.remove();	
 				}
 				hitEnemy.addClass('zeds-dead');
+				hitFuel.addClass('zeds-dead');
 				updategameScore();
 			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
@@ -503,12 +528,17 @@ $(document).ready(function(){
 	//COLLISION DETECTION
 	function playerCrashCheck(interval) {
 		var playerPixel = $('player-pixel'),
-			containingPixel = playerPixel.parent('river-pixel')
+			containingPixel = playerPixel.parent()
 			containingPixelHasEnemy = containingPixel.find('enemy-pixel').not('.zeds-dead');
 
-		if (playerPixel.parent().hasClass('zeds-dead')) {
+		if (containingPixel.is('fuel-pixel') && !containingPixel.hasClass('zeds-dead')) {
+			var thisFuel = Number($('#fuel-bar').attr('value'))
+			thisFuel = thisFuel + 50;
+			thisFuel > 100 ? thisFuel = 100 : '';
+			$('#fuel-bar').attr('value',thisFuel)
+		} else if (containingPixel.hasClass('zeds-dead')) {
 			return;
-		} else if (!containingPixel.length || containingPixelHasEnemy.length) {
+		} else if (!containingPixel.is('river-pixel') || containingPixelHasEnemy.length) {
 			gameEnded(interval);
 		}
 	}
@@ -582,6 +612,7 @@ $(document).ready(function(){
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
+			updateAndCheckFuelAmount();
 			//ENEMY AI
 			moveChoppers();
 			moveBaloon();
