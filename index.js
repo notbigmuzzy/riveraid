@@ -22,9 +22,9 @@ $(document).ready(function(){
 		listOfPilots = pilotNames.split(',');
 
 	if (storageLastPilot == 'Speedking') {
-		gameSpeed = 140;
+		gameSpeed = Math.floor(gameSpeed / 2);
 	} else if (storageLastPilot == 'Betty') {
-		gameSpeed = 260;
+		gameSpeed = Math.floor(gameSpeed / 1.230);
 	}
 
 	//SETUP GAME
@@ -107,22 +107,9 @@ $(document).ready(function(){
 			willRowContainForest = getRandomIntIncInc(0,1),
 			willRowContainForestControl = getRandomIntIncInc(0,1),
 			willContaintMountain = getRandomIntIncInc(0,5),
-			willContaintMountainControl = getRandomIntIncInc(0,5);
-
-		switch (playWidth) {
-			case 2:
-				var	willRowContainEnemy = getRandomIntIncExc(0,2),
-					willRowContainEnemyControl = getRandomIntIncExc(0,2);
-				break;
-			case 1:
-				var	willRowContainEnemy = getRandomIntIncExc(0,3),
-					willRowContainEnemyControl = getRandomIntIncExc(0,3);
-				break;
-			case 0:
-				var	willRowContainEnemy = getRandomIntIncExc(0,4),
-					willRowContainEnemyControl = getRandomIntIncExc(0,4);
-				break;
-		}
+			willContaintMountainControl = getRandomIntIncInc(0,5),
+			willRowContainEnemy = getRandomIntIncExc(0,Math.abs(playWidth-4)),
+			willRowContainEnemyControl = getRandomIntIncExc(0,Math.abs(playWidth-4));
 
 		for (let j = 0; j < numberOfPixelsW; j++) {
 			switch (true) {
