@@ -10,8 +10,9 @@ $(document).ready(function(){
 		screenWidth = $body.attr('data-width'),
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
-		playWidth = $body.attr('data-playwidth'),
-		$gameScreen = $('game-screen'),
+		playWidth = Number($body.attr('data-playwidth')),
+		whenToChangePlayWidth = screenHeight / pixelSize,
+		gameScreen = $('game-screen'),
 		gameSpeed = Number($body.attr('data-spid'));
 		gameScore = 0,
 		storageCurrentRun = localStorage.getItem('RUN'),
@@ -35,11 +36,11 @@ $(document).ready(function(){
 	setupBottomStatsScreen();
 	switch(storageCurrentRun) {
 	case '1':
-		showSelectPilotScreen($gameScreen,'start');
+		showSelectPilotScreen(gameScreen,'start');
 		break;
 	default:
-		setupGamingScreen(screenWidth,screenHeight,$gameScreen)
-		philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen);
+		setupGamingScreen(screenWidth,screenHeight,gameScreen)
+		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
 		setupPlayer();
 		initTimingStuff(gameSpeed)
 		$body.attr('data-gamestarted','yes');
@@ -47,8 +48,8 @@ $(document).ready(function(){
 	}
 
 	//GENERATE SCREEN
-	function setupGamingScreen(screenWidth,screenHeight,$gameScreen) {
-		$gameScreen.css('width',screenWidth).css('height',screenHeight)
+	function setupGamingScreen(screenWidth,screenHeight,gameScreen) {
+		gameScreen.css('width',screenWidth).css('height',screenHeight)
 	}
 
 	function setupBottomStatsScreen() {
@@ -92,8 +93,8 @@ $(document).ready(function(){
 		thisRow.append(whichPixel)
 	}
 
-	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,$gameScreen) {
-		$gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
+	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen) {
+		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
@@ -108,21 +109,19 @@ $(document).ready(function(){
 			willContaintMountain = getRandomIntIncInc(0,5),
 			willContaintMountainControl = getRandomIntIncInc(0,5);
 
-		//console.log(rowIndex)
-
 		switch (playWidth) {
-		case "wide":
-			var	willRowContainEnemy = getRandomIntIncExc(0,2),
-				willRowContainEnemyControl = getRandomIntIncExc(0,2);
-			break;
-		case "normal":
-			var	willRowContainEnemy = getRandomIntIncExc(0,3),
-				willRowContainEnemyControl = getRandomIntIncExc(0,3);
-			break;
-		case "narrow":
-			var	willRowContainEnemy = getRandomIntIncExc(0,4),
-				willRowContainEnemyControl = getRandomIntIncExc(0,4);
-			break;
+			case 2:
+				var	willRowContainEnemy = getRandomIntIncExc(0,2),
+					willRowContainEnemyControl = getRandomIntIncExc(0,2);
+				break;
+			case 1:
+				var	willRowContainEnemy = getRandomIntIncExc(0,3),
+					willRowContainEnemyControl = getRandomIntIncExc(0,3);
+				break;
+			case 0:
+				var	willRowContainEnemy = getRandomIntIncExc(0,4),
+					willRowContainEnemyControl = getRandomIntIncExc(0,4);
+				break;
 		}
 
 		for (let j = 0; j < numberOfPixelsW; j++) {
@@ -199,12 +198,12 @@ $(document).ready(function(){
 		}
 	}
 
-	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen) {
+	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen) {
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize;
 
 		for (let rowIndex = 0; rowIndex < numberOfPixelsH; rowIndex++) {
-			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,$gameScreen)
+			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,gameScreen)
 		}
 	}
 
@@ -215,7 +214,11 @@ $(document).ready(function(){
 			numberOfPixelsH = screenHeight / pixelSize,
 			rowIndex = numberOfPixelsH + Number(timeDiff);
 
-		philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,$gameScreen)
+		if (rowIndex % whenToChangePlayWidth == 0) {
+			playWidth = getRandomIntIncInc(0,2);
+		}
+
+		philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen)
 	}
 
 	function sanitizeRowsAfterScroll() {
@@ -250,10 +253,10 @@ $(document).ready(function(){
 		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/airplane.svg"/></player-pixel>')
 	}
 
-	function showSelectPilotScreen($gameScreen,screenState) {
+	function showSelectPilotScreen(gameScreen,screenState) {
 		$('body').attr('data-screenchoose','yes');
 		$('pilot-choose').remove();
-		$gameScreen.append("<pilot-choose><session-title></session-title><pilot-chooser></pilot-chooser></pilot-choose>");
+		gameScreen.append("<pilot-choose><session-title></session-title><pilot-chooser></pilot-chooser></pilot-choose>");
 
 		switch(screenState) {
 			case "start":
@@ -543,7 +546,7 @@ $(document).ready(function(){
 		clearInterval(interval);
 		interval = null;
 		$body.attr('data-gameended','yes');
-		showSelectPilotScreen($gameScreen,'end');
+		showSelectPilotScreen(gameScreen,'end');
 	}
 
 	//HELPER FUNCT
@@ -564,20 +567,20 @@ $(document).ready(function(){
 			to = 0;
 
 		switch(playWidth) {
-			case "narrow":
-				from = Math.floor(pixelSize / 1.3);
+			case 0:
+				from = Math.floor(pixelSize / 1.25);
 				to = from + 3;
 				break;
-			case "normal":
+			case 1:
 				from = Math.ceil(pixelSize / 1.8);
 				to = from + 5;
 				break;
-			case "wide":
-				from = Math.ceil(pixelSize / 3.5);
+			case 2:
+				from = Math.ceil(pixelSize / 3.75);
 				to = from + 7;
 				break;
 			default:
-				from = Math.ceil(pixelSize / 1.75);
+				from = Math.ceil(pixelSize / 1.8);
 				to = from + 4;
 				break;
 		}
@@ -588,9 +591,7 @@ $(document).ready(function(){
 	function initTimingStuff(gameSpeed,started) {
 		var	startMoment = Date.now();
 
-		interval = setInterval(function() {
-			playWidth = $body.attr('data-playwidth');
-			
+		interval = setInterval(function() {			
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed);
 			sanitizeRowsAfterScroll();
@@ -622,8 +623,8 @@ $(document).ready(function(){
 	$(document).on('click','pilot-chooser #first-start', function(e) {
 		$('body').attr('data-screenchoose','no')
 		$('pilot-choose').remove();
-		setupGamingScreen(screenWidth,screenHeight,$gameScreen)
-		philScreen(screenWidth,screenHeight,pixelSize,playWidth,$gameScreen);
+		setupGamingScreen(screenWidth,screenHeight,gameScreen)
+		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
 		setupPlayer();
 		initTimingStuff(gameSpeed)
 		$body.attr('data-gamestarted','yes');
