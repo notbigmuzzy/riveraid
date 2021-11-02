@@ -107,6 +107,9 @@ $(document).ready(function(){
 			willRowContainForestControl = getRandomIntIncInc(0,1),
 			willContaintMountain = getRandomIntIncInc(0,5),
 			willContaintMountainControl = getRandomIntIncInc(0,5);
+
+		//console.log(rowIndex)
+
 		switch (playWidth) {
 		case "wide":
 			var	willRowContainEnemy = getRandomIntIncExc(0,2),
@@ -390,7 +393,7 @@ $(document).ready(function(){
 
 	function stearLeft(controlledPixel) {
 		var controlledCurrentPixelID = controlledPixel.parent().attr('id'),
-			controlledCurrentIDNum = controlledCurrentPixelID.substring(5)
+			controlledCurrentIDNum = controlledCurrentPixelID.substring(5),
 			controlledCurrentRow = controlledPixel.parents('screen-row'),
 			controlledNextPixel = controlledCurrentRow.find('#pixel' + (Number(controlledCurrentIDNum) - 1));
 
@@ -403,7 +406,7 @@ $(document).ready(function(){
 
 	function stearRight(controlledPixel) {
 		var controlledCurrentPixelID = controlledPixel.parent().attr('id'),
-			controlledCurrentIDNum = controlledCurrentPixelID.substring(5)
+			controlledCurrentIDNum = controlledCurrentPixelID.substring(5),
 			controlledCurrentRow = controlledPixel.parents('screen-row'),
 			controlledNextPixel = controlledCurrentRow.find('#pixel' + (Number(controlledCurrentIDNum) + 1));
 
@@ -667,9 +670,13 @@ $(document).ready(function(){
 				if (storageLastPilot == 'Alexei') {
 					stearRight(playerPixel);
 				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
-					var firePixel = $('fire-pixel');
 					stearLeft(playerPixel);
-					stearLeft(firePixel);
+
+					var firePixel = $('fire-pixel');
+					if (firePixel.length) {
+						stearLeft(firePixel);	
+					}
+					
 				} else {
 					stearLeft(playerPixel);
 				}
@@ -687,9 +694,11 @@ $(document).ready(function(){
 				if (storageLastPilot == 'Alexei') {
 					stearLeft(playerPixel);
 				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
-					var firePixel = $('fire-pixel');
 					stearRight(playerPixel);
-					stearRight(firePixel);
+					var firePixel = $('fire-pixel');
+					if (firePixel.length) {
+						stearRight(firePixel);	
+					}
 				} else {
 					stearRight(playerPixel);
 				}
