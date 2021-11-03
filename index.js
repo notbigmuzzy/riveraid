@@ -740,14 +740,16 @@ $(document).ready(function(){
 	})
 
 	//KEYBOARD CONTROLS
-	document.addEventListener('keyup', function(event) {
+	document.addEventListener('keyup', function(e) {
 		$('touch-controls').addClass('hidden')
-		controlPlayerPixel(event.keyCode);
+		controlPlayerPixel(e.keyCode);
 	});
-	$(document).on('touchstart','body', function () {
+	$(document).on('touchstart','body', function (e) {
+		e.preventDefault()
 		$('touch-controls').removeClass('hidden')
 	})
-	$(document).on('touchend','touch-controls a', function () {
+	$(document).on('touchend','touch-controls a', function (e) {
+		e.preventDefault()
 		controlPlayerPixel(Number($(this).attr('id')));
 	})
 });
