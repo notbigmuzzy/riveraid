@@ -443,6 +443,66 @@ $(document).ready(function(){
 		playerCrashCheck(interval);
 	}
 
+	function controlPlayerPixel(eventCode) {
+		var isStarted = $body.attr('data-gamestarted'),
+			isEnded = $body.attr('data-gameended');
+
+		switch (eventCode) {
+		case 32: //SPACEBAR
+			if (storageLastPilot == 'Vinston') {
+				fireSpread();
+				break;
+			} else {
+				fire();
+				break;
+			}
+		case 37: // LEFT ARROW
+			if (isStarted == 'yes' && isEnded == 'no') {
+				var playerPixel = $('player-pixel');
+				if (storageLastPilot == 'Alexei') {
+					stearRight(playerPixel);
+				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
+					stearLeft(playerPixel);
+
+					var firePixel = $('fire-pixel');
+					if (firePixel.length) {
+						stearLeft(firePixel);	
+					}
+					
+				} else {
+					stearLeft(playerPixel);
+				}
+			}
+			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
+				if ($('.pick-a-pilot.focused').prev().length) {
+					$('.pick-a-pilot.focused').removeClass('focused').prev().addClass('focused').focus()		
+				}
+			}
+			break;
+		case 39: // RIGHT ARROW
+			if (isStarted == 'yes' && isEnded == 'no') {
+				var playerPixel = $('player-pixel');
+				if (storageLastPilot == 'Alexei') {
+					stearLeft(playerPixel);
+				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
+					stearRight(playerPixel);
+					var firePixel = $('fire-pixel');
+					if (firePixel.length) {
+						stearRight(firePixel);	
+					}
+				} else {
+					stearRight(playerPixel);
+				}
+			}
+			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
+				if ($('.pick-a-pilot.focused').next().length) {
+					$('.pick-a-pilot.focused').removeClass('focused').next().addClass('focused').focus()
+				}
+			}
+			break;
+		}
+	}
+
 	//ENEMY AI
 	function moveChoppers () {
 		var choppers = $('.chopper').not('.zeds-dead');
@@ -680,65 +740,14 @@ $(document).ready(function(){
 	})
 
 	//KEYBOARD CONTROLS
-	document.addEventListener('keyup', function(e) {
-		var isStarted = $body.attr('data-gamestarted'),
-			isEnded = $body.attr('data-gameended');
-		switch (event.keyCode) {
-		case 32: //SPACEBAR
-			e.preventDefault();
-			if (storageLastPilot == 'Vinston') {
-				fireSpread();
-				break;
-			} else {
-				fire();
-				break;
-			}
-		case 37: // LEFT ARROW
-			e.preventDefault();
-			if (isStarted == 'yes' && isEnded == 'no') {
-				var playerPixel = $('player-pixel');
-				if (storageLastPilot == 'Alexei') {
-					stearRight(playerPixel);
-				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
-					stearLeft(playerPixel);
-
-					var firePixel = $('fire-pixel');
-					if (firePixel.length) {
-						stearLeft(firePixel);	
-					}
-					
-				} else {
-					stearLeft(playerPixel);
-				}
-			}
-			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
-				if ($('.pick-a-pilot.focused').prev().length) {
-					$('.pick-a-pilot.focused').removeClass('focused').prev().addClass('focused').focus()		
-				}
-			}
-			break;
-		case 39: // RIGHT ARROW
-			e.preventDefault();
-			if (isStarted == 'yes' && isEnded == 'no') {
-				var playerPixel = $('player-pixel');
-				if (storageLastPilot == 'Alexei') {
-					stearLeft(playerPixel);
-				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
-					stearRight(playerPixel);
-					var firePixel = $('fire-pixel');
-					if (firePixel.length) {
-						stearRight(firePixel);	
-					}
-				} else {
-					stearRight(playerPixel);
-				}
-			}
-			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
-				if ($('.pick-a-pilot.focused').next().length) {
-					$('.pick-a-pilot.focused').removeClass('focused').next().addClass('focused').focus()
-				}
-			}
-			break;
-		}
+	document.addEventListener('keyup', function(event) {
+		$('touch-controls').addClass('hidden')
+		controlPlayerPixel(event.keyCode);
 	});
+	$(document).on('touchstart','body', function () {
+		$('touch-controls').removeClass('hidden')
+	})
+	$(document).on('touchend','touch-controls a', function () {
+		controlPlayerPixel(Number($(this).attr('id')));
+	})
 });
