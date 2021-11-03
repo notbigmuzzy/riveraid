@@ -100,7 +100,9 @@ $(document).ready(function(){
 	}
 
 	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen) {
+		var rowIndex = rowIndex + 1;
 		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
+
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
