@@ -348,7 +348,6 @@ $(document).ready(function(){
 				hitFuel = eachFirePixel.parent('fuel-pixel'),
 				shotLength = eachFirePixel.attr('data-shotlength')
 				shotLength == undefined ? shotLength = 0 : '';
-
 			eachFirePixel.attr('data-shotlength', shotLength + 1).detach().appendTo(fireNextPixel);
 
 			if (storageLastPilot == 'Vinston') {
@@ -372,7 +371,6 @@ $(document).ready(function(){
 					fireThisNextPixel.addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
 					fireThisNextPixel.prev().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
 					fireThisNextPixel.next().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
-
 					eachFirePixel.remove();
 				}
 			}
@@ -387,18 +385,23 @@ $(document).ready(function(){
 							fireThisNextPixel = fireThisNextRow.find('#' + fireThisPixelID),
 							fireThisPrevRow = fireThisRow.prev(),
 							fireThisPrevPixel = fireThisPrevRow.find('#' + fireThisPixelID);
-
 						thisFirePixel.parents('river-pixel').addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
 						fireThisNextPixel.addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
 						fireThisNextPixel.prev().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
 						fireThisNextPixel.next().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
-
 						eachFirePixel.remove();
 					}
 					eachFirePixel.remove();	
 				}
-				hitEnemy.addClass('zeds-dead');
-				hitFuel.addClass('zeds-dead');
+
+				if (hitFuel.length) {
+					hitFuel.addClass('zeds-dead')
+					hitFuel.prev().length ? hitFuel.prev().addClass('zeds-dead') : '';
+					hitFuel.next().length ? hitFuel.next().addClass('zeds-dead') : '';
+				}
+				if (hitEnemy.length) {
+					hitEnemy.addClass('zeds-dead');
+				}
 				updategameScore();
 			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
