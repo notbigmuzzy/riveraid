@@ -27,7 +27,7 @@ $(document).ready(function(){
 	if (storageLastPilot == 'Speedking') {
 		gameSpeed = Math.floor(gameSpeed / 2);
 		fuelLeakSpeed = 1;
-	} else if (storageLastPilot == 'Betty1') {
+	} else if (storageLastPilot == 'Betty') {
 		gameSpeed = Math.floor(gameSpeed / 1.230);
 		fuelLeakSpeed = 1.5;
 	} else if (storageLastPilot == 'Jack') {
@@ -46,8 +46,8 @@ $(document).ready(function(){
 		setupGamingScreen(screenWidth,screenHeight,gameScreen)
 		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
 		setupPlayer();
-		initTimingStuff(gameSpeed)
 		$body.attr('data-gamestarted','yes');
+		initTimingStuff(gameSpeed)
 		break;
 	}
 
@@ -99,12 +99,10 @@ $(document).ready(function(){
 		thisRow.append(whichPixel)
 	}
 
-	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen) {
-		var	thisRowIndex = rowIndex + 1;
+	function philRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
+		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
 
-		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + thisRowIndex + '"></screen-row');
-
-		var thisRow = $('#row' + rowIndex),
+		var thisRow = $('#row' + rowID),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
 			leftGrass = Math.floor(howMuchGrass / 2),
@@ -147,13 +145,13 @@ $(document).ready(function(){
 						generatePixel(thisRow, j, pixelSize, 'coastright');
 						break;
 					} else {
-						if (rowIndex > 5 && rowIndex % (whenToChangePlayWidth - 5) == 0) {
+						if (rowID > 5 && rowID % (whenToChangePlayWidth - 5) == 0) {
 							if (j > (riverStart + getRandomIntIncInc(1,2)) && j < (riverStart + riverWidth - getRandomIntIncInc(1,2)) && j % getRandomIntIncInc(2,4) == 0) {
 								generatePixel(thisRow, j, pixelSize, 'fuel');
 							} else {
 								generatePixel(thisRow, j, pixelSize, 'river');
 							}
-						} else if (rowIndex > 10 && willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
+						} else if (rowID > 10 && willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
 							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
 							case (whatTypeOfEnemy < 10):
@@ -204,23 +202,23 @@ $(document).ready(function(){
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize;
 
-		for (let rowIndex = 0; rowIndex < numberOfPixelsH + 1; rowIndex++) {
-			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,gameScreen)
+		for (let rowID = 0; rowID < numberOfPixelsH + 1; rowID++) {
+			philRow(numberOfPixelsW, rowID, pixelSize,playWidth,gameScreen)
 		}
 	}
 
 	//SCROLL SCREEN
-	function scrollScreen(startMoment,gameSpeed) {
+	function scrollScreen(startMoment,gameSpeed,intervalNewTime) {
 		var timeDiff = Math.floor((Date.now() - startMoment)/gameSpeed),
 			numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize,
-			rowIndex = numberOfPixelsH + Number(timeDiff);
+			rowID = intervalNewTime;
 
-		if (rowIndex % whenToChangePlayWidth == 0) {
+		if (rowID % whenToChangePlayWidth == 0) {
 			playWidth = getRandomIntIncInc(0,2);
 		}
 
-		philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen)
+		philRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
 	}
 
 	function sanitizeRowsAfterScroll() {
@@ -611,9 +609,10 @@ $(document).ready(function(){
 	function initTimingStuff(gameSpeed,started) {
 		var	startMoment = Date.now();
 
-		interval = setInterval(function() {			
+		interval = setInterval(function() {
+			var intervalNewTime = Date.now()
 			//SCROLL SCREEN
-			scrollScreen(startMoment,gameSpeed);
+			scrollScreen(startMoment,gameSpeed,intervalNewTime);
 			sanitizeRowsAfterScroll();
 			updateAndCheckFuelAmount();
 			//ENEMY AI
