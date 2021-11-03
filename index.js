@@ -27,7 +27,7 @@ $(document).ready(function(){
 	if (storageLastPilot == 'Speedking') {
 		gameSpeed = Math.floor(gameSpeed / 2);
 		fuelLeakSpeed = 1;
-	} else if (storageLastPilot == 'Betty') {
+	} else if (storageLastPilot == 'Betty1') {
 		gameSpeed = Math.floor(gameSpeed / 1.230);
 		fuelLeakSpeed = 1.5;
 	} else if (storageLastPilot == 'Jack') {
@@ -100,8 +100,9 @@ $(document).ready(function(){
 	}
 
 	function philRow(numberOfPixelsW,rowIndex,pixelSize,playWidth,gameScreen) {
-		var rowIndex = rowIndex + 1;
-		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowIndex + '"></screen-row');
+		var	thisRowIndex = rowIndex + 1;
+
+		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + thisRowIndex + '"></screen-row');
 
 		var thisRow = $('#row' + rowIndex),
 			getDiff = setplayWidth(pixelSize,playWidth);
@@ -203,7 +204,7 @@ $(document).ready(function(){
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize;
 
-		for (let rowIndex = 0; rowIndex < numberOfPixelsH; rowIndex++) {
+		for (let rowIndex = 0; rowIndex < numberOfPixelsH + 1; rowIndex++) {
 			philRow(numberOfPixelsW, rowIndex, pixelSize,playWidth,gameScreen)
 		}
 	}
@@ -244,10 +245,7 @@ $(document).ready(function(){
 	//SETUP PLAYER
 	function setupPlayer() {
 		var initialRow = $('#row1');
-		if (storageLastPilot == 'Betty') {
-			initialRow = $('#row0');
-		}
-		
+
 		var middlePixel = 15,
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
