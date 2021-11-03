@@ -11,7 +11,7 @@ $(document).ready(function(){
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
 		playWidth = Number($body.attr('data-playwidth')),
-		whenToChangePlayWidth = 13,
+		whenToChangePlayWidth = 11,
 		gameScreen = $('game-screen'),
 		gameSpeed = Number($body.attr('data-spid'));
 		gameScore = 0,
@@ -74,26 +74,36 @@ $(document).ready(function(){
 			enemyDirection = getRandomIntIncInc(0,1),
 			whichGraph = getRandomIntIncInc(1,3);
 
-		if (pixelType == 'grass') {
-			whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
-		} else if (pixelType == 'forest') {
-			whichPixel = '<forest-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/forest-' + whichGraph + '.svg" /></forest-pixel>';
-		} else if (pixelType == 'mountain') {
-			whichPixel = '<mountain-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/mountain-' + whichGraph + '.svg" /></mountain-pixel>';
-		} else if (pixelType == 'river') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
-		} else if (pixelType == 'fuel') {
-			whichPixel = '<fuel-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/fuel.svg" /></fuel-pixel>';
-		} else if (pixelType == 'coastleft') {
-			whichPixel = '<coast-pixel class="left" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
-		} else if (pixelType == 'coastright') {
-			whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
-		} else if (pixelType == 'enemy-boat') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="boat"><img src="graphics/boat.svg" /></enemy-pixel></river-pixel>';
-		} else if (pixelType == 'enemy-chopper') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" class="chopper"><img src="graphics/chopper.svg" /></enemy-pixel></river-pixel>';
-		} else if (pixelType == 'enemy-baloon') {
-			whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" data-move="no" class="baloon"><img src="graphics/ballon.svg" /></enemy-pixel></river-pixel>';
+		switch(pixelType) {
+			case 'grass':
+				whichPixel = '<grass-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></grass-pixel>';
+				break;
+			case 'forest':
+				whichPixel = '<forest-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/forest-' + whichGraph + '.svg" /></forest-pixel>';
+				break;
+			case 'mountain':
+				whichPixel = '<mountain-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/mountain-' + whichGraph + '.svg" /></mountain-pixel>';
+				break;
+			case 'river':
+				whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
+				break;
+			case 'fuel':
+				whichPixel = '<fuel-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/fuel.svg" /></fuel-pixel>';
+				break;
+			case 'coastleft':
+				whichPixel = '<coast-pixel class="left" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
+				break;
+			case 'coastright':
+				whichPixel = '<coast-pixel class="right" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></coast-pixel>';
+				break;
+			case 'enemy-boat':
+				whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel class="boat"><img src="graphics/boat.svg" /></enemy-pixel></river-pixel>';
+				break;
+			case 'enemy-chopper':
+				whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" class="chopper"><img src="graphics/chopper.svg" /></enemy-pixel></river-pixel>';
+				break;
+			case 'enemy-baloon':
+				whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" data-move="no" class="baloon"><img src="graphics/ballon.svg" /></enemy-pixel></river-pixel>';
 		}
 
 		thisRow.append(whichPixel)
@@ -547,7 +557,7 @@ $(document).ready(function(){
 	function updategameScore() {
 		var scoreForThisPilot = 100;
 
-		if (storageLastPilot == 'Betty') {
+		if (storageLastPilot == 'Betty' || storageLastPilot == 'Speedking') {
 			scoreForThisPilot = 200;
 		}
 
@@ -617,7 +627,7 @@ $(document).ready(function(){
 			//ENEMY AI
 			moveChoppers();
 			moveBaloon();
-			if (storageLastPilot == 'Betty' || storageLastPilot == 'Speedking') {
+			if (storageLastPilot == 'Betty') {
 				moveBaloon();
 			} else if (storageLastPilot == 'Vinston') {
 				moveChoppers();
