@@ -11,7 +11,7 @@ $(document).ready(function(){
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
 		playWidth = Number($body.attr('data-playwidth')),
-		whenToChangePlayWidth = screenHeight / pixelSize,
+		whenToChangePlayWidth = 13,
 		gameScreen = $('game-screen'),
 		gameSpeed = Number($body.attr('data-spid'));
 		gameScore = 0,
@@ -29,7 +29,7 @@ $(document).ready(function(){
 		fuelLeakSpeed = 1;
 	} else if (storageLastPilot == 'Betty') {
 		gameSpeed = Math.floor(gameSpeed / 1.230);
-		fuelLeakSpeed = 1.5;
+		fuelLeakSpeed = 1.25;
 	} else if (storageLastPilot == 'Jack') {
 		var jackLeftOrRight = getRandomIntIncInc(0,1);
 		jackLeftOrRight == 0 ? $body.addClass('left') : $body.addClass('right')
@@ -61,7 +61,7 @@ $(document).ready(function(){
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT');
 
-		$('game-stats').append('<game-label><span>Bridge</span><label id="score-bridge">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><span>Fuel</span><label><progress id="fuel-bar" value="' + fuelAmount + '" max="100"></progress></label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
+		$('game-stats').append('<game-label><span>Bridge</span><label id="score-bridge">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><span>Fuel</span><label><progress id="fuel-bar" value="' + fuelAmount + '" max="125"></progress></label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
 
 		$('#score-bridge').html(storageTotalBridge)
 		$('#score-pilot').html(storageLastPilot)
@@ -118,80 +118,80 @@ $(document).ready(function(){
 			willRowContainEnemy = getRandomIntIncExc(0,Math.abs(playWidth-4)),
 			willRowContainEnemyControl = getRandomIntIncExc(0,Math.abs(playWidth-4));
 
-		for (let j = 0; j < numberOfPixelsW; j++) {
+		for (let pixelIndex = 0; pixelIndex < numberOfPixelsW; pixelIndex++) {
 			switch (true) {
-				case (j >= leftGrassStart && j < riverStart):
-					if (willRowContainForest == willRowContainForestControl && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
-						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
-							generatePixel(thisRow, j, pixelSize, 'forest');
+				case (pixelIndex >= leftGrassStart && pixelIndex < riverStart):
+					if (willRowContainForest == willRowContainForestControl && pixelIndex == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
+						if (thisRow.prev().find('#pixel' + pixelIndex).is('grass-pixel')) {
+							generatePixel(thisRow, pixelIndex, pixelSize, 'forest');
 						} else {
-							generatePixel(thisRow, j, pixelSize, 'grass');
+							generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == willContaintMountainControl && j == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
-						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
-							generatePixel(thisRow, j, pixelSize, 'mountain');
+					} else if (willContaintMountain == willContaintMountainControl && pixelIndex == leftGrassStart + getRandomIntIncInc(0,leftGrassStart + riverStart - 1)) {
+						if (thisRow.prev().find('#pixel' + pixelIndex).is('grass-pixel')) {
+							generatePixel(thisRow, pixelIndex, pixelSize, 'mountain');
 						} else {
-							generatePixel(thisRow, j, pixelSize, 'grass');
+							generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
 						}
 					} else {
-						generatePixel(thisRow, j, pixelSize, 'grass');
+						generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
 					}
 					break;
-				case (j >= riverStart && j < rightGrassStart):
-					if (j == riverStart) {
-						generatePixel(thisRow, j, pixelSize, 'coastleft');
+				case (pixelIndex >= riverStart && pixelIndex < rightGrassStart):
+					if (pixelIndex == riverStart) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'coastleft');
 						break;
-					} else if (j == rightGrassStart - 1) {
-						generatePixel(thisRow, j, pixelSize, 'coastright');
+					} else if (pixelIndex == rightGrassStart - 1) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'coastright');
 						break;
 					} else {
-						if (rowID > 5 && rowID % (whenToChangePlayWidth - 5) == 0) {
-							if (j > (riverStart + getRandomIntIncInc(1,2)) && j < (riverStart + riverWidth - getRandomIntIncInc(1,2)) && j % getRandomIntIncInc(2,4) == 0) {
-								generatePixel(thisRow, j, pixelSize, 'fuel');
+						if (rowID > 5 && !$('game-screen').find('fuel-pixel').length) {
+							if (pixelIndex == riverStart + Math.ceil(riverWidth / (getRandomIntIncInc(1,3) + 0.5))) {
+								generatePixel(thisRow, pixelIndex, pixelSize, 'fuel');
 							} else {
-								generatePixel(thisRow, j, pixelSize, 'river');
+								generatePixel(thisRow, pixelIndex, pixelSize, 'river');
 							}
-						} else if (rowID > 10 && willRowContainEnemy == willRowContainEnemyControl && j == riverStart + getRandomIntIncInc(0,riverWidth)) {
+						} else if (rowID > 10 && willRowContainEnemy == willRowContainEnemyControl && pixelIndex == riverStart + getRandomIntIncInc(0,riverWidth)) {
 							var whatTypeOfEnemy = getRandomIntIncInc(0,20);
 							switch (true) {
 							case (whatTypeOfEnemy < 10):
-								generatePixel(thisRow, j, pixelSize, 'enemy-boat');
+								generatePixel(thisRow, pixelIndex, pixelSize, 'enemy-boat');
 								break;
 							case (whatTypeOfEnemy >= 10 && whatTypeOfEnemy <= 15):
 								if(thisRow.find('.chopper').length == 0 && thisRow.find('.baloon').length == 0) {
-									generatePixel(thisRow, j, pixelSize, 'enemy-chopper');
+									generatePixel(thisRow, pixelIndex, pixelSize, 'enemy-chopper');
 								} else {
-									generatePixel(thisRow, j, pixelSize, 'enemy-boat');
+									generatePixel(thisRow, pixelIndex, pixelSize, 'enemy-boat');
 								}
 								break;
 							case (whatTypeOfEnemy > 15):
 								if(thisRow.find('.chopper').length == 0 && thisRow.find('.baloon').length == 0) {
-									generatePixel(thisRow, j, pixelSize, 'enemy-baloon');
+									generatePixel(thisRow, pixelIndex, pixelSize, 'enemy-baloon');
 								} else {
-									generatePixel(thisRow, j, pixelSize, 'enemy-boat');
+									generatePixel(thisRow, pixelIndex, pixelSize, 'enemy-boat');
 								}
 								break;
 							}
 						} else {
-							generatePixel(thisRow, j, pixelSize, 'river');
+							generatePixel(thisRow, pixelIndex, pixelSize, 'river');
 						}
 						break;
 					}
-				case (j >= rightGrassStart && j < numberOfPixelsW):
-					if (willRowContainForest == getRandomIntIncInc(0,2) && j == rightGrassStart + getRandomIntIncInc(0,numberOfPixelsW - rightGrassStart)) {
-						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
-							generatePixel(thisRow, j, pixelSize, 'forest');
+				case (pixelIndex >= rightGrassStart && pixelIndex < numberOfPixelsW):
+					if (willRowContainForest == getRandomIntIncInc(0,2) && pixelIndex == rightGrassStart + getRandomIntIncInc(0,numberOfPixelsW - rightGrassStart)) {
+						if (thisRow.prev().find('#pixel' + pixelIndex).is('grass-pixel')) {
+							generatePixel(thisRow, pixelIndex, pixelSize, 'forest');
 						} else {
-							generatePixel(thisRow, j, pixelSize, 'grass');
+							generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
 						}
-					} else if (willContaintMountain == getRandomIntIncInc(0,8) && j == rightGrassStart + getRandomIntIncInc(0,numberOfPixelsW - rightGrassStart)) {
-						if (thisRow.prev().find('#pixel' + j).is('grass-pixel')) {
-							generatePixel(thisRow, j, pixelSize, 'mountain');
+					} else if (willContaintMountain == getRandomIntIncInc(0,8) && pixelIndex == rightGrassStart + getRandomIntIncInc(0,numberOfPixelsW - rightGrassStart)) {
+						if (thisRow.prev().find('#pixel' + pixelIndex).is('grass-pixel')) {
+							generatePixel(thisRow, pixelIndex, pixelSize, 'mountain');
 						} else {
-							generatePixel(thisRow, j, pixelSize, 'grass');
+							generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
 						}
 					}else {
-						generatePixel(thisRow, j, pixelSize, 'grass');
+						generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
 					}
 					break;
 			}
@@ -285,7 +285,7 @@ $(document).ready(function(){
 	function updateAndCheckFuelAmount() {
 		var currentFuel = Number($('#fuel-bar').attr('value'))
 
-		if (currentFuel == 0) {
+		if (currentFuel < 1) {
 			gameEnded(interval);
 		} else {
 			currentFuel = currentFuel - fuelLeakSpeed;
@@ -534,8 +534,7 @@ $(document).ready(function(){
 
 		if (containingPixel.is('fuel-pixel') && !containingPixel.hasClass('zeds-dead')) {
 			var thisFuel = Number($('#fuel-bar').attr('value'))
-			thisFuel = thisFuel + 50;
-			thisFuel > 100 ? thisFuel = 100 : '';
+			thisFuel = 125;
 			$('#fuel-bar').attr('value',thisFuel)
 		} else if (containingPixel.hasClass('zeds-dead')) {
 			return;
