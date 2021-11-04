@@ -61,9 +61,9 @@ $(document).ready(function(){
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT');
 
-		$('game-stats').append('<game-label><span>Bridge</span><label id="score-bridge">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><span>Fuel</span><label><progress id="fuel-bar" value="' + fuelAmount + '" max="125"></progress></label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
+		$('game-stats').append('<game-label><span>Bridge</span><label id="bridge-label">&nbsp;</label></game-label><game-label><span>Score</span><label id="score-label">0</label></game-label><game-label><span>Fuel</span><label><progress id="fuel-bar" value="' + fuelAmount + '" max="125"></progress></label></game-label><game-label><span>Pilot</span><label id="score-pilot">&nbsp;</label></game-label><game-label><span>Run</span><label id="score-run">&nbsp;</label></game-label>')
 
-		$('#score-bridge').html(storageTotalBridge)
+		$('#bridge-label').html(storageTotalBridge)
 		$('#score-pilot').html(storageLastPilot)
 		$('#score-run').html(storageCurrentRun)
 	}
@@ -104,14 +104,17 @@ $(document).ready(function(){
 				break;
 			case 'enemy-baloon':
 				whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><enemy-pixel data-direction="' + enemyDirection + '-direction" data-move="no" class="baloon"><img src="graphics/ballon.svg" /></enemy-pixel></river-pixel>';
+				break;
+			case 'bridge-pixel':
+				whichPixel = '<bridge-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/bridge-' + 3 + '.svg" /></bridge-pixel>';
+				break;
 		}
 
 		thisRow.append(whichPixel)
 	}
 
-	function philRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
+	function philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
 		gameScreen.append('<screen-row style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
-
 		var thisRow = $('#row' + rowID),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
@@ -127,7 +130,6 @@ $(document).ready(function(){
 			willContaintMountainControl = getRandomIntIncInc(0,5),
 			willRowContainEnemy = getRandomIntIncExc(0,Math.abs(playWidth-4)),
 			willRowContainEnemyControl = getRandomIntIncExc(0,Math.abs(playWidth-4));
-
 		for (let pixelIndex = 0; pixelIndex < numberOfPixelsW; pixelIndex++) {
 			switch (true) {
 				case (pixelIndex >= leftGrassStart && pixelIndex < riverStart):
@@ -208,12 +210,102 @@ $(document).ready(function(){
 		}
 	}
 
+	function philStartRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
+		gameScreen.append('<screen-row class="start-row" style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
+		var thisRow = $('#row' + rowID),
+			getDiff = setplayWidth(pixelSize,playWidth);
+			howMuchGrass = getRandomIntIncInc(numberOfPixelsW - 5,numberOfPixelsW - 5),
+			leftGrass = Math.floor(howMuchGrass / 2),
+			leftGrassStart = 0,
+			riverWidth = numberOfPixelsW - howMuchGrass,
+			riverStart = leftGrassStart + leftGrass,
+			rightGrass = howMuchGrass - leftGrass,
+			rightGrassStart = riverStart + riverWidth;
+		for (let pixelIndex = 0; pixelIndex < numberOfPixelsW; pixelIndex++) {
+			switch (true) {
+				case (pixelIndex >= leftGrassStart && pixelIndex < riverStart || pixelIndex >= rightGrassStart && pixelIndex < numberOfPixelsW):
+					generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
+					break;
+				case (pixelIndex >= riverStart && pixelIndex < rightGrassStart):
+					if (pixelIndex == riverStart) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'coastleft');
+						break;
+					} else if (pixelIndex == rightGrassStart - 1) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'coastright');
+						break;
+					} else {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'river');
+						break;
+					}
+			}
+		}
+	}
+
+	function philBridgeRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
+		gameScreen.append('<screen-row class="bridge-row" style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
+		var thisRow = $('#row' + rowID),
+			getDiff = setplayWidth(pixelSize,playWidth);
+			howMuchGrass = getRandomIntIncInc(numberOfPixelsW - 3,numberOfPixelsW - 3),
+			leftGrass = Math.floor(howMuchGrass / 2),
+			leftGrassStart = 0,
+			riverWidth = numberOfPixelsW - howMuchGrass,
+			riverStart = leftGrassStart + leftGrass,
+			rightGrass = howMuchGrass - leftGrass,
+			rightGrassStart = riverStart + riverWidth;
+		for (let pixelIndex = 0; pixelIndex < numberOfPixelsW; pixelIndex++) {
+			switch (true) {
+				case (pixelIndex >= leftGrassStart && pixelIndex < riverStart || pixelIndex >= rightGrassStart && pixelIndex < numberOfPixelsW):
+					generatePixel(thisRow, pixelIndex, pixelSize, 'grass');
+					break;
+				case (pixelIndex >= riverStart && pixelIndex < rightGrassStart):
+					if (pixelIndex == riverStart) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'coastleft');
+						break;
+					} else if (pixelIndex == rightGrassStart - 1) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'coastright');
+						break;
+					} else {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'bridge-pixel');
+						break;
+					}
+			}
+		}
+	}
+
+	function pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
+		switch(typeOfRow) {
+		case 'start':
+			philStartRow(numberOfPixelsW,rowID,pixelSize,0,gameScreen)
+			break;
+		case 'bridge':
+			philBridgeRow(numberOfPixelsW,rowID,pixelSize,0,gameScreen)
+			break;
+		case 'regular':
+			philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
+			break;
+		}
+	}
+
 	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen) {
 		var numberOfPixelsW = screenWidth / pixelSize,
-			numberOfPixelsH = screenHeight / pixelSize;
+			numberOfPixelsH = screenHeight / pixelSize,
+			typeOfRow = '';
 
 		for (let rowID = 0; rowID < numberOfPixelsH + 1; rowID++) {
-			philRow(numberOfPixelsW, rowID, pixelSize,playWidth,gameScreen)
+			switch(rowID) {
+			case 0:
+				typeOfRow = 'start';
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,0,gameScreen)
+				break;
+			case 1:
+				typeOfRow = 'start';
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,0,gameScreen)
+				break;
+			default:
+				typeOfRow = 'regular';
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
+				break;
+			}
 		}
 	}
 
@@ -222,13 +314,21 @@ $(document).ready(function(){
 		var timeDiff = Math.floor((Date.now() - startMoment)/gameSpeed),
 			numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize,
-			rowID = intervalNewTime;
+			rowID = intervalNewTime,
+			typeOfRow = 'regular';
 
 		if (rowID % whenToChangePlayWidth == 0) {
 			playWidth = getRandomIntIncInc(0,2);
 		}
 
-		philRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
+		if (gameScore > 1 && gameScore % 3000 == 0) {
+			typeOfRow = 'bridge';
+			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
+			updategameScore();
+		} else {
+			typeOfRow = 'regular';
+			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
+		}
 	}
 
 	function sanitizeRowsAfterScroll() {
@@ -354,6 +454,7 @@ $(document).ready(function(){
 				containingPixel = eachFirePixel.parent('river-pixel'),
 				hitEnemy = eachFirePixel.parent('river-pixel').find('enemy-pixel')
 				hitFuel = eachFirePixel.parent('fuel-pixel'),
+				hitBridge = eachFirePixel.parent('bridge-pixel'),
 				shotLength = eachFirePixel.attr('data-shotlength')
 				shotLength == undefined ? shotLength = 0 : '';
 			eachFirePixel.attr('data-shotlength', shotLength + 1).detach().appendTo(fireNextPixel);
@@ -383,8 +484,8 @@ $(document).ready(function(){
 				}
 			}
 
-			if (hitEnemy.length || hitFuel.length) {
-				if(!hitEnemy.hasClass('zeds-dead') && !hitFuel.hasClass('zeds-dead')) {
+			if (hitEnemy.length || hitFuel.length || hitBridge.length) {
+				if(!hitEnemy.hasClass('zeds-dead') && !hitFuel.hasClass('zeds-dead') && !hitBridge.hasClass('zeds-dead')) {
 					if (storageLastPilot == 'Betty') {
 						var thisFirePixel = $(this),
 							fireThisPixelID = thisFirePixel.parent().attr('id'),
@@ -399,18 +500,26 @@ $(document).ready(function(){
 						fireThisNextPixel.next().addClass('explosion').find('enemy-pixel').addClass('zeds-dead')
 						eachFirePixel.remove();
 					}
-					eachFirePixel.remove();	
+					eachFirePixel.remove();
 				}
 
-				if (hitFuel.length) {
+				if (hitBridge.length && !hitBridge.hasClass('zeds-dead')) {
+					hitBridge.addClass('zeds-dead');
+					updateBridgeScore();
+				}
+
+				if (hitFuel.length && !hitFuel.hasClass('zeds-dead')) {
 					hitFuel.addClass('zeds-dead')
 					hitFuel.prev().length ? hitFuel.prev().addClass('zeds-dead') : '';
 					hitFuel.next().length ? hitFuel.next().addClass('zeds-dead') : '';
+					updategameScore();
 				}
-				if (hitEnemy.length) {
+
+				if (hitEnemy.length && !hitEnemy.hasClass('zeds-dead')) {
 					hitEnemy.addClass('zeds-dead');
+					updategameScore();
 				}
-				updategameScore();
+
 			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
 			}
@@ -621,10 +730,16 @@ $(document).ready(function(){
 			scoreForThisPilot = 200;
 		}
 
-
 		gameScore = gameScore + scoreForThisPilot;
 		$('#score-label').html(gameScore)
 		return gameScore;
+	}
+
+	function updateBridgeScore() {
+		var bridgeScore = localStorage.getItem('BRIDGE');
+		bridgeScore = Number(bridgeScore) + 1;
+		localStorage.setItem('BRIDGE', bridgeScore);
+		$('#bridge-label').html(bridgeScore)
 	}
 
 	//GAMEND
@@ -717,7 +832,7 @@ $(document).ready(function(){
 		setupPlayer();
 		initTimingStuff(gameSpeed)
 		$body.attr('data-gamestarted','yes');
-	})
+	});
 
 	$(document).on('click','pilot-chooser .pick-a-pilot', function(e) {
 		e.preventDefault()
@@ -729,7 +844,7 @@ $(document).ready(function(){
 			localStorage.setItem('PILOT',thisPilot);
 			location.reload();
 		}
-	})
+	});
 
 	$(document).on('click','pilot-chooser #restart-game', function(e) {
 		e.preventDefault()
@@ -737,17 +852,19 @@ $(document).ready(function(){
 		localStorage.setItem('BRIDGE','0');
 		localStorage.setItem('PILOT','Bob');
 		location.reload();
-	})
+	});
 
-	//KEYBOARD CONTROLS
+	//CONTROLS EVENTS
 	document.addEventListener('keyup', function(e) {
 		$('touch-controls').addClass('hidden')
 		controlPlayerPixel(e.keyCode);
 	});
+
 	$(document).on('touchstart','body', function () {
 		$('touch-controls').removeClass('hidden')
-	})
+	});
+
 	$(document).on('touchend','touch-controls a', function () {
 		controlPlayerPixel(Number($(this).attr('id')));
-	})
+	});
 });

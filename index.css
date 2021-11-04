@@ -61,14 +61,14 @@ html,body {
 
 touch-controls {
 	position: fixed;
-	bottom: 0;
+	bottom: -200px;
 	left: 0;
 	right: 0;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	z-index: 999;
-	transform: translateY(0);
+	transform: translateY(-100%);
 	opacity: 1;
 	visibility: initial;
 	pointer-events: initial;
@@ -76,7 +76,7 @@ touch-controls {
 }
 
 touch-controls.hidden {
-	transform: translateY(100%);
+	transform: translateY(0);
 	opacity: 0;
 	visibility: hidden;
 	pointer-events: none;
@@ -216,7 +216,7 @@ game-stats {
 	flex-direction: row;
 	flex-wrap: nowrap;
     justify-content: center;
-	width: 100%;
+	max-width: 100%;
 	height: 128px;
 	background-color: var(--game-stats-background);
 	border: 8px solid var(--game-stats-border);
@@ -282,10 +282,48 @@ screen-row {
 	flex-direction: row;
 }
 
+screen-row#row0.start-row grass-pixel {
+	background-color: var(--coast-pixel);
+}
+
+screen-row#row1.start-row grass-pixel {
+	background-color: var(--coast-pixel-after);
+}
+
+screen-row.bridge-row grass-pixel,
+screen-row.bridge-row coast-pixel {
+	background-color: var(--coast-pixel-after);
+	border-top:  5px solid var(--coast-pixel-before);
+	border-bottom:  5px solid var(--coast-pixel-before);
+}
+
 river-pixel {
 	display: block;
 	position: relative;
 	background-color: var(--river-pixel);
+}
+
+bridge-pixel {
+	display: block;
+	position: relative;
+	background-color: var(--river-pixel);
+}
+
+bridge-pixel.zeds-dead:before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	opacity: 0.25;
+	background-image: url(graphics/destroyed.svg);
+	background-position: center;
+	background-size: contain;
+}
+
+bridge-pixel.zeds-dead > img {
+	display: none;
 }
 
 fuel-pixel {
@@ -329,6 +367,8 @@ river-pixel.plane-was-here {
 }
 
 river-pixel.plane-was-here:before {
+	position: relative;
+	z-index: 1;
 	content: "";
 	height: 100%;
 	width: 5px;
@@ -336,6 +376,8 @@ river-pixel.plane-was-here:before {
 }
 
 river-pixel.plane-was-here:after {
+	position: relative;
+	z-index: 1;
 	content: "";
 	height: 100%;
 	width: 5px;
