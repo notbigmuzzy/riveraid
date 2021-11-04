@@ -744,12 +744,10 @@ $(document).ready(function(){
 		$('touch-controls').addClass('hidden')
 		controlPlayerPixel(e.keyCode);
 	});
-	$(document).on('touchstart','body', function (e) {
-		e.preventDefault()
+	$(document).on('touchstart','body', function () {
 		$('touch-controls').removeClass('hidden')
 	})
-	$(document).on('touchend','touch-controls a', function (e) {
-		e.preventDefault()
+	$(document).on('touchend','touch-controls a', function () {
 		controlPlayerPixel(Number($(this).attr('id')));
 	})
 });
