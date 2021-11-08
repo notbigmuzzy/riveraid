@@ -389,6 +389,11 @@ grass-pixel {
 	background-color: var(--grass-pixel);
 }
 
+island-pixel {
+	display: block;
+	background-color: var(--grass-pixel);
+}
+
 forest-pixel {
 	position: relative;
 	background-color: var(--grass-pixel);
