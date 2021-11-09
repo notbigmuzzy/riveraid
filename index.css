@@ -272,6 +272,15 @@ game-screen {
 	max-height: 100%;
 }
 
+game-screen screen-row:nth-last-child(-n+3) island-pixel,
+game-screen screen-row:nth-last-child(-n+3) island-pixel:before,
+game-screen screen-row:nth-last-child(-n+3) island-pixel:after {
+	background-color: var(--river-pixel);
+}
+game-screen screen-row:nth-last-child(-n+3) island-pixel img {
+	display: none;
+}
+
 screen-canvas {
 	display: flex;
 	flex-direction: column;	
@@ -392,6 +401,39 @@ grass-pixel {
 island-pixel {
 	display: block;
 	background-color: var(--grass-pixel);
+}
+
+island-pixel:first-of-type,
+island-pixel:last-of-type {
+	display: flex;
+	flex-direction: row;
+}
+
+island-pixel:first-of-type img,
+island-pixel:last-of-type img {
+	display: none;
+}
+
+island-pixel:last-of-type {
+	justify-content: flex-end;
+}
+
+island-pixel:first-of-type:before,
+island-pixel:last-of-type:after {
+	content: '';
+	width: 20%;
+	display: block;
+	height: 100%;
+	background-color: var(--coast-pixel-before);
+}
+
+island-pixel:first-of-type:after,
+island-pixel:last-of-type:before {
+	content: '';
+	width: 70%;
+	display: block;
+	height: 100%;
+	background-color: var(--coast-pixel-after);
 }
 
 forest-pixel {
