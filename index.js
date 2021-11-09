@@ -11,6 +11,7 @@ $(document).ready(function(){
 		screenHeight = $body.attr('data-height'),
 		pixelSize = $body.attr('data-pxsize'),
 		playWidth = Number($body.attr('data-playwidth')),
+		riverMeander = Number($body.attr('data-meander')),
 		whenToChangePlayWidth = 11,
 		gameScreen = $('game-screen'),
 		gameSpeed = Number($body.attr('data-spid'));
@@ -44,7 +45,7 @@ $(document).ready(function(){
 		break;
 	default:
 		setupGamingScreen(screenWidth,screenHeight,gameScreen)
-		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
+		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,0,riverMeander);
 		setupPlayer();
 		$body.attr('data-gamestarted','yes');
 		initTimingStuff(gameSpeed)
@@ -181,12 +182,14 @@ $(document).ready(function(){
 		}
 	}
 
-	function philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland) {
-		gameScreen.append('<screen-row data-rowidth="rowidth-' + playWidth + '" style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
+	function philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander) {
+		gameScreen.append('<screen-row data-rowmeander="' + riverMeander + '" data-rowidth="rowidth-' + playWidth + '" style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
 		var thisRow = $('#row' + rowID),
+			thisRowMeander = Number(thisRow.attr('data-rowmeander')),
 			getDiff = setplayWidth(pixelSize,playWidth);
 			howMuchGrass = getRandomIntIncInc(getDiff.from,getDiff.to),
-			leftGrass = Math.floor(howMuchGrass / 2),
+			thisRowRiverMeander = riverMeander / 100,
+			leftGrass = Math.floor(howMuchGrass / thisRowRiverMeander),
 			leftGrassStart = 0,
 			riverWidth = numberOfPixelsW - howMuchGrass,
 			riverStart = leftGrassStart + leftGrass,
@@ -200,6 +203,29 @@ $(document).ready(function(){
 			willRowContainEnemy = getRandomIntIncExc(0,Math.abs(playWidth-4)),
 			willRowContainEnemyControl = getRandomIntIncExc(0,Math.abs(playWidth-4)),
 			fuelLeftOrRight = getRandomIntIncInc(0,1);
+
+
+		//RIVER MEANDERING
+		if (playWidth == 2) { //WIDE RIVER RESET MEANDER
+			$('body').attr('data-meander', '200')
+		} else {
+			var meanderModifier = 10,
+				willGoLeftOrRight = getRandomIntIncInc(0,1);
+
+			if (modifyMeander < 110) {
+				willGoLeftOrRight = 1;
+			} else if (modifyMeander >= 500) {
+				willGoLeftOrRight = 0;
+			}
+
+			if (willGoLeftOrRight) {//MEANDER LEFT
+				var modifyMeander = thisRowMeander - meanderModifier
+			} else {//MEANDER RIGHT
+				var modifyMeander = thisRowMeander + meanderModifier
+			}
+
+			$('body').attr('data-meander', modifyMeander)	
+		}
 
 		//WILL RIVER ROW HAVE ISLANDS LOGIC
 		if (thisRow.attr('data-rowidth') == 'rowidth-2' && thisRow.prev().attr('data-rowidth') != 'rowidth-2') {
@@ -410,7 +436,7 @@ $(document).ready(function(){
 		}
 	}
 
-	function pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland) {
+	function pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander) {
 		switch(typeOfRow) {
 			case 'start':
 				philStartRow(numberOfPixelsW,rowID,pixelSize,0,gameScreen)
@@ -419,12 +445,12 @@ $(document).ready(function(){
 				philBridgeRow(numberOfPixelsW,rowID,pixelSize,0,gameScreen)
 				break;
 			case 'regular':
-				philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland)
+				philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
 				break;
 		}
 	}
 
-	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,willRiverHaveIsland) {
+	function philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander) {
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize,
 			typeOfRow = '',
@@ -442,14 +468,14 @@ $(document).ready(function(){
 				break;
 			default:
 				typeOfRow = 'regular';
-				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland)
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
 				break;
 			}
 		}
 	}
 
 	//SCROLL SCREEN
-	function scrollScreen(startMoment,gameSpeed,intervalNewTime) {
+	function scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander) {
 		var timeDiff = Math.floor((Date.now() - startMoment)/gameSpeed),
 			numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize,
@@ -467,7 +493,7 @@ $(document).ready(function(){
 			updategameScore();
 		} else {
 			typeOfRow = 'regular';
-			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland)
+			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
 		}
 	}
 
@@ -910,20 +936,20 @@ $(document).ready(function(){
 
 		switch(playWidth) {
 			case 0:
-				from = Math.floor(pixelSize / 1.25);
-				to = from + 3;
+				from = Math.floor(pixelSize / 1.3);
+				to = from + 1;
 				break;
 			case 1:
 				from = Math.ceil(pixelSize / 1.8);
-				to = from + 5;
+				to = from + 2;
 				break;
 			case 2:
-				from = Math.ceil(pixelSize / 4);
-				to = from + 7;
+				from = Math.ceil(pixelSize / 5);
+				to = from + 4;
 				break;
 			default:
 				from = Math.ceil(pixelSize / 1.8);
-				to = from + 5;
+				to = from + 2;
 				break;
 		}
 
@@ -934,9 +960,13 @@ $(document).ready(function(){
 		var	startMoment = Date.now();
 
 		interval = setInterval(function() {
-			var intervalNewTime = Date.now()
+			var intervalNewTime = Date.now(),
+				riverMeander = Number($body.attr('data-meander'));
+
+			console.log(riverMeander)
+
 			//SCROLL SCREEN
-			scrollScreen(startMoment,gameSpeed,intervalNewTime);
+			scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander);
 			sanitizeRowsAfterScroll();
 			updateAndCheckFuelAmount();
 			//ENEMY AI
@@ -968,7 +998,7 @@ $(document).ready(function(){
 		$('body').attr('data-screenchoose','no')
 		$('pilot-choose').remove();
 		setupGamingScreen(screenWidth,screenHeight,gameScreen)
-		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen);
+		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,0,riverMeander);
 		setupPlayer();
 		initTimingStuff(gameSpeed)
 		$body.attr('data-gamestarted','yes');
