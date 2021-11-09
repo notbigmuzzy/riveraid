@@ -650,7 +650,7 @@ body.pilot-rosanna player-pixel:before {
 	height: 100%;
 	background-color: rgba(0,0,0,0.5);
 	top: 0;
-	z-index: 1;
+	z-index: 2;
 	transform: translateX(150px) rotate(5deg);
 }
 body.pilot-rosanna player-pixel:after {
@@ -661,6 +661,6 @@ body.pilot-rosanna player-pixel:after {
 	height: 100%;
 	background-color: rgba(0,0,0,0.5);
 	top: 0;
-	z-index: 1;
+	z-index: 2;
 	transform: translateX(-110%) rotate(-5deg);
 }

@@ -428,7 +428,7 @@ $(document).ready(function(){
 		var numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize,
 			typeOfRow = '',
-			willRiverHaveIsland = 1;
+			willRiverHaveIsland = 0;
 
 		for (let rowID = 0; rowID < numberOfPixelsH + 1; rowID++) {
 			switch(rowID) {
@@ -442,7 +442,7 @@ $(document).ready(function(){
 				break;
 			default:
 				typeOfRow = 'regular';
-				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,2,gameScreen,willRiverHaveIsland)
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland)
 				break;
 			}
 		}
