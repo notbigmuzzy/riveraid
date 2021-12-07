@@ -158,8 +158,8 @@ $(document).ready(function(){
 			howMuchGrass = getRandomIntIncInc(numberOfPixelsW - 3,numberOfPixelsW - 3),
 			leftGrass = Math.floor(howMuchGrass / 2),
 			leftGrassStart = 0,
-			riverWidth = numberOfPixelsW - howMuchGrass,
-			riverStart = leftGrassStart + leftGrass,
+			riverStart = 5
+			riverWidth = numberOfPixelsW - riverStart,
 			rightGrass = howMuchGrass - leftGrass,
 			rightGrassStart = riverStart + riverWidth;
 		for (let pixelIndex = 0; pixelIndex < numberOfPixelsW; pixelIndex++) {
@@ -671,6 +671,7 @@ $(document).ready(function(){
 
 				if (hitBridge.length && !hitBridge.hasClass('zeds-dead')) {
 					hitBridge.addClass('zeds-dead');
+					hitBridge.parent('screen-row').find('bridge-pixel').addClass('zeds-dead')
 					updateBridgeScore();
 				}
 
@@ -962,8 +963,6 @@ $(document).ready(function(){
 		interval = setInterval(function() {
 			var intervalNewTime = Date.now(),
 				riverMeander = Number($body.attr('data-meander'));
-
-			console.log(riverMeander)
 
 			//SCROLL SCREEN
 			scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander);
