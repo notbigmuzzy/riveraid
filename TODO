@@ -1,12 +1,11 @@
 TODO:
+1) Gamepad support
+2) Improve scrolling animation
+3) Sound
+4) Improve Graphics
+5) Readme.md
 
-1) River meandering
-2) Sessions?
 
-...
-
-96 ) Gamepad support
-97 ) Improve scrolling animation
-98 ) Sound
-99 ) Improve Graphics
-100) Readme.md
+BUGS:
+1) Sometimes river meandering spawns unpassable terrain
+2) Possible issue of user session, has to be restarted by hand
