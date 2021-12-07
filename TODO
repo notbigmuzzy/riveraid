@@ -1,11 +1,12 @@
 TODO:
 1) Gamepad support
-2) Improve scrolling animation
-3) Sound
-4) Improve Graphics
-5) Readme.md
+2) Sound
+3) Readme.md
 
+TOMAYBEDO:
+1) Improve scrolling animation
+2) Improve Graphics
+3) Responsive
 
 BUGS:
 1) Sometimes river meandering spawns unpassable terrain
-2) Possible issue of user session, has to be restarted by hand
