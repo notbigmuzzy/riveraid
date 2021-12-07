@@ -575,7 +575,7 @@ $(document).ready(function(){
 
 		if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
 			numberOfFirePixelsPerShot = 3;
-		} else if (storageLastPilot == 'Bob' || storageLastPilot == 'Speedking' || storageLastPilot == 'Betty') {
+		} else if (storageLastPilot == 'Betty') {
 			numberOfFirePixelsPerShot = 1;
 		}
 
@@ -737,14 +737,6 @@ $(document).ready(function(){
 				var playerPixel = $('player-pixel');
 				if (storageLastPilot == 'Alexei') {
 					stearRight(playerPixel);
-				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
-					stearLeft(playerPixel);
-
-					var firePixel = $('fire-pixel');
-					if (firePixel.length) {
-						stearLeft(firePixel);	
-					}
-					
 				} else {
 					stearLeft(playerPixel);
 				}
@@ -760,12 +752,6 @@ $(document).ready(function(){
 				var playerPixel = $('player-pixel');
 				if (storageLastPilot == 'Alexei') {
 					stearLeft(playerPixel);
-				} else if (storageLastPilot == 'Speedking' || storageLastPilot == 'Bob') {
-					stearRight(playerPixel);
-					var firePixel = $('fire-pixel');
-					if (firePixel.length) {
-						stearRight(firePixel);	
-					}
 				} else {
 					stearRight(playerPixel);
 				}
