@@ -487,7 +487,7 @@ $(document).ready(function(){
 			playWidth = getRandomIntIncInc(0,2);
 		}		
 
-		if (gameScore > 1 && gameScore % 3000 == 0) {
+		if (gameScore > 1 && gameScore % 2000 == 0) {
 			typeOfRow = 'bridge';
 			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
 			updategameScore();
