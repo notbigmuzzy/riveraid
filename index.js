@@ -562,6 +562,7 @@ $(document).ready(function(){
 		var currentFuel = Number($('#fuel-bar').attr('value'))
 
 		if (currentFuel < 1) {
+			playSound('crash');
 			gameEnded(interval);
 		} else {
 			currentFuel = currentFuel - fuelLeakSpeed;
@@ -588,6 +589,7 @@ $(document).ready(function(){
 				playerNextPixel = playerNextRow.find('#' + playerCurrentPixelID);
 
 			playerNextPixel.append(firePixel);
+			playSound('shot');
 		}
 	}
 
@@ -603,8 +605,9 @@ $(document).ready(function(){
 				playerNextPixel = playerNextRow.find('#' + playerCurrentPixelID);
 
 			playerNextPixel.append(firePixel);
-			firePixel.clone().appendTo(playerNextPixel.prev())
-			firePixel.clone().appendTo(playerNextPixel.next())
+			firePixel.clone().appendTo(playerNextPixel.prev());
+			firePixel.clone().appendTo(playerNextPixel.next());
+			playSound('shot');
 		}
 	}
 
@@ -673,6 +676,7 @@ $(document).ready(function(){
 					hitBridge.addClass('zeds-dead');
 					hitBridge.parent('screen-row').find('bridge-pixel').addClass('zeds-dead')
 					updateBridgeScore();
+					playSound('destroy');
 				}
 
 				if (hitFuel.length && !hitFuel.hasClass('zeds-dead')) {
@@ -680,11 +684,13 @@ $(document).ready(function(){
 					hitFuel.prev().length ? hitFuel.prev().addClass('zeds-dead') : '';
 					hitFuel.next().length ? hitFuel.next().addClass('zeds-dead') : '';
 					updategameScore();
+					playSound('destroy');
 				}
 
 				if (hitEnemy.length && !hitEnemy.hasClass('zeds-dead')) {
 					hitEnemy.addClass('zeds-dead');
 					updategameScore();
+					playSound('destroy');
 				}
 
 			} else if (!fireNextRow.length || !containingPixel.length) {
@@ -725,6 +731,7 @@ $(document).ready(function(){
 
 		switch (eventCode) {
 		case 32: //SPACEBAR
+			playSound('theme')
 			if (storageLastPilot == 'Vinston') {
 				fireSpread();
 				break;
@@ -743,6 +750,7 @@ $(document).ready(function(){
 			}
 			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
 				if ($('.pick-a-pilot.focused').prev().length) {
+					playSound('menu');
 					$('.pick-a-pilot.focused').removeClass('focused').prev().addClass('focused').focus()		
 				}
 			}
@@ -758,6 +766,7 @@ $(document).ready(function(){
 			}
 			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
 				if ($('.pick-a-pilot.focused').next().length) {
+					playSound('menu');
 					$('.pick-a-pilot.focused').removeClass('focused').next().addClass('focused').focus()
 				}
 			}
@@ -866,11 +875,13 @@ $(document).ready(function(){
 
 		if (containingPixel.is('fuel-pixel') && !containingPixel.hasClass('zeds-dead')) {
 			var thisFuel = Number($('#fuel-bar').attr('value'))
+			playSound('fuel');
 			thisFuel = 125;
 			$('#fuel-bar').attr('value',thisFuel)
 		} else if (containingPixel.hasClass('zeds-dead') || containingPixel.length == 0) {
 			return;
 		} else if (!containingPixel.is('river-pixel') || containingPixelHasEnemy.length) {
+			playSound('crash');
 			gameEnded(interval);
 		}
 	}
@@ -976,6 +987,13 @@ $(document).ready(function(){
 				scrollFire();
 			}
 		}, gameSpeed);
+	}
+
+	//SOUNDS
+	function playSound(sound) {
+		var whichSound = "snd-" + sound,
+			playerID = document.getElementById(whichSound);
+		playerID.play();
 	}
 
 	//CLICK ON PILOT CHOOSER ACTIONS
