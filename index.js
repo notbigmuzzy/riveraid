@@ -66,6 +66,7 @@ $(document).ready(function(){
 	} else {
 		localStorage.setItem('BOSS', 'true');
 		$body.addClass("pilot-" + storageLastPilot.toLowerCase())
+		$body.addClass('win-screen')
 		setupBottomStatsScreen();
 		setupGamingScreen(screenWidth,screenHeight,gameScreen)
 		bossScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,0,riverMeander);
@@ -558,7 +559,7 @@ $(document).ready(function(){
 				playWidth = getRandomIntIncInc(0,2);
 			}
 
-			if (gameScore > 1 && gameScore % 300 == 0) {
+			if (gameScore > 1 && gameScore % 2000 == 0) {
 				typeOfRow = 'bridge';
 				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
 				updategameScore();
@@ -568,6 +569,8 @@ $(document).ready(function(){
 			}
 		} else {
 			typeOfRow = 'sea';
+			$('body').addClass('win-screen')
+			setupBoss()
 			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen);	
 		}
 	}
@@ -607,9 +610,9 @@ $(document).ready(function(){
 
 		switch(screenState) {
 			case "win":
-				$('session-title').append("<h1>GAME <br> WON</h2>")
+				$('session-title').append("<h1>YOU WIN!</h2>")
 				$('pilot-choose').addClass('win-screen')
-				$('pilot-chooser').append("<div class='pilot-list'></div><br/>\<br/><a href='#' id='restart-game'>Play again?</a>");
+				$('pilot-chooser').append("<div class='pilot-list'></div><br/><br/><a href='#' id='restart-game'>Play again?</a>");
 				$('pilot-chooser a').focus().addClass('focused');
 				break;
 			case "start":
@@ -630,7 +633,6 @@ $(document).ready(function(){
 				$(useMePilotNames).each(function(i, name){
 					var thisPilot = listOfPilots[name],
 						thisPilotDescription = $('pilot-list').attr('data-' + thisPilot);
-
 					$('.pilot-list').append("<a href='#' class='pick-a-pilot' data-pilotname='" + thisPilot + "'><img src='graphics/characters/" + thisPilot + ".svg'/><b>" + thisPilot + "</b><i>(" + thisPilotDescription + ")</i>")
 				})
 				$('pilot-chooser a').first().next().focus().addClass('focused');
@@ -998,7 +1000,7 @@ $(document).ready(function(){
 		clearInterval(interval);
 		interval = null;
 		$body.attr('data-gameended','yes');
-		//localStorage.setItem('WON','yes');
+		localStorage.setItem('WON','yes');
 		showSelectScreen(gameScreen,'win');
 	}
 
@@ -1089,15 +1091,17 @@ $(document).ready(function(){
 	}
 
 	function setupBoss() {
-		var initialRow = $('game-screen').find('screen-row').eq(-3),
-			middlePosition = 15,
-			middlePixel = initialRow.find('#pixel' + middlePosition),
-			leftPixel = initialRow.find('#pixel' + (Math.floor(middlePosition / 2))),
-			rightPixel = initialRow.find('#pixel' + (Math.floor(middlePosition * 1.5)));
+		if (!$('enemy-pixel.boss').length && !$('grass-pixel').length ) {
+			var initialRow = $('game-screen').find('screen-row').eq(-3),
+				middlePosition = 15,
+				middlePixel = initialRow.find('#pixel' + middlePosition),
+				leftPixel = initialRow.find('#pixel' + (Math.floor(middlePosition / 2))),
+				rightPixel = initialRow.find('#pixel' + (Math.floor(middlePosition * 1.5)));
 
-		middlePixel.append('<enemy-pixel class="boss middle turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
-		leftPixel.append('<enemy-pixel class="boss left turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
-		rightPixel.append('<enemy-pixel class="boss right turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
+			middlePixel.append('<enemy-pixel class="boss middle turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
+			leftPixel.append('<enemy-pixel class="boss left turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
+			rightPixel.append('<enemy-pixel class="boss right turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')	
+		}
 	}
 
 	function scrollBoss() {

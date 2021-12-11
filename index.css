@@ -12,6 +12,7 @@ body {
 	--game-stats-label: #fff;
 	--boss-back: #9e2441;
 	--boss-floorboard: #d39415;
+	--boss-floorlines: #9f7012;
 }
 
 body.pilot-vinston {
@@ -22,6 +23,9 @@ body.pilot-vinston {
 	--coast-pixel-before: #b1b1b1;
 	--coast-pixel-after: #a3a3a3;
 	--player-pixel: #ededed;
+	--boss-back: #949494;
+	--boss-floorboard: #949494;
+	--boss-floorlines: #404040;
 }
 
 body.pilot-rosanna {
@@ -36,6 +40,9 @@ body.pilot-rosanna {
 	--game-stats-border: #09112d;
 	--game-stats-span: #651818;
 	--game-stats-label: #427dff;
+	--boss-back: #09112d;
+	--boss-floorboard: #651818;
+	--boss-floorlines: #060723;
 }
 
 body.pilot-betty {
@@ -150,6 +157,11 @@ pilot-choose session-title h1 {
 	font-weight: bold;
 	font-size: 48px;
 	margin-bottom: 60px;
+}
+
+pilot-choose.win-screen session-title h1 {
+	font-size: 60px;
+	font-style: italic;
 }
 
 pilot-choose pilot-chooser {
@@ -595,7 +607,7 @@ enemy-pixel.boss i-prev {
 	z-index: 2;
 	z-index: 2;
 	background-color: var(--boss-back);
-	background-image: linear-gradient(#9f7012 1px, transparent 1px), linear-gradient(to right, #9f7012 1px, var(--boss-floorboard) 1px);
+	background-image: linear-gradient(var(--boss-floorlines) 1px, transparent 1px), linear-gradient(to right, var(--boss-floorlines) 1px, var(--boss-floorboard) 1px);
 	background-size: 32px 4px;
 }
 
@@ -810,6 +822,14 @@ body.pilot-betty screen-row:nth-child(n+18) {
 	opacity: 0.2;
 }
 
+body.pilot-betty.win-screen screen-row:nth-child(n+11){
+	display: flex;
+}
+
+body.pilot-betty.win-screen screen-row:nth-child(n+11) grass-pixel {
+	z-index: 1;
+}
+
 /**/
 body.pilot-jack.left player-pixel:after {
 	content: '';
@@ -819,7 +839,7 @@ body.pilot-jack.left player-pixel:after {
 	height: 100%;
 	background-color: #000;
 	top: 0;
-	z-index: 2;
+	z-index: 5;
 	transform: translateX(-99%);
 }
 
@@ -831,7 +851,7 @@ body.pilot-jack.right player-pixel:after {
 	height: 100%;
 	background-color: #000;
 	top: 0;
-	z-index: 2;
+	z-index: 5;
 	transform: translateX(16px);
 }
 
@@ -844,6 +864,10 @@ body.pilot-rosanna screen-row enemy-pixel {
 body.pilot-rosanna screen-row enemy-pixel img,
 body.pilot-rosanna screen-row player-pixel img {
 	filter: invert(1);
+}
+
+body.pilot-rosanna screen-row enemy-pixel.boss img {
+	filter: invert(0);
 }
 
 body.pilot-rosanna screen-row grass-pixel,
