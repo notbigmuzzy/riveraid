@@ -10,6 +10,8 @@ body {
 	--game-stats-border: #888;
 	--game-stats-span: #000;
 	--game-stats-label: #fff;
+	--boss-back: #9e2441;
+	--boss-floorboard: #d39415;
 }
 
 body.pilot-vinston {
@@ -281,6 +283,7 @@ game-screen screen-row:nth-last-child(-n+3) island-pixel:before,
 game-screen screen-row:nth-last-child(-n+3) island-pixel:after {
 	background-color: var(--river-pixel);
 }
+
 game-screen screen-row:nth-last-child(-n+3) island-pixel img {
 	display: none;
 }
@@ -293,6 +296,12 @@ screen-canvas {
 screen-row {
 	display: flex;
 	flex-direction: row;
+}
+
+screen-row.regular-row + .sea-row .deepsea,
+screen-row.regular-row + .sea-row + .sea-row .deepsea,
+screen-row.regular-row + .sea-row + .sea-row + .sea-row .deepsea {
+ background-color: var(--river-pixel);
 }
 
 screen-row#row0.start-row grass-pixel {
@@ -317,6 +326,10 @@ river-pixel {
 }
 
 river-pixel.deepsea {
+	background-color: var(--deepsea-pixel);
+}
+
+screen-row.sea-row fuel-pixel {
 	background-color: var(--deepsea-pixel);
 }
 
@@ -557,6 +570,187 @@ enemy-pixel.zeds-dead img {
 	display: none;
 }
 
+enemy-pixel.boss {
+	position: relative;
+	background-color: var(--boss-back);
+	z-index: 2;
+}
+
+enemy-pixel.boss img {
+	width: 100%;
+	height: auto;
+}
+
+enemy-pixel.boss i {
+	border-bottom: 5px solid #000;}
+
+enemy-pixel.boss i,
+enemy-pixel.boss i-prev {
+	position: absolute;
+	display: block;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	z-index: 2;
+	background-color: var(--boss-back);
+	background-image: linear-gradient(#9f7012 1px, transparent 1px), linear-gradient(to right, #9f7012 1px, var(--boss-floorboard) 1px);
+	background-size: 32px 4px;
+}
+
+enemy-pixel.boss.middle i:nth-child(2) {
+	left: -100%;
+}
+
+enemy-pixel.boss.middle i:nth-child(3) {
+	left: 100%;
+}
+
+enemy-pixel.boss.middle i:nth-child(4) {
+	left: -200%;
+}
+
+enemy-pixel.boss.middle i:nth-child(5) {
+	left: 200%;
+}
+
+enemy-pixel.boss.middle i:nth-child(6) {
+	left: -300%;
+}
+
+enemy-pixel.boss.middle i:nth-child(7) {
+	left: 300%;
+}
+
+enemy-pixel.boss.middle i:nth-child(8) {
+	left: -400%;
+}
+
+enemy-pixel.boss.middle i:nth-child(9) {
+	left: 400%;
+}
+
+enemy-pixel.boss i-prev {
+	top: -100%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(10) {
+	left: -400%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(11) {
+	left: -300%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(12) {
+	left: -200%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(13) {
+	left: -100%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(14) {
+	left: 0;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(15) {
+	left: 100%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(16) {
+	left: 200%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(17) {
+	left: 300%;
+}
+
+enemy-pixel.boss.middle i-prev:nth-child(18) {
+	left: 400%;
+}
+
+enemy-pixel.boss.left i:nth-child(2) {
+	left: -100%;
+	border-left: 5px solid #000;
+}
+
+enemy-pixel.boss.left i:nth-child(3) {
+	left: 100%;
+}
+
+enemy-pixel.boss.left i:nth-child(4) {
+	left: 200%;
+}
+
+enemy-pixel.boss.left i:nth-child(5) {
+	left: 300%;
+}
+
+enemy-pixel.boss.left i-prev:nth-child(6) {
+	left: -200%;
+	border-bottom: 5px solid #000;
+	border-left: 5px solid #000;
+}
+
+enemy-pixel.boss.left i-prev:nth-child(7) {
+	left: -100%;
+}
+
+enemy-pixel.boss.left i-prev:nth-child(8) {
+	left: 0;
+}
+
+enemy-pixel.boss.left i-prev:nth-child(9) {
+	left: 100%;
+}
+
+enemy-pixel.boss.left i-prev:nth-child(10) {
+	left: 200%;
+}
+
+enemy-pixel.boss.left i-prev:nth-child(11) {
+	left: 300%;
+}
+
+enemy-pixel.boss.right i:nth-child(2) {
+	left: -200%;
+}
+
+enemy-pixel.boss.right i:nth-child(3) {
+	left: -100%;
+}
+
+enemy-pixel.boss.right i:nth-child(4) {
+	left: 100%;
+	border-right: 5px solid #000;
+}
+
+enemy-pixel.boss.right i-prev:nth-child(5) {
+	left: -200%;
+}
+
+enemy-pixel.boss.right i-prev:nth-child(6) {
+	left: -100%;
+}
+
+enemy-pixel.boss.right i-prev:nth-child(7) {
+	left: 0;
+}
+
+enemy-pixel.boss.right i-prev:nth-child(8) {
+	left: 100%;
+}
+
+enemy-pixel.boss.right i-prev:nth-child(9) {
+	left: 200%;
+	border-bottom: 5px solid #000;
+	border-right: 5px solid #000;
+}
+
+
+
 .bubbles screen-row:nth-child(n+11) {
 	opacity: 0.5;
 }
@@ -576,13 +770,16 @@ enemy-pixel.zeds-dead img {
 body.pilot-alexei game-screen {
 	flex-direction: column;
 }
+
 body.pilot-alexei player-pixel img {
 	transform: rotate(180deg);
 }
+
 /**/
 body.pilot-vinston img {
 	filter: grayscale(1);
 }
+
 /**/
 body.pilot-betty game-screen:before {
     content: url();
@@ -600,15 +797,19 @@ body.pilot-betty game-screen:before {
 body.pilot-betty img {
 	filter: contrast(0.5);
 }
+
 body.pilot-betty screen-row:nth-child(n+11){
 	display: none;
 }
+
 body.pilot-betty screen-row:nth-child(n+15) {
 	opacity: 0.5;
 }
+
 body.pilot-betty screen-row:nth-child(n+18) {
 	opacity: 0.2;
 }
+
 /**/
 body.pilot-jack.left player-pixel:after {
 	content: '';
@@ -621,6 +822,7 @@ body.pilot-jack.left player-pixel:after {
 	z-index: 2;
 	transform: translateX(-99%);
 }
+
 body.pilot-jack.right player-pixel:after {
 	content: '';
 	display: block;
@@ -632,24 +834,29 @@ body.pilot-jack.right player-pixel:after {
 	z-index: 2;
 	transform: translateX(16px);
 }
+
 /**/
 body.pilot-rosanna screen-row river-pixel,
 body.pilot-rosanna screen-row enemy-pixel {
 	background-color: var(--river-pixel);
 }
+
 body.pilot-rosanna screen-row enemy-pixel img,
 body.pilot-rosanna screen-row player-pixel img {
 	filter: invert(1);
 }
+
 body.pilot-rosanna screen-row grass-pixel,
 body.pilot-rosanna screen-row mountain-pixel,
 body.pilot-rosanna screen-row forest-pixel {
 	background-color: var(--grass-pixel);
 	opacity: 0.25;
 }
+
 body.pilot-rosanna screen-row coast-pixel {
 	background-color: var(--coast-pixel);	
 }
+
 body.pilot-rosanna player-pixel:before {
 	content: '';
 	display: block;
@@ -661,6 +868,7 @@ body.pilot-rosanna player-pixel:before {
 	z-index: 2;
 	transform: translateX(150px) rotate(5deg);
 }
+
 body.pilot-rosanna player-pixel:after {
 	content: '';
 	display: block;
