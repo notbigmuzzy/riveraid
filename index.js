@@ -4,6 +4,8 @@ $(document).ready(function(){
 	localStorage.getItem('RUN') != null ? "" : localStorage.setItem('RUN','1');
 	localStorage.getItem('BRIDGE') != null ? "" : localStorage.setItem('BRIDGE','0');
 	localStorage.getItem('PILOT') != null ? "" : localStorage.setItem('PILOT','Bob');
+	localStorage.getItem('BOSS') != null ? "" : localStorage.setItem('BOSS','false');
+	localStorage.getItem('WON') != null ? "" : localStorage.setItem('WON','no');
 
 	//SET GLOBAL VARS
 	var $body = $('body'),interval,
@@ -19,10 +21,19 @@ $(document).ready(function(){
 		storageCurrentRun = localStorage.getItem('RUN'),
 		storageTotalBridge = localStorage.getItem('BRIDGE'),
 		storageLastPilot = localStorage.getItem('PILOT'),
+		storageBoss = localStorage.getItem('BOSS'),
+		storageWon = localStorage.getItem('WON'),
 		pilotNames = $('pilot-list').attr('data-pilotlist'),
 		listOfPilots = pilotNames.split(','),
 		fuelAmount = Number($body.attr('data-fuel')),
 		fuelLeakSpeed = Number($body.attr('data-fueleak'));
+
+	//CHECK IF GAME WON
+	if (storageWon == "yes") {
+		winGame()
+		return;
+	}
+
 
 	//OVERRIDE SPECIFIC PILOT CONFIG
 	if (storageLastPilot == 'Speedking') {
@@ -37,19 +48,32 @@ $(document).ready(function(){
 	}
 
 	//SETUP GAME
-	$body.addClass("pilot-" + storageLastPilot.toLowerCase())
-	setupBottomStatsScreen();
-	switch(storageCurrentRun) {
-	case '1':
-		showSelectPilotScreen(gameScreen,'start');
-		break;
-	default:
+	if(storageTotalBridge < 10) {
+		$body.addClass("pilot-" + storageLastPilot.toLowerCase())
+		setupBottomStatsScreen();
+		localStorage.setItem('BOSS', 'false');
+		switch(storageCurrentRun) {
+		case '1':
+			showSelectScreen(gameScreen,'start');
+			break;
+		default:
+			setupGamingScreen(screenWidth,screenHeight,gameScreen)
+			philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,0,riverMeander);
+			setupPlayer();
+			$body.attr('data-gamestarted','yes');
+			initTimingStuff(gameSpeed)
+			break;
+		}
+	} else {
+		localStorage.setItem('BOSS', 'true');
+		$body.addClass("pilot-" + storageLastPilot.toLowerCase())
+		setupBottomStatsScreen();
 		setupGamingScreen(screenWidth,screenHeight,gameScreen)
-		philScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,0,riverMeander);
+		bossScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,0,riverMeander);
 		setupPlayer();
+		setupBoss();
 		$body.attr('data-gamestarted','yes');
 		initTimingStuff(gameSpeed)
-		break;
 	}
 
 	//GENERATE SCREEN
@@ -93,6 +117,12 @@ $(document).ready(function(){
 				break;
 			case 'river':
 				whichPixel = '<river-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
+				break;
+			case 'sea':
+				whichPixel = '<river-pixel class="sea" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
+				break;
+			case 'deepsea':
+				whichPixel = '<river-pixel class="deepsea" id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"></river-pixel>';
 				break;
 			case 'fuel':
 				whichPixel = '<fuel-pixel id="pixel' + pixelIndex + '" style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/fuel.svg" /></fuel-pixel>';
@@ -182,6 +212,33 @@ $(document).ready(function(){
 		}
 	}
 
+	function philSeaRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen) {
+		gameScreen.append('<screen-row data-rowidth="rowidth-' + playWidth + '" class="start-row" style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
+		var thisRow = $('#row' + rowID),
+			getDiff = setplayWidth(pixelSize,playWidth);
+			howMuchGrass = getRandomIntIncInc(numberOfPixelsW - 15,numberOfPixelsW - 25),
+			leftGrass = Math.floor(howMuchGrass / 2),
+			leftGrassStart = 0,
+			riverWidth = numberOfPixelsW - howMuchGrass,
+			riverStart = leftGrassStart + leftGrass,
+			rightGrass = howMuchGrass - leftGrass,
+			rightGrassStart = riverStart + riverWidth;
+		for (let pixelIndex = 0; pixelIndex < numberOfPixelsW; pixelIndex++) {
+			switch (true) {
+				case (pixelIndex >= leftGrassStart && pixelIndex < riverStart || pixelIndex >= rightGrassStart && pixelIndex < numberOfPixelsW):
+					generatePixel(thisRow, pixelIndex, pixelSize, 'sea');
+					break;
+				case (pixelIndex >= riverStart && pixelIndex < rightGrassStart):
+					if (pixelIndex == riverWidth/getRandomIntIncInc(1,5) && !$('game-screen').find('fuel-pixel').length) {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'fuel');
+					} else {
+						generatePixel(thisRow, pixelIndex, pixelSize, 'deepsea');
+					}		
+					break;
+			}
+		}
+	}
+
 	function philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander) {
 		gameScreen.append('<screen-row data-rowmeander="' + riverMeander + '" data-rowidth="rowidth-' + playWidth + '" style="transition: height 0.' + ((gameSpeed / 10) + 4) + 's ease-out; height:' + pixelSize + 'px" id="row' + rowID + '"></screen-row');
 		var thisRow = $('#row' + rowID),
@@ -203,7 +260,6 @@ $(document).ready(function(){
 			willRowContainEnemy = getRandomIntIncExc(0,Math.abs(playWidth-4)),
 			willRowContainEnemyControl = getRandomIntIncExc(0,Math.abs(playWidth-4)),
 			fuelLeftOrRight = getRandomIntIncInc(0,1);
-
 
 		//RIVER MEANDERING
 		if (playWidth == 2) { //WIDE RIVER RESET MEANDER
@@ -444,9 +500,24 @@ $(document).ready(function(){
 			case 'bridge':
 				philBridgeRow(numberOfPixelsW,rowID,pixelSize,0,gameScreen)
 				break;
+			case 'sea':
+				philSeaRow(numberOfPixelsW,rowID,pixelSize,0,gameScreen)
+				break;
 			case 'regular':
 				philRegularRow(numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
 				break;
+		}
+	}
+
+	function bossScreen(screenWidth,screenHeight,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander) {
+		var numberOfPixelsW = screenWidth / pixelSize,
+			numberOfPixelsH = screenHeight / pixelSize,
+			typeOfRow = '',
+			willRiverHaveIsland = 0;
+
+		for (let rowID = 0; rowID < numberOfPixelsH + 1; rowID++) {
+			typeOfRow = 'sea';
+			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
 		}
 	}
 
@@ -475,25 +546,30 @@ $(document).ready(function(){
 	}
 
 	//SCROLL SCREEN
-	function scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander) {
+	function scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander,bridgeDestroyed) {
 		var timeDiff = Math.floor((Date.now() - startMoment)/gameSpeed),
 			numberOfPixelsW = screenWidth / pixelSize,
 			numberOfPixelsH = screenHeight / pixelSize,
 			rowID = intervalNewTime,
-			typeOfRow = 'regular',
-			willRiverHaveIsland = getRandomIntIncInc(1,4) < 4 ? "1" : "0";
-
-		if (rowID % whenToChangePlayWidth == 0) {
-			playWidth = getRandomIntIncInc(0,2);
-		}		
-
-		if (gameScore > 1 && gameScore % 2000 == 0) {
-			typeOfRow = 'bridge';
-			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
-			updategameScore();
-		} else {
 			typeOfRow = 'regular';
-			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
+
+		if (bridgeDestroyed < 10) {
+			var willRiverHaveIsland = getRandomIntIncInc(1,4) < 4 ? "1" : "0";
+			if (rowID % whenToChangePlayWidth == 0) {
+				playWidth = getRandomIntIncInc(0,2);
+			}
+
+			if (gameScore > 1 && gameScore % 300 == 0) {
+				typeOfRow = 'bridge';
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen)
+				updategameScore();
+			} else {
+				typeOfRow = 'regular';
+				pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen,willRiverHaveIsland,riverMeander)
+			}
+		} else {
+			typeOfRow = 'sea';
+			pickARow(typeOfRow,numberOfPixelsW,rowID,pixelSize,playWidth,gameScreen);	
 		}
 	}
 
@@ -518,20 +594,25 @@ $(document).ready(function(){
 
 	//SETUP PLAYER
 	function setupPlayer() {
-		var initialRow = $('#row1');
-
-		var middlePixel = 15,
+		var initialRow = $('#row1'),
+			middlePixel = 15,
 			initialPixel = initialRow.find('#pixel' + middlePixel);
 
 		initialPixel.append('<player-pixel style="width:' + pixelSize + 'px;height:' + pixelSize + 'px"><img src="graphics/airplane.svg"/></player-pixel>')
 	}
 
-	function showSelectPilotScreen(gameScreen,screenState) {
+	function showSelectScreen(gameScreen,screenState) {
 		$('body').attr('data-screenchoose','yes');
 		$('pilot-choose').remove();
 		gameScreen.append("<pilot-choose><session-title></session-title><pilot-chooser></pilot-chooser></pilot-choose>");
 
 		switch(screenState) {
+			case "win":
+				$('session-title').append("<h1>GAME <br> WON</h2>")
+				$('pilot-choose').addClass('win-screen')
+				$('pilot-chooser').append("<div class='pilot-list'></div><br/>\<br/><a href='#' id='restart-game'>Play again?</a>");
+				$('pilot-chooser a').focus().addClass('focused');
+				break;
 			case "start":
 				$('session-title').append("<h1>River Rogue <br> Legacy Raid</h2>")
 				$('pilot-choose').addClass('start-screen')
@@ -681,8 +762,6 @@ $(document).ready(function(){
 
 				if (hitFuel.length && !hitFuel.hasClass('zeds-dead')) {
 					hitFuel.addClass('zeds-dead')
-					hitFuel.prev().length ? hitFuel.prev().addClass('zeds-dead') : '';
-					hitFuel.next().length ? hitFuel.next().addClass('zeds-dead') : '';
 					updategameScore();
 					playSound('destroy');
 				}
@@ -912,7 +991,16 @@ $(document).ready(function(){
 		clearInterval(interval);
 		interval = null;
 		$body.attr('data-gameended','yes');
-		showSelectPilotScreen(gameScreen,'end');
+		showSelectScreen(gameScreen,'end');
+	}
+
+	//GAMEWIN
+	function winGame() {
+		clearInterval(interval);
+		interval = null;
+		$body.attr('data-gameended','yes');
+		//localStorage.setItem('WON','yes');
+		showSelectScreen(gameScreen,'win');
 	}
 
 	//HELPER FUNCT
@@ -959,10 +1047,11 @@ $(document).ready(function(){
 
 		interval = setInterval(function() {
 			var intervalNewTime = Date.now(),
-				riverMeander = Number($body.attr('data-meander'));
+				riverMeander = Number($body.attr('data-meander')),
+				bridgeDestroyed = localStorage.getItem('BRIDGE');
 
 			//SCROLL SCREEN
-			scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander);
+			scrollScreen(startMoment,gameSpeed,intervalNewTime,riverMeander,bridgeDestroyed);
 			sanitizeRowsAfterScroll();
 			updateAndCheckFuelAmount();
 			//ENEMY AI
@@ -986,6 +1075,25 @@ $(document).ready(function(){
 				scrollFire();
 				scrollFire();
 			}
+			//SCROLL-CHECK BOSS
+			if (bridgeDestroyed > 9 && $('enemy-pixel.boss').length) {
+				$('enemy-pixel.boss').each(function() {
+					var isEveryBossDead = 'false';
+					
+					isEveryBossDead = $(this).hasClass('zeds-dead');
+
+					!isEveryBossDead ? rt() : '';
+
+					function rt() {
+						return isEveryBossDead
+					}
+				})
+
+				console.log(isEveryBossDead)
+
+				scrollBoss()
+				//winGame();
+			}
 		}, gameSpeed);
 	}
 
@@ -994,6 +1102,33 @@ $(document).ready(function(){
 		var whichSound = "snd-" + sound,
 			playerID = document.getElementById(whichSound);
 		playerID.play();
+	}
+
+	function setupBoss() {
+		var initialRow = $('game-screen').find('screen-row').eq(-5),
+			middlePixel = 15,
+			leftPixel = initialRow.find('#pixel' + (Math.floor(middlePixel / 2))),
+			rightPixel = initialRow.find('#pixel' + (Math.floor(middlePixel / 1.5)));
+
+
+		leftPixel.append('<enemy-pixel class="boss boat"><img src="graphics/boat.svg" /></enemy-pixel>')
+		rightPixel.append('<enemy-pixel class="boss boat"><img src="graphics/boat.svg" /></enemy-pixel>')
+
+	}
+
+	function scrollBoss() {
+		var bossPixel = $('enemy-pixel.boss');
+
+		bossPixel.each(function() {
+			var thisBossPixel = $(this),
+				bossCurrentPixelID = thisBossPixel.parent().attr('id'),
+				bossCurrentRow = thisBossPixel.parents('screen-row'),
+				bossNextRow = bossCurrentRow.next(),
+				bossNextPixel = bossNextRow.find('#' + bossCurrentPixelID);
+
+		thisBossPixel.parent('river-pixel');
+		thisBossPixel.detach().appendTo(bossNextPixel)	
+		})
 	}
 
 	//CLICK ON PILOT CHOOSER ACTIONS
@@ -1024,6 +1159,7 @@ $(document).ready(function(){
 		localStorage.setItem('RUN','1');
 		localStorage.setItem('BRIDGE','0');
 		localStorage.setItem('PILOT','Bob');
+		localStorage.setItem('WON','no');
 		location.reload();
 	});
 

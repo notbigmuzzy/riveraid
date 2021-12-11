@@ -1,6 +1,7 @@
 body {
 	--grass-pixel: #68a940;
 	--river-pixel: #7c6fdb;
+	--deepsea-pixel: #50469b;
 	--coast-pixel: #274c11;
 	--coast-pixel-before: #7abfc7;
 	--coast-pixel-after: #ff9800;
@@ -14,6 +15,7 @@ body {
 body.pilot-vinston {
 	--grass-pixel: #949494;
 	--river-pixel: #7a7a7a;
+	--deepsea-pixel: #656565;
 	--coast-pixel: #404040;
 	--coast-pixel-before: #b1b1b1;
 	--coast-pixel-after: #a3a3a3;
@@ -23,6 +25,7 @@ body.pilot-vinston {
 body.pilot-rosanna {
 	--grass-pixel: #091501;
 	--river-pixel: #06072d;
+	--deepsea-pixel: #04041e;
 	--coast-pixel: #060723;
 	--coast-pixel-before: transparent;
 	--coast-pixel-after: transparent;
@@ -36,6 +39,7 @@ body.pilot-rosanna {
 body.pilot-betty {
 	--grass-pixel: #749460;
 	--river-pixel: #7e77ad;
+	--deepsea-pixel: #524c78;
 	--coast-pixel: #4a6f49;
 	--coast-pixel-before: #bf8c40;
 	--coast-pixel-after: #7aa09c;
@@ -310,6 +314,10 @@ river-pixel {
 	display: block;
 	position: relative;
 	background-color: var(--river-pixel);
+}
+
+river-pixel.deepsea {
+	background-color: var(--deepsea-pixel);
 }
 
 bridge-pixel {
