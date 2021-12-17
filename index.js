@@ -604,7 +604,7 @@ $(document).ready(function(){
 
 		switch(screenState) {
 			case "win":
-				$('session-title').append("<h1>YOU WIN!</h2>")
+				$('session-title').append("<h1>CONGRATULATIONS! <br> YOU WIN!</h2>")
 				$('pilot-choose').addClass('win-screen')
 				$('pilot-chooser').append("<div class='pilot-list'></div><br/><br/><a href='#' id='restart-game'>Play again?</a>");
 				$('pilot-chooser a').focus().addClass('focused');
@@ -651,7 +651,7 @@ $(document).ready(function(){
 		var numberOfFirePixelsPerShot = 2;
 
 		if (bridgeDestroyed < 10) {
-			if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
+			if (storageLastPilot == 'Vinston') {
 				numberOfFirePixelsPerShot = 3;
 			} else if (storageLastPilot == 'Betty') {
 				numberOfFirePixelsPerShot = 1;

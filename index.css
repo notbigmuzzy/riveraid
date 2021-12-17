@@ -168,6 +168,7 @@ pilot-choose session-title h1 {
 pilot-choose.win-screen session-title h1 {
 	font-size: 60px;
 	font-style: italic;
+	text-align: center;
 }
 
 pilot-choose pilot-chooser {
@@ -785,6 +786,10 @@ enemy-pixel.boss.right i-prev:nth-child(9) {
 /*PILOT ALEXEI*/
 body.pilot-alexei game-screen {
 	flex-direction: column;
+}
+
+body.pilot-alexei screen-row {
+    transform: translateY(-100%);
 }
 
 body.pilot-alexei player-pixel img {
