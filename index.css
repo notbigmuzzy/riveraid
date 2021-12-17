@@ -789,7 +789,8 @@ body.pilot-alexei game-screen {
 }
 
 body.pilot-alexei screen-row {
-    transform: translateY(-100%);
+    position: relative;
+    top: -32px;
 }
 
 body.pilot-alexei player-pixel img {
