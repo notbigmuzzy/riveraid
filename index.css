@@ -767,8 +767,6 @@ enemy-pixel.boss.right i-prev:nth-child(9) {
 	border-right: 5px solid #000;
 }
 
-
-
 .bubbles screen-row:nth-child(n+11) {
 	opacity: 0.5;
 }
@@ -784,7 +782,7 @@ enemy-pixel.boss.right i-prev:nth-child(9) {
 .bubbles screen-row:nth-child(n+19) {
 	opacity: 0.05;
 }
-/**/
+/*PILOT ALEXEI*/
 body.pilot-alexei game-screen {
 	flex-direction: column;
 }
@@ -793,12 +791,58 @@ body.pilot-alexei player-pixel img {
 	transform: rotate(180deg);
 }
 
-/**/
+body.pilot-alexei .boss {
+	transform: rotate(180deg);
+}
+
+body.pilot-alexei enemy-pixel.boss.right i-prev:nth-child(5) {
+    left: 200%;
+    top: 0;
+}
+
+body.pilot-alexei enemy-pixel.boss.left i-prev:nth-child(11) {
+    left: -300%;
+}
+
+body.pilot-alexei enemy-pixel.boss.left i-prev:nth-child(10) {
+    left: -300%;
+    top: 0;
+}
+
+body.pilot-alexei enemy-pixel.boss.left i:nth-child(5) {
+    left: -200%;
+}
+
+body.pilot-alexei enemy-pixel.boss.right i:nth-child(4) {
+    border-right: initial;
+}
+
+body.pilot-alexei enemy-pixel.boss.left i:nth-child(2) {
+    border-left: initial;
+}
+
+body.pilot-alexei enemy-pixel.boss.right i-prev:nth-child(9) {
+    border-bottom: initial;
+    border-right: initial;
+}
+
+body.pilot-alexei enemy-pixel.boss.left i-prev:nth-child(6) {
+    border-bottom: initial;
+    border-left: initial;
+}
+
+body.pilot-alexei enemy-pixel.boss.right i-prev:nth-child(5),
+body.pilot-alexei enemy-pixel.boss.left i-prev:nth-child(10) {
+    border-bottom: 5px solid black;
+}
+
+
+/*PILOT VINSTON*/
 body.pilot-vinston img {
 	filter: grayscale(1);
 }
 
-/**/
+/*PILOT BETTY*/
 body.pilot-betty game-screen:before {
     content: url();
     display: block;
@@ -836,7 +880,7 @@ body.pilot-betty.win-screen screen-row:nth-child(n+11) grass-pixel {
 	z-index: 1;
 }
 
-/**/
+/*PILOT JACK*/
 body.pilot-jack.left player-pixel:after {
 	content: '';
 	display: block;
@@ -861,7 +905,7 @@ body.pilot-jack.right player-pixel:after {
 	transform: translateX(16px);
 }
 
-/**/
+/*PILOT ROSANNA*/
 body.pilot-rosanna screen-row river-pixel,
 body.pilot-rosanna screen-row enemy-pixel {
 	background-color: var(--river-pixel);
