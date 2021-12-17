@@ -28,12 +28,6 @@ $(document).ready(function(){
 		fuelAmount = Number($body.attr('data-fuel')),
 		fuelLeakSpeed = Number($body.attr('data-fueleak'));
 
-	//CHECK IF GAME WON
-	if (storageWon == "yes") {
-		winGame()
-		return;
-	}
-
 	//OVERRIDE SPECIFIC PILOT CONFIG
 	if (storageLastPilot == 'Speedking') {
 		gameSpeed = Math.floor(gameSpeed / 2);
@@ -653,14 +647,17 @@ $(document).ready(function(){
 	}
 
 	//CONTROL PLAYER
-	function fire() {
+	function fire(bridgeDestroyed) {
 		var numberOfFirePixelsPerShot = 2;
 
-		if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
-			numberOfFirePixelsPerShot = 3;
-		} else if (storageLastPilot == 'Betty') {
-			numberOfFirePixelsPerShot = 1;
+		if (bridgeDestroyed < 10) {
+			if (storageLastPilot == 'Alexei' || storageLastPilot == 'Vinston') {
+				numberOfFirePixelsPerShot = 3;
+			} else if (storageLastPilot == 'Betty') {
+				numberOfFirePixelsPerShot = 1;
+			}	
 		}
+
 
 		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {
 			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
@@ -693,7 +690,7 @@ $(document).ready(function(){
 		}
 	}
 
-	function scrollFire() {
+	function scrollFire(bridgeDestroyed) {
 		var firePixel = $('fire-pixel');
 
 		firePixel.each(function() {
@@ -710,13 +707,13 @@ $(document).ready(function(){
 				shotLength == undefined ? shotLength = 0 : '';
 			eachFirePixel.attr('data-shotlength', shotLength + 1).detach().appendTo(fireNextPixel);
 
-			if (storageLastPilot == 'Vinston') {
+			if (bridgeDestroyed < 10 && storageLastPilot == 'Vinston') {
 				if (shotLength > '111111') {
 					eachFirePixel.remove();
 				}
 			}
 
-			if (storageLastPilot == 'Betty') {
+			if (bridgeDestroyed < 10 && storageLastPilot == 'Betty') {
 				if (shotLength > '111111') {
 
 					var thisFirePixel = $(this),
@@ -812,11 +809,12 @@ $(document).ready(function(){
 		switch (eventCode) {
 		case 32: //SPACEBAR
 			playSound('theme')
-			if (storageLastPilot == 'Vinston') {
+			if (storageTotalBridge < 10 && storageLastPilot == 'Vinston') {
 				fireSpread();
 				break;
 			} else {
-				fire();
+				var bridgeDestroyed = localStorage.getItem('BRIDGE');
+				fire(bridgeDestroyed);
 				break;
 			}
 		case 37: // LEFT ARROW
@@ -1067,12 +1065,12 @@ $(document).ready(function(){
 			playerCrashCheck(interval);
 			//SCROLL FIRE
 			if (storageLastPilot == 'Betty') {
-				scrollFire();
-				scrollFire();	
+				scrollFire(bridgeDestroyed);
+				scrollFire(bridgeDestroyed);	
 			} else {
-				scrollFire();
-				scrollFire();
-				scrollFire();
+				scrollFire(bridgeDestroyed);
+				scrollFire(bridgeDestroyed);
+				scrollFire(bridgeDestroyed);
 			}
 			//SCROLL-CHECK BOSS
 			if (bridgeDestroyed > 9 && $('enemy-pixel.boss').length) {
@@ -1152,6 +1150,7 @@ $(document).ready(function(){
 	});
 
 	$(document).on('click','pilot-chooser #restart-game', function(e) {
+		console.log('123')
 		e.preventDefault()
 		localStorage.setItem('RUN','1');
 		localStorage.setItem('BRIDGE','0');
