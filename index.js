@@ -809,11 +809,11 @@ $(document).ready(function(){
 		switch (eventCode) {
 		case 32: //SPACEBAR
 			playSound('theme')
-			if (storageTotalBridge < 10 && storageLastPilot == 'Vinston') {
+			var bridgeDestroyed = localStorage.getItem('BRIDGE');
+			if (bridgeDestroyed < 10 && storageLastPilot == 'Vinston') {
 				fireSpread();
 				break;
 			} else {
-				var bridgeDestroyed = localStorage.getItem('BRIDGE');
 				fire(bridgeDestroyed);
 				break;
 			}
