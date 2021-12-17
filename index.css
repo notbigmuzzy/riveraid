@@ -72,6 +72,10 @@ html,body {
 	align-items: center;
 }
 
+audio {
+	display: none;
+}
+
 touch-controls {
 	position: fixed;
 	bottom: -200px;

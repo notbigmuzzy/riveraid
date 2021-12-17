@@ -830,7 +830,6 @@ $(document).ready(function(){
 			}
 			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
 				if ($('.pick-a-pilot.focused').prev().length) {
-					playSound('menu');
 					$('.pick-a-pilot.focused').removeClass('focused').prev().addClass('focused').focus()		
 				}
 			}
@@ -846,7 +845,6 @@ $(document).ready(function(){
 			}
 			if (isStarted == 'yes' && isEnded == 'yes' && $('body').attr('data-screenchoose') == 'yes') {
 				if ($('.pick-a-pilot.focused').next().length) {
-					playSound('menu');
 					$('.pick-a-pilot.focused').removeClass('focused').next().addClass('focused').focus()
 				}
 			}
