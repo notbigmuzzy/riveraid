@@ -658,7 +658,6 @@ $(document).ready(function(){
 			}	
 		}
 
-
 		if ($('fire-pixel').length < numberOfFirePixelsPerShot) {
 			var firePixel = $('<fire-pixel id="' + Date.now() + '"><img src="graphics/fire.svg"/></fire-pixel>'),
 				playerPixel = $('player-pixel'),
@@ -769,7 +768,6 @@ $(document).ready(function(){
 					updategameScore();
 					playSound('destroy');
 				}
-
 			} else if (!fireNextRow.length || !containingPixel.length) {
 				eachFirePixel.remove();
 			}
@@ -962,6 +960,64 @@ $(document).ready(function(){
 		}
 	}
 
+	//BOSS LOGIC
+	function setupBoss() {
+		if (!$('enemy-pixel.boss').length && !$('grass-pixel').length ) {
+			var initialRow = $('game-screen').find('screen-row').eq(-3),
+				middlePosition = 15,
+				middlePixel = initialRow.find('#pixel' + middlePosition),
+				leftPixel = initialRow.find('#pixel' + (Math.floor(middlePosition / 2))),
+				rightPixel = initialRow.find('#pixel' + (Math.floor(middlePosition * 1.5)));
+
+			middlePixel.append('<enemy-pixel class="boss middle turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
+			leftPixel.append('<enemy-pixel class="boss left turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
+			rightPixel.append('<enemy-pixel class="boss right turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')	
+		}
+	}
+
+	function scrollBoss() {
+		var bossPixel = $('enemy-pixel.boss'),
+			moveLeftOrRight = getRandomIntIncInc(-1,1),
+			leftBossID = Number($('enemy-pixel.boss').first().parent().attr('id').slice(5)),
+			rightBossID = Number($('enemy-pixel.boss').last().parent().attr('id').slice(5));
+
+		if (leftBossID - moveLeftOrRight < 1) {
+			moveLeftOrRight = 3;
+		}
+
+		if (rightBossID + moveLeftOrRight > 31) {
+			moveLeftOrRight = -3;
+		}
+
+		bossPixel.each(function() {
+			var thisBossPixel = $(this),
+				bossCurrentRow = thisBossPixel.parents('screen-row'),
+				bossNextRow = bossCurrentRow.next(),
+				bossCurrentPixelID = thisBossPixel.parent().attr('id'),
+				nextPixelIDNnumber = Number(bossCurrentPixelID.slice(5)) + moveLeftOrRight,
+				bossNextPixel = bossNextRow.find('#pixel' + nextPixelIDNnumber);
+
+			thisBossPixel.detach().appendTo(bossNextPixel)	
+		})
+	}
+
+	function bossFire() {
+		var bossPixels = $('enemy-pixel.boss:not(".zeds-dead")');
+
+		bossPixels.each(function() {
+			if(getRandomIntIncInc(1,3) == 2) {
+				var firePixel = $('<enemy-pixel class="mine" id="' + Date.now() + '"><img src="graphics/mine.svg"/></enemy-pixel>'),
+					thisBossPixels = $(this),
+					bossCurrentPixelID = thisBossPixels.parent().attr('id'),
+					bossCurrentRow = thisBossPixels.parents('screen-row'),
+					bossNextRow = bossCurrentRow.prev(),
+					bossNextPixel = bossNextRow.find('#' + bossCurrentPixelID);
+
+				bossNextPixel.append(firePixel);
+			}
+		})
+	}
+
 	//GAME SCORE
 	function updategameScore() {
 		var scoreForThisPilot = 100;
@@ -1074,6 +1130,7 @@ $(document).ready(function(){
 			}
 			//SCROLL-CHECK BOSS
 			if (bridgeDestroyed > 9 && $('enemy-pixel.boss').length) {
+				bossFire();
 				$('enemy-pixel.boss').not('.zeds-dead').length ? scrollBoss() : winGame();
 			}
 		}, gameSpeed);
@@ -1084,46 +1141,6 @@ $(document).ready(function(){
 		var whichSound = "snd-" + sound,
 			playerID = document.getElementById(whichSound);
 		playerID.play();
-	}
-
-	function setupBoss() {
-		if (!$('enemy-pixel.boss').length && !$('grass-pixel').length ) {
-			var initialRow = $('game-screen').find('screen-row').eq(-3),
-				middlePosition = 15,
-				middlePixel = initialRow.find('#pixel' + middlePosition),
-				leftPixel = initialRow.find('#pixel' + (Math.floor(middlePosition / 2))),
-				rightPixel = initialRow.find('#pixel' + (Math.floor(middlePosition * 1.5)));
-
-			middlePixel.append('<enemy-pixel class="boss middle turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
-			leftPixel.append('<enemy-pixel class="boss left turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')
-			rightPixel.append('<enemy-pixel class="boss right turret"><img src="graphics/turret.svg" /><i></i><i></i><i></i><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev><i-prev></i-prev></enemy-pixel>')	
-		}
-	}
-
-	function scrollBoss() {
-		var bossPixel = $('enemy-pixel.boss'),
-			moveLeftOrRight = getRandomIntIncInc(-1,1),
-			leftBossID = Number($('enemy-pixel.boss').first().parent().attr('id').slice(5)),
-			rightBossID = Number($('enemy-pixel.boss').last().parent().attr('id').slice(5));
-
-		if (leftBossID - moveLeftOrRight < 1) {
-			moveLeftOrRight = 3;
-		}
-
-		if (rightBossID + moveLeftOrRight > 31) {
-			moveLeftOrRight = -3;
-		}
-
-		bossPixel.each(function() {
-			var thisBossPixel = $(this),
-				bossCurrentRow = thisBossPixel.parents('screen-row'),
-				bossNextRow = bossCurrentRow.next(),
-				bossCurrentPixelID = thisBossPixel.parent().attr('id'),
-				nextPixelIDNnumber = Number(bossCurrentPixelID.slice(5)) + moveLeftOrRight,
-				bossNextPixel = bossNextRow.find('#pixel' + nextPixelIDNnumber);
-
-			thisBossPixel.detach().appendTo(bossNextPixel)	
-		})
 	}
 
 	//CLICK ON PILOT CHOOSER ACTIONS

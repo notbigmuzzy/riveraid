@@ -768,6 +768,10 @@ enemy-pixel.boss.right i-prev:nth-child(9) {
 	border-right: 5px solid #000;
 }
 
+enemy-pixel.mine {
+	background-color: var(--boss-back);
+}
+
 .bubbles screen-row:nth-child(n+11) {
 	opacity: 0.5;
 }
