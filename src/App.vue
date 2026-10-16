@@ -9,8 +9,15 @@ let game;
 
 onMounted(() => {
   game = createGame(gameHost.value, stats.value, (state) => {
+    const previousState = stats.value;
     stats.value = state;
-    saveState(state);
+    if (
+      ["bridge", "score", "pilot", "run"].some(
+        (field) => state[field] !== previousState[field],
+      )
+    ) {
+      saveState(state);
+    }
   });
 });
 

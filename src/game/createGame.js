@@ -22,20 +22,20 @@ export function createGame(parent, initialState, onStateChange) {
     }
 
     preload() {
-      this.load.svg('airplane', `${import.meta.env.BASE_URL}aircraft.svg`, { width: 80, height: 80 })
-      this.load.svg('enemy-boat', `${import.meta.env.BASE_URL}enemy-boat.svg`, { width: 80, height: 80 })
-      this.load.svg('enemy-blimp', `${import.meta.env.BASE_URL}enemy-blimp.svg`, { width: 80, height: 80 })
-      this.load.svg('enemy-helicopter', `${import.meta.env.BASE_URL}enemy-helicopter.svg`, { width: 80, height: 80 })
-      this.load.svg('enemy-tank', `${import.meta.env.BASE_URL}enemy-tank.svg`, { width: 80, height: 80 })
-      this.load.svg('enemy-puddle', `${import.meta.env.BASE_URL}enemy-puddle.svg`, { width: 80, height: 80 })
-      this.load.svg('fire-tile', `${import.meta.env.BASE_URL}fire-tile.svg`, { width: 40, height: 40 })
-      this.load.svg('enemy-fuel', `${import.meta.env.BASE_URL}fuel-station.svg`, { width: 80, height: 80 })
-      this.load.svg('enemy-bridge', `${import.meta.env.BASE_URL}bridge.svg`, { width: 96, height: 96 })
-      this.load.svg('road', `${import.meta.env.BASE_URL}road.svg`, { width: 96, height: 96 })
-      this.load.svg('terrain', `${import.meta.env.BASE_URL}shoreline.svg`, { width: 96, height: 96 })
-      this.load.svg('trees', `${import.meta.env.BASE_URL}shore-tree.svg`, { width: 96, height: 128 })
-      this.load.svg('fence', `${import.meta.env.BASE_URL}shore-fence.svg`, { width: 128, height: 128 })
-      this.load.svg('plants', `${import.meta.env.BASE_URL}shore-plants.svg`, { width: 352, height: 64 })
+      this.load.image('airplane', `${import.meta.env.BASE_URL}aircraft.png`)
+      this.load.image('enemy-boat', `${import.meta.env.BASE_URL}enemy-boat.png`)
+      this.load.image('enemy-blimp', `${import.meta.env.BASE_URL}enemy-blimp.png`)
+      this.load.image('enemy-helicopter', `${import.meta.env.BASE_URL}enemy-helicopter.png`)
+      this.load.image('enemy-tank', `${import.meta.env.BASE_URL}enemy-tank.png`)
+      this.load.image('enemy-puddle', `${import.meta.env.BASE_URL}enemy-puddle.png`)
+      this.load.image('fire-tile', `${import.meta.env.BASE_URL}fire-tile.png`)
+      this.load.image('enemy-fuel', `${import.meta.env.BASE_URL}fuel-station.png`)
+      this.load.image('enemy-bridge', `${import.meta.env.BASE_URL}bridge.png`)
+      this.load.image('road', `${import.meta.env.BASE_URL}road.png`)
+      this.load.image('terrain', `${import.meta.env.BASE_URL}shoreline.png`)
+      this.load.image('trees', `${import.meta.env.BASE_URL}shore-tree.png`)
+      this.load.image('fence', `${import.meta.env.BASE_URL}shore-fence.png`)
+      this.load.image('plants', `${import.meta.env.BASE_URL}shore-plants.png`)
     }
 
     create(data = {}) {
@@ -75,6 +75,21 @@ export function createGame(parent, initialState, onStateChange) {
       this.player = this.add.image(GAME_WIDTH / 2, this.playerBaseY, 'airplane')
         .setDisplaySize(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
         .setDepth(4)
+      if (new URLSearchParams(window.location.search).has('fps')) {
+        const fpsText = this.add.text(GAME_WIDTH - 12, 12, '', {
+          fontFamily: 'Courier New',
+          fontSize: '20px',
+          fontStyle: 'bold',
+          color: '#ffffff',
+          backgroundColor: '#222b2c',
+          padding: { x: 8, y: 4 },
+          fixedWidth: 112,
+          align: 'right',
+        }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000)
+        const updateFps = () => fpsText.setText(`${Math.round(this.game.loop.actualFps)} FPS`)
+        updateFps()
+        this.time.addEvent({ delay: 250, loop: true, callback: updateFps })
+      }
       this.controls = this.input.keyboard.addKeys({
         left: Phaser.Input.Keyboard.KeyCodes.LEFT,
         right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
