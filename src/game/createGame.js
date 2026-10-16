@@ -2,11 +2,6 @@ import Phaser from 'phaser'
 import { createRiverGenerator } from './river.js'
 import { EnemySystem } from './enemies.js'
 import { initialState as createInitialState } from './state.js'
-import grassUrl from '../assets/tileset/tiles/tiles-grass light-32x32.png?url&no-inline'
-import earthUrl from '../assets/tileset/tiles/tiles-earth-32x32.png?url&no-inline'
-import treesUrl from '../assets/tileset/tiles/tiles - tree - 32x32.png?url&no-inline'
-import fenceUrl from '../assets/tileset/tiles/tiles-fence-32x32.png?url&no-inline'
-import plantsUrl from '../assets/tileset/tiles/tiles-grass-decoration-transparent-32x32.png?url&no-inline'
 
 export const GAME_WIDTH = 1280
 export const GAME_HEIGHT = 800
@@ -19,7 +14,6 @@ const PLAYER_SPEED = 320
 const FUEL_INTERVAL = 0.32
 const FUEL_PER_TICK = 1.5
 const INFINITE_FUEL = false
-const EARTH_VARIANT = { column: 9, row: 16 }
 
 export function createGame(parent, initialState, onStateChange) {
   class RiverScene extends Phaser.Scene {
@@ -36,11 +30,12 @@ export function createGame(parent, initialState, onStateChange) {
       this.load.svg('enemy-puddle', `${import.meta.env.BASE_URL}enemy-puddle.svg`, { width: 80, height: 80 })
       this.load.svg('fire-tile', `${import.meta.env.BASE_URL}fire-tile.svg`, { width: 40, height: 40 })
       this.load.svg('enemy-fuel', `${import.meta.env.BASE_URL}fuel-station.svg`, { width: 80, height: 80 })
-      this.load.spritesheet('grass', grassUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
-      this.load.spritesheet('earth', earthUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
-      this.load.image('trees', treesUrl)
-      this.load.spritesheet('fence', fenceUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
-      this.load.spritesheet('plants', plantsUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
+      this.load.svg('enemy-bridge', `${import.meta.env.BASE_URL}bridge.svg`, { width: 96, height: 96 })
+      this.load.svg('road', `${import.meta.env.BASE_URL}road.svg`, { width: 96, height: 96 })
+      this.load.svg('terrain', `${import.meta.env.BASE_URL}shoreline.svg`, { width: 96, height: 96 })
+      this.load.svg('trees', `${import.meta.env.BASE_URL}shore-tree.svg`, { width: 96, height: 128 })
+      this.load.svg('fence', `${import.meta.env.BASE_URL}shore-fence.svg`, { width: 128, height: 128 })
+      this.load.svg('plants', `${import.meta.env.BASE_URL}shore-plants.svg`, { width: 352, height: 64 })
     }
 
     create(data = {}) {
@@ -57,9 +52,18 @@ export function createGame(parent, initialState, onStateChange) {
       })
       publishState()
 
-      this.grassFramesPerRow = Math.floor(this.textures.get('grass').getSourceImage().width / SOURCE_TILE_SIZE)
-      this.earthFramesPerRow = Math.floor(this.textures.get('earth').getSourceImage().width / SOURCE_TILE_SIZE)
-      this.textures.get('trees').add('oak', 0, 0, 0, 96, 128)
+      for (const [key, columns, rows] of [['terrain', 3, 3], ['fence', 4, 4], ['plants', 11, 2]]) {
+        const texture = this.textures.get(key)
+        for (let row = 0; row < rows; row++) {
+          for (let column = 0; column < columns; column++) {
+            const frame = row * columns + column
+            if (!texture.has(frame)) {
+              texture.add(frame, 0, column * SOURCE_TILE_SIZE, row * SOURCE_TILE_SIZE, SOURCE_TILE_SIZE, SOURCE_TILE_SIZE)
+            }
+          }
+        }
+      }
+      if (!this.textures.get('trees').has('oak')) this.textures.get('trees').add('oak', 0, 0, 0, 96, 128)
       this.river = createRiverGenerator(GAME_WIDTH / TILE_SIZE, GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS)
       this.rows = []
       this.enemies = new EnemySystem(this, TILE_SIZE, GAME_WIDTH, GAME_HEIGHT)
@@ -114,6 +118,7 @@ export function createGame(parent, initialState, onStateChange) {
     }
 
     createTerrainRow(index, positionY) {
+      const info = this.river.getRowInfo(index)
       const tiles = Array.from({ length: GAME_WIDTH / TILE_SIZE }, (_, column) => this.getTerrainTile(index, column))
       const container = this.add.container(0, positionY)
 
@@ -124,24 +129,11 @@ export function createGame(parent, initialState, onStateChange) {
           : this.getTerrainTile(index, column + 1) === 'river' ? 2 : 1
         const frameRow = this.getTerrainTile(index - 1, column) === 'river' ? 0
           : this.getTerrainTile(index + 1, column) === 'river' ? 2 : 1
-        const earthFrame = (EARTH_VARIANT.row + frameRow) * this.earthFramesPerRow
-          + EARTH_VARIANT.column + (frameColumn === 2 ? 0 : frameColumn)
-        container.add(this.add.image(column * TILE_SIZE, 0, 'earth', earthFrame)
+        const terrainFrame = frameRow * 3 + (frameColumn === 2 ? 0 : frameColumn)
+        container.add(this.add.image(column * TILE_SIZE, 0, 'terrain', terrainFrame)
           .setOrigin(0)
           .setDisplaySize(TILE_SIZE, TILE_SIZE)
           .setFlipX(frameColumn === 2))
-
-        if (tile !== 'grass') return
-
-        const grassColumn = this.getTerrainTile(index, column - 1) !== 'grass' ? 0
-          : this.getTerrainTile(index, column + 1) !== 'grass' ? 2 : 1
-        const grassRow = this.getTerrainTile(index - 1, column) !== 'grass' ? 0
-          : this.getTerrainTile(index + 1, column) !== 'grass' ? 2 : 1
-        const grassFrame = grassRow * this.grassFramesPerRow + (grassColumn === 2 ? 0 : grassColumn)
-        container.add(this.add.image(column * TILE_SIZE, 0, 'grass', grassFrame)
-          .setOrigin(0)
-          .setDisplaySize(TILE_SIZE, TILE_SIZE)
-          .setFlipX(grassColumn === 2))
       })
 
       const decorations = {
@@ -149,8 +141,17 @@ export function createGame(parent, initialState, onStateChange) {
         fences: this.add.container(0, positionY).setDepth(2),
         trees: this.add.container(0, positionY).setDepth(3),
       }
-      this.addDecorations(index, decorations, tiles)
-      const row = { index, tiles, container, decorations }
+      if (info.road) {
+        const firstWater = tiles.indexOf('river') * TILE_SIZE
+        const afterWater = (tiles.lastIndexOf('river') + 1) * TILE_SIZE
+        decorations.road = this.add.container(0, positionY).setDepth(3.25)
+        decorations.road.add(this.add.image(0, -TILE_SIZE / 2, 'road')
+          .setOrigin(0).setDisplaySize(firstWater, TILE_SIZE * 2))
+        decorations.road.add(this.add.image(afterWater, -TILE_SIZE / 2, 'road')
+          .setOrigin(0).setDisplaySize(GAME_WIDTH - afterWater, TILE_SIZE * 2))
+      }
+      if (info.segment !== 'bridge') this.addDecorations(index, decorations, tiles)
+      const row = { index, tiles, container, decorations, info }
       if (positionY < 0) this.enemies.addRow(row)
       return row
     }

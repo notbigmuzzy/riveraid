@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 64" fill="none">
+  <defs>
+    <g id="grass">
+      <path d="M12 28v-8H8v-4h4v4h4V8h4v12h4v-4h4v4h-4v8H12Z" fill="#86b84a"/>
+      <path d="M16 12h4v12h-4z" fill="#a4cf62"/>
+    </g>
+    <g id="bush">
+      <path d="M8 12h16v4h4v8h4v4H0v-4h4v-8h4v-4Z" fill="#527f38"/>
+      <path d="M8 8h16v4h4v8H4v-8h4V8Z" fill="#86b84a"/>
+      <path d="M8 12h8v4H8z" fill="#a4cf62"/>
+    </g>
+    <g id="flower">
+      <path d="M12 16h4v8h8v4H12v-8H8v-4h4Z" fill="#86b84a"/>
+      <path d="M12 4h8v4h4v8h-4v4h-8v-4H8V8h4V4Z" fill="currentColor"/>
+      <path d="M12 8h8v8h-8z" fill="#d8b854"/>
+    </g>
+    <g id="flowers">
+      <path d="M8 16h4v12H8zM20 12h4v16h-4z" fill="#86b84a"/>
+      <path d="M4 8h12v8H4zM8 4h4v16H8zM16 4h12v8H16zM20 0h4v16h-4z" fill="currentColor"/>
+      <path d="M8 8h4v4H8zM20 4h4v4h-4z" fill="#d8b854"/>
+    </g>
+  </defs>
+  <use href="#grass"/>
+  <use href="#bush" x="32"/>
+  <use href="#flower" x="64" color="#f4e8b5"/>
+  <use href="#grass" x="96"/>
+  <use href="#flowers" x="128" y="4" color="#e7ab91"/>
+  <use href="#bush" x="160"/>
+  <use href="#flower" x="192" color="#f1d36d"/>
+  <use href="#grass" x="224"/>
+  <use href="#flowers" x="256" y="4" color="#f4e8b5"/>
+  <use href="#bush" x="288"/>
+  <use href="#flower" x="320" color="#e7ab91"/>
+  <use href="#bush" y="32"/>
+  <use href="#grass" x="32" y="32"/>
+  <use href="#flowers" x="64" y="36" color="#f1d36d"/>
+  <use href="#flower" x="96" y="32" color="#f4e8b5"/>
+  <use href="#bush" x="128" y="32"/>
+  <use href="#grass" x="160" y="32"/>
+  <use href="#flowers" x="192" y="36" color="#e7ab91"/>
+  <use href="#bush" x="224" y="32"/>
+  <use href="#flower" x="256" y="32" color="#f1d36d"/>
+  <use href="#grass" x="288" y="32"/>
+  <use href="#flowers" x="320" y="36" color="#f4e8b5"/>
+</svg>

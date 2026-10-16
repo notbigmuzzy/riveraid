@@ -5,6 +5,7 @@ const MODES = [
   { name: 'wide', width: 26 },
 ]
 const BLOCK_LENGTHS = [20, 40, 60]
+const BRIDGE_WIDTH = 8
 const ISLAND_LAYOUTS = ['small', 'large', 'double']
 const SMALL_ISLAND_COUNTS = {
   20: [2, 3],
@@ -19,6 +20,7 @@ const MEDIUM_ISLAND_COUNTS = {
 
 export function createRiverGenerator(columns, startIndex, random = Math.random) {
   const rows = new Map()
+  const rowInfo = new Map()
   const pick = (options) => options[Math.floor(random() * options.length)]
   const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value))
   const approach = (value, target, step) => value + clamp(target - value, -step, step)
@@ -28,14 +30,32 @@ export function createRiverGenerator(columns, startIndex, random = Math.random) 
   let center = (left + right) / 2
   let generatedRows = 0
   let bendDirection = 1
+  let pendingBridges = 0
   let block
 
   function startBlock() {
     const firstBlock = !block
+    if (pendingBridges > 0 && !firstBlock && block.kind !== 'bridge') {
+      pendingBridges--
+      const bridgeCenter = clamp((left + right) / 2, (BRIDGE_WIDTH + 1) / 2, columns - (BRIDGE_WIDTH + 3) / 2)
+      const targetLeft = Math.round(bridgeCenter - (BRIDGE_WIDTH - 1) / 2)
+      const entryLength = Math.max(Math.abs(left - targetLeft), Math.abs(right - targetLeft - BRIDGE_WIDTH + 1)) + 3
+      const bridgeAge = entryLength + 2
+      block = {
+        kind: 'bridge',
+        mode: { name: 'bridge', width: BRIDGE_WIDTH },
+        age: 0,
+        length: bridgeAge + 12,
+        bridgeCenter,
+        bridgeAge,
+      }
+      return
+    }
     const mode = firstBlock ? MODES.find((candidate) => candidate.name === 'medium')
       : pick(MODES.filter((candidate) => candidate.name !== block.mode.name))
     const strongMeander = mode.name === 'very-narrow' || (!firstBlock && random() < 0.5)
     block = {
+      kind: 'regular',
       mode,
       length: strongMeander ? pick(mode.lengths ?? BLOCK_LENGTHS) : 20,
       age: 0,
@@ -73,8 +93,29 @@ export function createRiverGenerator(columns, startIndex, random = Math.random) 
     })
   }
 
+  function saveRow(land) {
+    rows.set(nextIndex, land)
+    rowInfo.set(nextIndex, { segment: block.kind, road: block.kind === 'bridge' && block.age === block.bridgeAge })
+    nextIndex--
+    generatedRows++
+    block.age++
+  }
+
+  function generateBridgeRow() {
+    const width = block.age > block.bridgeAge + 3 ? 16 : BRIDGE_WIDTH
+    const targetLeft = clamp(Math.round(block.bridgeCenter - (width - 1) / 2), 1, columns - width - 1)
+    left = approach(left, targetLeft, 1)
+    right = approach(right, targetLeft + width - 1, 1)
+    center = (left + right) / 2
+    saveRow(Array.from({ length: columns }, (_, column) => column <= left || column >= right))
+  }
+
   function generateRow() {
     if (!block || block.age === block.length) startBlock()
+    if (block.kind === 'bridge') {
+      generateBridgeRow()
+      return
+    }
 
     if (generatedRows >= 8 && block.age >= block.nextBendRow
       && Math.abs(center - block.targetCenter) < 0.75) {
@@ -116,10 +157,7 @@ export function createRiverGenerator(columns, startIndex, random = Math.random) 
       }
     }
 
-    rows.set(nextIndex, land)
-    nextIndex--
-    generatedRows++
-    block.age++
+    saveRow(land)
   }
 
   function isLand(index, column) {
@@ -129,6 +167,13 @@ export function createRiverGenerator(columns, startIndex, random = Math.random) 
   }
 
   return {
+    requestBridge() {
+      pendingBridges++
+    },
+    getRowInfo(index) {
+      while (nextIndex >= index) generateRow()
+      return rowInfo.get(index)
+    },
     getTile(index, column) {
       if (!isLand(index, column)) return 'river'
       if (!isLand(index, column - 1) || !isLand(index, column + 1)
@@ -137,7 +182,10 @@ export function createRiverGenerator(columns, startIndex, random = Math.random) 
     },
     prune(lastIndex) {
       for (const index of rows.keys()) {
-        if (index > lastIndex) rows.delete(index)
+        if (index > lastIndex) {
+          rows.delete(index)
+          rowInfo.delete(index)
+        }
       }
     },
   }

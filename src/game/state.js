@@ -4,6 +4,12 @@ export function initialState() {
   return { bridge: 0, score: 0, fuel: 125, pilot: 'Bob', run: 1 }
 }
 
+export function awardScore(state, targetType) {
+  if (targetType === 'bridge') return { ...state, bridge: state.bridge + 1 }
+  const points = state.pilot === 'Betty' || state.pilot === 'Speedking' ? 200 : 100
+  return { ...state, score: state.score + points }
+}
+
 export function loadState(storage = localStorage) {
   const defaults = initialState()
 

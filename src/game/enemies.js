@@ -1,8 +1,10 @@
 import Phaser from 'phaser'
+import { awardScore } from './state.js'
 
 const DEFAULT_MAX_PLAYER_SHOTS = 2
 const FIRE_DURATION = 4
 const FULL_FUEL = 125
+const BRIDGE_SCORE_INTERVAL = 2000
 
 export class EnemySystem {
   constructor(scene, tileSize, gameWidth, gameHeight) {
@@ -19,6 +21,8 @@ export class EnemySystem {
     this.nextWing = -1
     this.emptyRowsRemaining = 0
     this.generatedRows = 0
+    this.bridgeProgress = 0
+    this.bridgeState = 'collecting'
     const graphics = scene.make.graphics({ x: 0, y: 0 }, false)
     if (!scene.textures.exists('enemy-bullet')) {
       graphics.fillStyle(0xfff1a8).fillRect(0, 0, 8, 8)
@@ -36,6 +40,10 @@ export class EnemySystem {
 
   addRow(row) {
     this.generatedRows++
+    if (row.info.segment === 'bridge') {
+      if (row.info.road) this.addBridge(row)
+      return
+    }
     if (this.addFuelStation(row)) return
     if (this.emptyRowsRemaining > 0) {
       this.emptyRowsRemaining--
@@ -122,6 +130,35 @@ export class EnemySystem {
       this.spawn(type, row, mobileSlot.x, { minX: mobileSlot.minX, maxX: mobileSlot.maxX })
     }
     this.emptyRowsRemaining = Phaser.Math.Between(...emptyRows)
+  }
+
+  addScore(targetType) {
+    const previousState = this.scene.registry.get('state')
+    const state = awardScore(previousState, targetType)
+    if (targetType === 'bridge') {
+      this.bridgeProgress = 0
+      this.bridgeState = 'collecting'
+    } else if (targetType !== 'bridge-spawn' && this.bridgeState === 'collecting') {
+      this.bridgeProgress = Math.min(BRIDGE_SCORE_INTERVAL, this.bridgeProgress + state.score - previousState.score)
+      if (this.bridgeProgress >= BRIDGE_SCORE_INTERVAL) {
+        this.bridgeState = 'ready'
+        this.scene.river.requestBridge()
+      }
+    }
+    this.scene.registry.set('state', state)
+  }
+
+  addBridge(row) {
+    const firstWater = row.tiles.indexOf('river')
+    const lastWater = row.tiles.lastIndexOf('river')
+    if (firstWater < 0) return false
+    const positionX = (firstWater + lastWater + 1) * this.tileSize / 2
+    const bridge = this.spawn('bridge', row, positionX, null, 1)
+    bridge.image.setDisplaySize((lastWater - firstWater + 1) * this.tileSize, this.tileSize * 2)
+    this.bridgeState = 'active'
+    this.emptyRowsRemaining = Math.max(this.emptyRowsRemaining, 4)
+    this.addScore('bridge-spawn')
+    return true
   }
 
   addFuelStation(row) {
@@ -254,9 +291,13 @@ export class EnemySystem {
         const enemy = this.enemies.find((target) => !target.destroyed && this.overlapsImages(shot, target.image))
         if (!enemy) continue
         enemy.destroyed = true
+        this.addScore(enemy.type)
+        const puddleWidth = enemy.type === 'bridge' ? enemy.image.displayWidth : this.enemySize
+        const puddleHeight = enemy.type === 'bridge' ? this.tileSize * 2 : this.enemySize
         enemy.image.setTexture('enemy-puddle')
-          .setDisplaySize(this.enemySize, this.enemySize)
+          .setDisplaySize(puddleWidth, puddleHeight)
           .setFlipX(false)
+          .setAlpha(0.7)
           .setDepth(0.5)
         hit = true
         break

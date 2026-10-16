@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <g id="post">
+      <path d="M4 4h8v4h4v24H0V8h4V4Z" fill="currentColor"/>
+      <path d="M4 8h4v20H4z" fill="#faf4dc"/>
+      <path d="M0 28h16v4H0z" fill="#827e65"/>
+    </g>
+    <g id="left">
+      <path d="M8 12h24v4H8zM8 24h24v4H8z" fill="currentColor"/>
+      <use href="#post"/>
+    </g>
+    <g id="middle">
+      <path d="M0 12h32v4H0zM0 24h32v4H0z" fill="currentColor"/>
+      <use href="#post" x="8"/>
+    </g>
+    <g id="row">
+      <use href="#left"/>
+      <use href="#middle" x="32"/>
+      <use href="#left" transform="translate(96 0) scale(-1 1)"/>
+      <use href="#post" x="104"/>
+    </g>
+  </defs>
+  <g color="#dedbc0"><use href="#row"/></g>
+  <g color="#b9c4a0"><use href="#row" y="32"/></g>
+  <g color="#c5b88d"><use href="#row" y="64"/></g>
+  <g color="#e7e7d7"><use href="#row" y="96"/></g>
+</svg>
