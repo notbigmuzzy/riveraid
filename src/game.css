@@ -1,0 +1,49 @@
+:root {
+  font-family: 'Courier New', monospace;
+  color: #fff;
+  background: #000;
+  font-synthesis: none;
+  letter-spacing: 0;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 280px; }
+
+.game-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.game-shell { width: min(1024px, 100%); min-width: 0; }
+.game-viewport { width: 100%; aspect-ratio: 1024 / 640; overflow: hidden; }
+.game-viewport canvas { display: block; image-rendering: pixelated; }
+
+.game-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.6fr 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 28px 20px;
+  background: #888;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.game-stats > div { min-width: 0; }
+.game-stats dt { color: #000; text-transform: uppercase; }
+.game-stats dd { margin: 0; overflow-wrap: anywhere; }
+.fuel-stat dd { display: flex; align-items: center; height: 32px; }
+progress { appearance: none; width: 100%; height: 28px; border: 0; background: #e6e6e6; }
+progress::-webkit-progress-bar { background: #e6e6e6; }
+progress::-webkit-progress-value { background: #438500; }
+progress::-moz-progress-bar { background: #438500; }
+
+@media (max-width: 600px) {
+  .game-page { padding: 8px; }
+  .game-stats { padding: 14px 6px; gap: 6px; font-size: 14px; }
+  .fuel-stat dd { height: 16px; }
+  progress { height: 14px; }
+}
