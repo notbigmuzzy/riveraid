@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { createRiverGenerator } from './river.js'
+import { EnemySystem } from './enemies.js'
+import { initialState as createInitialState } from './state.js'
 import grassUrl from '../assets/tileset/tiles/tiles-grass light-32x32.png?url&no-inline'
 import earthUrl from '../assets/tileset/tiles/tiles-earth-32x32.png?url&no-inline'
 import treesUrl from '../assets/tileset/tiles/tiles - tree - 32x32.png?url&no-inline'
@@ -27,6 +29,12 @@ export function createGame(parent, initialState, onStateChange) {
 
     preload() {
       this.load.svg('airplane', `${import.meta.env.BASE_URL}aircraft.svg`, { width: 80, height: 80 })
+      this.load.svg('enemy-boat', `${import.meta.env.BASE_URL}enemy-boat.svg`, { width: 80, height: 80 })
+      this.load.svg('enemy-blimp', `${import.meta.env.BASE_URL}enemy-blimp.svg`, { width: 80, height: 80 })
+      this.load.svg('enemy-helicopter', `${import.meta.env.BASE_URL}enemy-helicopter.svg`, { width: 80, height: 80 })
+      this.load.svg('enemy-tank', `${import.meta.env.BASE_URL}enemy-tank.svg`, { width: 80, height: 80 })
+      this.load.svg('enemy-puddle', `${import.meta.env.BASE_URL}enemy-puddle.svg`, { width: 80, height: 80 })
+      this.load.svg('fire-tile', `${import.meta.env.BASE_URL}fire-tile.svg`, { width: 40, height: 40 })
       this.load.spritesheet('grass', grassUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
       this.load.spritesheet('earth', earthUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
       this.load.image('trees', treesUrl)
@@ -34,12 +42,13 @@ export function createGame(parent, initialState, onStateChange) {
       this.load.spritesheet('plants', plantsUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
     }
 
-    create() {
+    create(data = {}) {
       this.cameras.main.setRoundPixels(false)
+      this.isDead = false
       this.fuelElapsed = 0
       this.scrollRemainder = 0
       this.collisionMasks = new Map()
-      this.registry.set('state', { ...initialState })
+      this.registry.set('state', { ...(data.state ?? initialState) })
       const publishState = () => onStateChange({ ...this.registry.get('state') })
       this.registry.events.on('changedata', publishState)
       this.events.once('shutdown', () => {
@@ -52,6 +61,7 @@ export function createGame(parent, initialState, onStateChange) {
       this.textures.get('trees').add('oak', 0, 0, 0, 96, 128)
       this.river = createRiverGenerator(GAME_WIDTH / TILE_SIZE, GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS)
       this.rows = []
+      this.enemies = new EnemySystem(this, TILE_SIZE, GAME_WIDTH, GAME_HEIGHT)
       for (let rowIndex = -BUFFER_ROWS; rowIndex < GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS; rowIndex++) {
         this.rows.push(this.createTerrainRow(rowIndex, rowIndex * TILE_SIZE))
       }
@@ -65,9 +75,29 @@ export function createGame(parent, initialState, onStateChange) {
         right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
         up: Phaser.Input.Keyboard.KeyCodes.UP,
         down: Phaser.Input.Keyboard.KeyCodes.DOWN,
+        leftAlt: Phaser.Input.Keyboard.KeyCodes.A,
+        rightAlt: Phaser.Input.Keyboard.KeyCodes.D,
+        upAlt: Phaser.Input.Keyboard.KeyCodes.W,
+        downAlt: Phaser.Input.Keyboard.KeyCodes.S,
+        leftIjkl: Phaser.Input.Keyboard.KeyCodes.J,
+        rightIjkl: Phaser.Input.Keyboard.KeyCodes.L,
+        upIjkl: Phaser.Input.Keyboard.KeyCodes.I,
+        downIjkl: Phaser.Input.Keyboard.KeyCodes.K,
+        fire: Phaser.Input.Keyboard.KeyCodes.SPACE,
       })
 
+      const restartOnEnter = (event) => {
+        if (event.code !== 'Enter' || event.repeat || !this.isDead) return
+        event.preventDefault()
+        this.isDead = false
+        this.scene.restart({
+          state: { ...createInitialState(), pilot: this.registry.get('state').pilot },
+        })
+      }
+      window.addEventListener('keydown', restartOnEnter)
       this.events.once('shutdown', () => {
+        window.removeEventListener('keydown', restartOnEnter)
+        this.enemies.destroy()
         this.rows.forEach((row) => {
           row.container.destroy()
           Object.values(row.decorations).forEach((layer) => layer.destroy())
@@ -119,7 +149,9 @@ export function createGame(parent, initialState, onStateChange) {
         trees: this.add.container(0, positionY).setDepth(3),
       }
       this.addDecorations(index, decorations, tiles)
-      return { index, tiles, container, decorations }
+      const row = { index, tiles, container, decorations }
+      if (positionY < 0) this.enemies.addRow(row)
+      return row
     }
 
     canPlaceDecoration(index, column, width, height, margin = 1) {
@@ -231,6 +263,8 @@ export function createGame(parent, initialState, onStateChange) {
     }
 
     die() {
+      if (this.isDead) return
+      this.isDead = true
       if (!this.textures.exists('airplane-dead')) {
         const frame = this.player.frame
         const texture = this.textures.createCanvas('airplane-dead', frame.cutWidth, frame.cutHeight)
@@ -262,18 +296,21 @@ export function createGame(parent, initialState, onStateChange) {
 
     update(time, delta) {
       const elapsed = Math.min(delta, 100) / 1000
-      const speedMultiplier = (this.controls.up.isDown ? 2.1 : 1)
-        * (this.controls.down.isDown ? 0.5 : 1)
+      const up = this.controls.up.isDown || this.controls.upAlt.isDown || this.controls.upIjkl.isDown
+      const down = this.controls.down.isDown || this.controls.downAlt.isDown || this.controls.downIjkl.isDown
+      const left = this.controls.left.isDown || this.controls.leftAlt.isDown || this.controls.leftIjkl.isDown
+      const right = this.controls.right.isDown || this.controls.rightAlt.isDown || this.controls.rightIjkl.isDown
+      const speedMultiplier = (up ? 2.1 : 1) * (down ? 0.5 : 1)
       if (!INFINITE_FUEL && !this.consumeFuel(elapsed * speedMultiplier)) return
 
-      const accelerating = this.controls.up.isDown && !this.controls.down.isDown
-      const braking = this.controls.down.isDown && !this.controls.up.isDown
+      const accelerating = up && !down
+      const braking = down && !up
       const verticalOffset = accelerating ? -this.player.displayHeight / 2
         : braking ? this.player.displayHeight / 4 : 0
       const targetY = this.playerBaseY + verticalOffset
       this.player.y = Phaser.Math.Linear(this.player.y, targetY, 1 - Math.exp(-10 * elapsed))
 
-      const direction = Number(this.controls.right.isDown) - Number(this.controls.left.isDown)
+      const direction = Number(right) - Number(left)
       const halfWidth = this.player.displayWidth / 2
       this.player.x = Phaser.Math.Clamp(
         this.player.x + direction * PLAYER_SPEED * elapsed,
@@ -291,6 +328,7 @@ export function createGame(parent, initialState, onStateChange) {
 
       while (this.rows.length && this.rows[this.rows.length - 1].container.y >= GAME_HEIGHT + BUFFER_ROWS * TILE_SIZE) {
         const row = this.rows.pop()
+        this.enemies.removeRow(row)
         row.container.destroy()
         Object.values(row.decorations).forEach((layer) => layer.destroy())
       }
@@ -302,6 +340,7 @@ export function createGame(parent, initialState, onStateChange) {
 
       this.river.prune(this.rows[this.rows.length - 1].index + 1)
       this.checkTerrainCollision()
+      if (this.scene.isActive()) this.enemies.update(elapsed, distance)
     }
   }
 
