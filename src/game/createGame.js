@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { createRiverGenerator } from './river.js'
 import grassUrl from '../assets/tileset/tiles/tiles-grass light-32x32.png?url&no-inline'
 import earthUrl from '../assets/tileset/tiles/tiles-earth-32x32.png?url&no-inline'
 import treesUrl from '../assets/tileset/tiles/tiles - tree - 32x32.png?url&no-inline'
@@ -11,10 +12,11 @@ export const TILE_SIZE = 40
 
 const SOURCE_TILE_SIZE = 32
 const BUFFER_ROWS = 3
-const SCROLL_SPEED = 125
-const PLAYER_SPEED = 350
+const SCROLL_SPEED = 240
+const PLAYER_SPEED = 320
 const FUEL_INTERVAL = 0.32
 const FUEL_PER_TICK = 1.5
+const INFINITE_FUEL = false
 const EARTH_VARIANT = { column: 9, row: 16 }
 
 export function createGame(parent, initialState, onStateChange) {
@@ -36,6 +38,7 @@ export function createGame(parent, initialState, onStateChange) {
       this.cameras.main.setRoundPixels(false)
       this.fuelElapsed = 0
       this.scrollRemainder = 0
+      this.collisionMasks = new Map()
       this.registry.set('state', { ...initialState })
       const publishState = () => onStateChange({ ...this.registry.get('state') })
       this.registry.events.on('changedata', publishState)
@@ -47,12 +50,14 @@ export function createGame(parent, initialState, onStateChange) {
       this.grassFramesPerRow = Math.floor(this.textures.get('grass').getSourceImage().width / SOURCE_TILE_SIZE)
       this.earthFramesPerRow = Math.floor(this.textures.get('earth').getSourceImage().width / SOURCE_TILE_SIZE)
       this.textures.get('trees').add('oak', 0, 0, 0, 96, 128)
+      this.river = createRiverGenerator(GAME_WIDTH / TILE_SIZE, GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS)
       this.rows = []
       for (let rowIndex = -BUFFER_ROWS; rowIndex < GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS; rowIndex++) {
         this.rows.push(this.createTerrainRow(rowIndex, rowIndex * TILE_SIZE))
       }
 
-      this.player = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT - TILE_SIZE * 1.5, 'airplane')
+      this.playerBaseY = GAME_HEIGHT - TILE_SIZE * 1.5
+      this.player = this.add.image(GAME_WIDTH / 2, this.playerBaseY, 'airplane')
         .setDisplaySize(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
         .setDepth(4)
       this.controls = this.input.keyboard.addKeys({
@@ -68,14 +73,13 @@ export function createGame(parent, initialState, onStateChange) {
           Object.values(row.decorations).forEach((layer) => layer.destroy())
         })
         this.rows = []
+        this.collisionMasks.clear()
         this.player.destroy()
       })
     }
 
     getTerrainTile(index, column) {
-      const offset = Math.round(Math.sin(index / 4) * 2)
-      if (column === 8 + offset || column === 22 + offset) return 'coast'
-      return column > 8 + offset && column < 22 + offset ? 'river' : 'grass'
+      return this.river.getTile(index, column)
     }
 
     createTerrainRow(index, positionY) {
@@ -114,25 +118,32 @@ export function createGame(parent, initialState, onStateChange) {
         fences: this.add.container(0, positionY).setDepth(2),
         trees: this.add.container(0, positionY).setDepth(3),
       }
-      this.addDecorations(index, decorations)
+      this.addDecorations(index, decorations, tiles)
       return { index, tiles, container, decorations }
     }
 
-    canPlaceDecoration(index, column, width, height) {
-      if (column < 1 || column + width >= GAME_WIDTH / TILE_SIZE) return false
+    canPlaceDecoration(index, column, width, height, margin = 1) {
+      if (column < margin || column + width + margin > GAME_WIDTH / TILE_SIZE) return false
 
       for (let rowIndex = index - height + 1; rowIndex <= index; rowIndex++) {
-        for (let tileColumn = column - 1; tileColumn <= column + width; tileColumn++) {
+        for (let tileColumn = column - margin; tileColumn < column + width + margin; tileColumn++) {
           if (this.getTerrainTile(rowIndex, tileColumn) !== 'grass') return false
         }
       }
       return true
     }
 
-    addDecorations(index, layers) {
+    addDecorations(index, layers, tiles) {
+      const firstWater = tiles.indexOf('river')
+      const lastWater = tiles.lastIndexOf('river')
       for (let column = 1; column < GAME_WIDTH / TILE_SIZE - 1; column++) {
+        const onIsland = column > firstWater && column < lastWater && tiles[column] === 'grass'
         const chance = Math.random()
-        if (index % 4 === 0 && chance < 0.12 && this.canPlaceDecoration(index, column, 3, 4)) {
+        const footprintWidth = onIsland ? 2 : 3
+        const footprintHeight = onIsland ? (chance < 0.07 ? 2 : 1) : 4
+        const margin = onIsland ? 0 : 1
+        if ((onIsland || index % 4 === 0) && chance < 0.12
+          && this.canPlaceDecoration(index, column, footprintWidth, footprintHeight, margin)) {
           if (chance < 0.07) {
             layers.trees.add(this.add.image(column * TILE_SIZE, TILE_SIZE, 'trees', 'oak')
               .setOrigin(0, 1)
@@ -146,8 +157,9 @@ export function createGame(parent, initialState, onStateChange) {
                 .setDisplaySize(TILE_SIZE / 2, TILE_SIZE / 2))
             }
           }
-          column += 3
-        } else if (chance < 0.15 && this.canPlaceDecoration(index, column, 1, 1)) {
+          column += onIsland ? 1 : 3
+        } else if (chance < (onIsland ? 0.65 : 0.15)
+          && this.canPlaceDecoration(index, column, 1, 1, margin)) {
           layers.plants.add(this.add.image(column * TILE_SIZE, 0, 'plants', Phaser.Math.Between(0, 21))
             .setOrigin(0)
             .setDisplaySize(TILE_SIZE, TILE_SIZE))
@@ -155,21 +167,80 @@ export function createGame(parent, initialState, onStateChange) {
       }
     }
 
+    getCollisionMask(image) {
+      const width = Math.round(image.displayWidth)
+      const height = Math.round(image.displayHeight)
+      const key = `${image.texture.key}:${image.frame.name}:${width}:${height}:${image.flipX}`
+      if (this.collisionMasks.has(key)) return this.collisionMasks.get(key)
+
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const context = canvas.getContext('2d')
+      context.imageSmoothingEnabled = false
+      if (image.flipX) {
+        context.translate(width, 0)
+        context.scale(-1, 1)
+      }
+      const frame = image.frame
+      context.drawImage(frame.source.image, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight,
+        0, 0, width, height)
+      const pixels = context.getImageData(0, 0, width, height).data
+      const alpha = new Uint8Array(width * height)
+      for (let index = 0; index < alpha.length; index++) {
+        alpha[index] = pixels[index * 4 + 3] >= 128 ? 1 : 0
+      }
+      const mask = { width, height, alpha }
+      this.collisionMasks.set(key, mask)
+      return mask
+    }
+
     checkTerrainCollision() {
-      const bounds = Phaser.Geom.Rectangle.Inflate(this.player.getBounds(), -5, -5)
-      const hitLand = this.rows.some((row) => {
-        if (row.container.y > bounds.bottom || row.container.y + TILE_SIZE < bounds.top) return false
+      const playerMask = this.getCollisionMask(this.player)
+      const bounds = this.player.getBounds()
+      const playerLeft = Math.round(bounds.left)
+      const playerTop = Math.round(bounds.top)
+      const playerRight = playerLeft + playerMask.width
+      const playerBottom = playerTop + playerMask.height
 
-        return row.tiles.some((tile, column) => tile !== 'river'
-          && column * TILE_SIZE <= bounds.right
-          && (column + 1) * TILE_SIZE >= bounds.left)
-      })
+      for (const row of this.rows) {
+        const tileTop = Math.round(row.container.y)
+        if (tileTop >= playerBottom || tileTop + TILE_SIZE <= playerTop) continue
 
-      if (hitLand) this.die()
+        for (const image of row.container.list) {
+          const tileLeft = Math.round(row.container.x + image.x)
+          if (tileLeft >= playerRight || tileLeft + TILE_SIZE <= playerLeft) continue
+          const tileMask = this.getCollisionMask(image)
+          const overlapLeft = Math.max(playerLeft, tileLeft)
+          const overlapRight = Math.min(playerRight, tileLeft + tileMask.width)
+          const overlapTop = Math.max(playerTop, tileTop)
+          const overlapBottom = Math.min(playerBottom, tileTop + tileMask.height)
+
+          for (let positionY = overlapTop; positionY < overlapBottom; positionY++) {
+            for (let positionX = overlapLeft; positionX < overlapRight; positionX++) {
+              const playerIndex = (positionY - playerTop) * playerMask.width + positionX - playerLeft
+              const tileIndex = (positionY - tileTop) * tileMask.width + positionX - tileLeft
+              if (playerMask.alpha[playerIndex] && tileMask.alpha[tileIndex]) {
+                this.die()
+                return
+              }
+            }
+          }
+        }
+      }
     }
 
     die() {
-      this.player.setVisible(false)
+      if (!this.textures.exists('airplane-dead')) {
+        const frame = this.player.frame
+        const texture = this.textures.createCanvas('airplane-dead', frame.cutWidth, frame.cutHeight)
+        const context = texture.getContext()
+        context.filter = 'grayscale(1)'
+        context.drawImage(frame.source.image, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight,
+          0, 0, frame.cutWidth, frame.cutHeight)
+        texture.refresh()
+      }
+      this.player.setTexture('airplane-dead')
       this.scene.pause()
     }
 
@@ -191,9 +262,16 @@ export function createGame(parent, initialState, onStateChange) {
 
     update(time, delta) {
       const elapsed = Math.min(delta, 100) / 1000
-      const speedMultiplier = (this.controls.up.isDown ? 2 : 1)
+      const speedMultiplier = (this.controls.up.isDown ? 2.1 : 1)
         * (this.controls.down.isDown ? 0.5 : 1)
-      if (!this.consumeFuel(elapsed * speedMultiplier)) return
+      if (!INFINITE_FUEL && !this.consumeFuel(elapsed * speedMultiplier)) return
+
+      const accelerating = this.controls.up.isDown && !this.controls.down.isDown
+      const braking = this.controls.down.isDown && !this.controls.up.isDown
+      const verticalOffset = accelerating ? -this.player.displayHeight / 2
+        : braking ? this.player.displayHeight / 4 : 0
+      const targetY = this.playerBaseY + verticalOffset
+      this.player.y = Phaser.Math.Linear(this.player.y, targetY, 1 - Math.exp(-10 * elapsed))
 
       const direction = Number(this.controls.right.isDown) - Number(this.controls.left.isDown)
       const halfWidth = this.player.displayWidth / 2
@@ -222,6 +300,7 @@ export function createGame(parent, initialState, onStateChange) {
         this.rows.unshift(this.createTerrainRow(firstRow.index - 1, firstRow.container.y - TILE_SIZE))
       }
 
+      this.river.prune(this.rows[this.rows.length - 1].index + 1)
       this.checkTerrainCollision()
     }
   }
