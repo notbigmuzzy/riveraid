@@ -35,6 +35,7 @@ export function createGame(parent, initialState, onStateChange) {
       this.load.svg('enemy-tank', `${import.meta.env.BASE_URL}enemy-tank.svg`, { width: 80, height: 80 })
       this.load.svg('enemy-puddle', `${import.meta.env.BASE_URL}enemy-puddle.svg`, { width: 80, height: 80 })
       this.load.svg('fire-tile', `${import.meta.env.BASE_URL}fire-tile.svg`, { width: 40, height: 40 })
+      this.load.svg('enemy-fuel', `${import.meta.env.BASE_URL}fuel-station.svg`, { width: 80, height: 80 })
       this.load.spritesheet('grass', grassUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
       this.load.spritesheet('earth', earthUrl, { frameWidth: SOURCE_TILE_SIZE, frameHeight: SOURCE_TILE_SIZE })
       this.load.image('trees', treesUrl)

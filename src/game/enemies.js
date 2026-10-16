@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 
 const DEFAULT_MAX_PLAYER_SHOTS = 2
 const FIRE_DURATION = 4
+const FULL_FUEL = 125
 
 export class EnemySystem {
   constructor(scene, tileSize, gameWidth, gameHeight) {
@@ -17,6 +18,7 @@ export class EnemySystem {
     this.maxPlayerShots = DEFAULT_MAX_PLAYER_SHOTS
     this.nextWing = -1
     this.emptyRowsRemaining = 0
+    this.generatedRows = 0
     const graphics = scene.make.graphics({ x: 0, y: 0 }, false)
     if (!scene.textures.exists('enemy-bullet')) {
       graphics.fillStyle(0xfff1a8).fillRect(0, 0, 8, 8)
@@ -33,6 +35,8 @@ export class EnemySystem {
   }
 
   addRow(row) {
+    this.generatedRows++
+    if (this.addFuelStation(row)) return
     if (this.emptyRowsRemaining > 0) {
       this.emptyRowsRemaining--
       return
@@ -118,6 +122,27 @@ export class EnemySystem {
       this.spawn(type, row, mobileSlot.x, { minX: mobileSlot.minX, maxX: mobileSlot.maxX })
     }
     this.emptyRowsRemaining = Phaser.Math.Between(...emptyRows)
+  }
+
+  addFuelStation(row) {
+    if (this.generatedRows <= 5 || this.enemies.some((entity) => entity.type === 'fuel')) return false
+    const columns = []
+    for (let column = 1; column < row.tiles.length - 1; column++) {
+      let allWater = true
+      for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
+        for (let columnOffset = -1; columnOffset <= 1; columnOffset++) {
+          if (this.scene.getTerrainTile(row.index + rowOffset, column + columnOffset) !== 'river') {
+            allWater = false
+          }
+        }
+      }
+      if (allWater) columns.push(column)
+    }
+    if (!columns.length) return false
+    const column = Phaser.Utils.Array.GetRandom(columns)
+    this.spawn('fuel', row, (column + 0.5) * this.tileSize, null, 1)
+    this.emptyRowsRemaining = Math.max(this.emptyRowsRemaining, 2)
+    return true
   }
 
   canPlaceTank(index, positionX) {
@@ -284,6 +309,11 @@ export class EnemySystem {
       const visibleBottom = enemy.image.y + (enemy.type === 'tank' ? enemy.image.displayHeight / 2 : 0)
       if (visibleBottom < 0 || enemy.image.y > this.gameHeight) continue
       if (this.overlapsPlayer(enemy.image)) {
+        if (enemy.type === 'fuel') {
+          const state = this.scene.registry.get('state')
+          if (state.fuel < FULL_FUEL) this.scene.registry.set('state', { ...state, fuel: FULL_FUEL })
+          continue
+        }
         this.scene.die()
         return
       }
