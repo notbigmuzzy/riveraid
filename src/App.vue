@@ -33,6 +33,7 @@ const ammoLevels = computed(() => {
 const screen = ref("start");
 const selectedChoice = ref(0);
 const confirmingRestart = ref(false);
+const startingRound = ref(false);
 const pilots = pilotDefinitions.map(({ name, description }) => ({
   name,
   description,
@@ -41,6 +42,26 @@ const pilots = pilotDefinitions.map(({ name, description }) => ({
 const offeredPilots = ref([pilots[0]]);
 let game;
 let layoutObserver;
+let assetsReady = false;
+let roundStarted = false;
+let pendingState = null;
+
+function launchRound(state) {
+  pendingState = null;
+  startingRound.value = false;
+  screen.value = "playing";
+  if (roundStarted) {
+    game.scene.getScene("river").scene.restart({ state });
+  } else {
+    game.scene.start("river", { state });
+    roundStarted = true;
+  }
+}
+
+function finishLoading() {
+  assetsReady = true;
+  if (pendingState) launchRound(pendingState);
+}
 
 function updateWeaponStatus(status) {
   weaponStatus.value = status;
@@ -131,7 +152,7 @@ function startRound(
   reset = false,
   pilot = offeredPilots.value[selectedChoice.value]?.name ?? "Bob",
 ) {
-  if (screen.value === "playing") return;
+  if (screen.value === "playing" || startingRound.value) return;
   weaponStatus.value = { activeShots: 0, cooldown: 0 };
   confirmingRestart.value = false;
   const state = {
@@ -142,17 +163,19 @@ function startRound(
   };
   stats.value = state;
   saveState(state);
-  screen.value = "playing";
-  if (game) {
-    game.scene.getScene("river").scene.restart({ state });
+  if (assetsReady) {
+    launchRound(state);
   } else {
-    game = createGame(gameHost.value, state, updateStats);
-    game.events.on("round-ended", endRound);
-    game.events.on("weapon-status", updateWeaponStatus);
+    pendingState = state;
+    startingRound.value = true;
   }
 }
 
 onMounted(() => {
+  game = createGame(gameHost.value, initialState(), updateStats);
+  game.events.once("assets-ready", finishLoading);
+  game.events.on("round-ended", endRound);
+  game.events.on("weapon-status", updateWeaponStatus);
   layoutObserver = new ResizeObserver(fitGameShell);
   layoutObserver.observe(gameFrame.value);
   layoutObserver.observe(gameShell.value);
@@ -162,6 +185,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   layoutObserver?.disconnect();
+  game?.events.off("assets-ready", finishLoading);
   game?.events.off("weapon-status", updateWeaponStatus);
   game?.events.off("round-ended", endRound);
   game?.destroy(true);
@@ -230,6 +254,7 @@ onBeforeUnmount(() => {
                   :key="pilot.name"
                   type="button"
                   class="nes-btn pilot-choice"
+                  :disabled="startingRound"
                   :class="{
                     'pilot-choice-selected':
                       screen === 'end' && selectedChoice === index,
@@ -241,9 +266,9 @@ onBeforeUnmount(() => {
                   <img :src="pilot.portrait" alt="" />
                   <b>{{ pilot.name }}</b>
                   <span class="pilot-description">{{ pilot.description }}</span>
-                  <span v-if="screen === 'start'" class="pilot-action"
-                    >Start Flight</span
-                  >
+                  <span v-if="screen === 'start'" class="pilot-action">{{
+                    startingRound ? "Loading..." : "Start Flight"
+                  }}</span>
                 </button>
               </div>
               <p v-if="screen === 'end'" class="round-title">-- or --</p>

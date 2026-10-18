@@ -426,6 +426,7 @@ export class EnemySystem {
   destroyEnemy(enemy) {
     if (enemy.destroyed) return;
     enemy.destroyed = true;
+    this.scene.playSound("destroy");
     this.addScore(enemy.type);
     if (this.scene.pilot.fuelDropFraction && enemy.type !== "bridge") {
       const image = this.scene.add
@@ -458,6 +459,7 @@ export class EnemySystem {
       );
       this.scene.registry.set("state", { ...state, fuel });
       pack.image.destroy();
+      this.scene.playSound("fuel");
       this.fuelPacks.splice(index, 1);
     }
   }
@@ -579,6 +581,7 @@ export class EnemySystem {
         shot.travelled = 0;
         this.playerShots.push(shot);
       }
+      this.scene.playSound("shot");
       this.shotCooldown = this.weapon.cooldown ?? 0;
       if (this.weapon.alternatingWings) this.nextWing *= -1;
       if (this.weapon.fuelCostFraction) {
@@ -644,8 +647,10 @@ export class EnemySystem {
       if (this.overlapsPlayer(enemy.image)) {
         if (enemy.type === "fuel") {
           const state = this.scene.registry.get("state");
-          if (state.fuel < FULL_FUEL)
+          if (state.fuel < FULL_FUEL) {
             this.scene.registry.set("state", { ...state, fuel: FULL_FUEL });
+            this.scene.playSound("fuel");
+          }
           continue;
         }
         this.scene.die();

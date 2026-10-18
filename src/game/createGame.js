@@ -16,12 +16,15 @@ const FUEL_PER_TICK = 1.5;
 const INFINITE_FUEL = false;
 
 export function createGame(parent, initialState, onStateChange) {
-  class RiverScene extends Phaser.Scene {
+  class AssetScene extends Phaser.Scene {
     constructor() {
-      super("river");
+      super("assets");
     }
 
     preload() {
+      for (const key of ["crash", "destroy", "fuel", "shot", "theme"]) {
+        this.load.audio(key, `${import.meta.env.BASE_URL}sounds/${key}.ogg`);
+      }
       this.load.image(
         "airplane",
         `${import.meta.env.BASE_URL}graphics/aircraft.png`,
@@ -75,6 +78,17 @@ export function createGame(parent, initialState, onStateChange) {
         "plants",
         `${import.meta.env.BASE_URL}graphics/shore-plants.png`,
       );
+    }
+
+    create() {
+      this.game.events.emit("assets-ready");
+      this.scene.stop();
+    }
+  }
+
+  class RiverScene extends Phaser.Scene {
+    constructor() {
+      super("river");
     }
 
     create(data = {}) {
@@ -193,8 +207,15 @@ export function createGame(parent, initialState, onStateChange) {
         fire: Phaser.Input.Keyboard.KeyCodes.SPACE,
       });
       this.pilot.update(this);
+      const playTheme = () => {
+        if (!this.isDead) this.playSound("theme", { loop: true });
+      };
+      if (this.sound.locked) this.sound.once("unlocked", playTheme);
+      else playTheme();
 
       this.events.once("shutdown", () => {
+        this.sound.off("unlocked", playTheme);
+        this.sound.removeAll();
         this.game.canvas.style.filter = "";
         this.enemies.destroy();
         this.rows.forEach((row) => {
@@ -205,6 +226,10 @@ export function createGame(parent, initialState, onStateChange) {
         this.collisionMasks.clear();
         this.player.destroy();
       });
+    }
+
+    playSound(key, config = {}) {
+      if (!this.sound.isPlaying(key)) this.sound.play(key, config);
     }
 
     getTerrainTile(index, column) {
@@ -466,6 +491,8 @@ export function createGame(parent, initialState, onStateChange) {
     die() {
       if (this.isDead) return;
       this.isDead = true;
+      this.sound.removeByKey("theme");
+      this.playSound("crash");
       const deadTexture = `${this.player.texture.key}-dead`;
       if (!this.textures.exists(deadTexture)) {
         const frame = this.player.frame;
@@ -580,12 +607,13 @@ export function createGame(parent, initialState, onStateChange) {
         this.controls.rightAlt.isDown ||
         this.controls.rightIjkl.isDown;
       const speedMultiplier = (up ? 2.1 : 1) * (down ? 0.5 : 1);
+      const fuelMultiplier =
+        (up ? 2.1 : 1) * (down ? (this.pilot.brakingFuelMultiplier ?? 0.5) : 1);
       this.scrollSpeed =
         SCROLL_SPEED *
         speedMultiplier *
         (this.pilot.flightSpeedMultiplier ?? 1);
-      if (!INFINITE_FUEL && !this.consumeFuel(elapsed * speedMultiplier))
-        return;
+      if (!INFINITE_FUEL && !this.consumeFuel(elapsed * fuelMultiplier)) return;
 
       const accelerating = up && !down;
       const braking = down && !up;
@@ -661,7 +689,7 @@ export function createGame(parent, initialState, onStateChange) {
     pixelArt: true,
     antialias: false,
     banner: false,
-    scene: RiverScene,
+    scene: [AssetScene, RiverScene],
     scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   });
 }
