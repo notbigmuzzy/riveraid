@@ -1,30 +1,59 @@
-# ![RiveRogue](graphics/background/screen.png)
+# 𐘿 river rogue 𐘿
 
-# River Rogue | Legacy Raid
+A browser-based tribute to River Raid with a little rogue-lite spin, rebuilt with Vue, Phaser and Vite using plain JavaScript. Fly through a procedurally generated river, destroy targets and bridges, and keep your fuel tank from running dry.
 
-A ( rather simple ) tribute to River Raid (**== best game ever made ==**) using native web technologies I created for the #devember 2021 challenge
+River Raid was created by [Carol Shaw](https://en.wikipedia.org/wiki/Carol_Shaw) and first released in 1982. Here is a [short documentary about the game](https://www.youtube.com/watch?v=1OcT5zJzVV0). It was also the first video game I ever played, on a C64C my parents bought in 1989. Also it kinda kicked-off my interest in computer stuff.
 
 ## Demo
 
-Here is a working live demo : https://notbigmuzzy.github.io/riveraid/
+[Play River Rogue](https://notbigmuzzy.github.io/riveraid/)
 
-### Used
+## Gameplay
 
-- [Sound pack | freesound.org](https://freesound.org/people/LittleRobotSoundFactory/packs/16681/)
-- [Main music theme | fesliyanstudios.com](https://www.fesliyanstudios.com/)
-- [Graphics | SVG Repo](https://www.svgrepo.com/)
+Start your first flight as Bob. After a crash, choose one of three randomly offered pilots to continue your campaign. Bridge progress carries over between flights; score and fuel reset for each flight.
 
-## Known bugs - TODO
+Refuel at fuel stations, avoid the banks and incoming fire, and shoot targets to work toward the next bridge. Each pilot changes how you fly or fight.
 
-- Improve scrolling animation
-- Improve Graphics
-- Responsive
-- Sometimes river meandering spawns unpassable terrain
+Progress is saved in your browser's local storage. **Restart Game** asks for confirmation, clears the saved progress and returns to the start screen.
 
-## Original game
+### Controls
 
-The original game was created in the 82/83 by [Carol Shaw](https://en.wikipedia.org/wiki/Carol_Shaw), here's a great short documentary about the subject - [LINK](https://www.youtube.com/watch?v=1OcT5zJzVV0) and is, incidentally, first video game I ever played, on an C64C which my parents bought in 1989.
+| Action                     | Keys                              |
+| -------------------------- | --------------------------------- |
+| Move left / right          | Left / Right arrows, A / D, J / L |
+| Accelerate / brake         | Up / Down arrows, W / S, I / K    |
+| Fire                       | Space, once per press             |
+| Select a pilot in the menu | Arrow keys, WASD or IJKL          |
+| Confirm a pilot            | Enter or click the pilot          |
+
+### Pilots
+
+| Pilot   | Specialty                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------- |
+| Bob     | The standard aircraft and weapon.                                                                              |
+| Vinston | Three-shot volleys with a reload delay, increased fuel use and a grayscale view.                               |
+| Jack    | One side of the view is obscured; piercing shots can destroy multiple targets, and targets award extra points. |
+| Rosanna | Night Raid: a dark river, faster flight and a fixed flight speed.                                              |
+| Alexei  | An inverted view with reduced fuel consumption.                                                                |
+| Ada     | A heavy shell that creates a randomly shaped, four-cell blast on impact or at its range limit.                 |
+| Vera    | No fuel stations: destroyed targets drop collectible fuel packs.                                               |
+
+## Built With
+
+- Vue 3 for menus and the HUD.
+- Phaser 4 with Canvas rendering for gameplay and audio.
+- Vite 8 for development and production builds.
+- NES.css and Press Start 2P for the interface.
+- PNG gameplay graphics and the original OGG sound assets.
+
+## Credits
+
+- [Sound pack: LittleRobotSoundFactory / freesound.org](https://freesound.org/people/LittleRobotSoundFactory/packs/16681/)
+- [Main music theme: Fesliyan Studios](https://www.fesliyanstudios.com/)
+- [NES.css](https://github.com/nostalgic-css/NES.css)
 
 ## License
 
-MIT © [NBM](http://notbigmuzzy.github.io/)
+[MIT](LICENSE)
+
+Third-party graphics, sound effects and music remain subject to their respective licenses and usage terms.
