@@ -143,11 +143,7 @@ onBeforeUnmount(() => {
                 class="pilot-choice"
                 :class="{ 'pilot-choice-selected': selectedChoice === index }"
                 @focus="selectedChoice = index"
-                @click="
-                  screen === 'end'
-                    ? focusChoice(index)
-                    : startRound(false, pilot.name)
-                "
+                @click="startRound(false, pilot.name)"
               >
                 <img :src="pilot.portrait" alt="" />
                 <b>{{ pilot.name }}</b>
@@ -164,7 +160,7 @@ onBeforeUnmount(() => {
                     selectedChoice === offeredPilots.length,
                 }"
                 @focus="selectedChoice = offeredPilots.length"
-                @click="focusChoice(offeredPilots.length)"
+                @click="startRound(true)"
               >
                 Restart Game
               </button>
