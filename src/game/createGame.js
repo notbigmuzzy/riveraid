@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 import { createRiverGenerator } from './river.js'
 import { EnemySystem } from './enemies.js'
-import { initialState as createInitialState } from './state.js'
 
 export const GAME_WIDTH = 1280
 export const GAME_HEIGHT = 800
@@ -106,17 +105,7 @@ export function createGame(parent, initialState, onStateChange) {
         fire: Phaser.Input.Keyboard.KeyCodes.SPACE,
       })
 
-      const restartOnEnter = (event) => {
-        if (event.code !== 'Enter' || event.repeat || !this.isDead) return
-        event.preventDefault()
-        this.isDead = false
-        this.scene.restart({
-          state: { ...createInitialState(), pilot: this.registry.get('state').pilot },
-        })
-      }
-      window.addEventListener('keydown', restartOnEnter)
       this.events.once('shutdown', () => {
-        window.removeEventListener('keydown', restartOnEnter)
         this.enemies.destroy()
         this.rows.forEach((row) => {
           row.container.destroy()
@@ -293,6 +282,7 @@ export function createGame(parent, initialState, onStateChange) {
       }
       this.player.setTexture('airplane-dead')
       this.scene.pause()
+      this.game.events.emit('round-ended', { ...this.registry.get('state') })
     }
 
     consumeFuel(elapsed) {
