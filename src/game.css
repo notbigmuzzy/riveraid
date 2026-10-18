@@ -1,13 +1,43 @@
 :root {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   color: #fff;
   background: #000;
   font-synthesis: none;
   letter-spacing: 0;
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; min-width: 280px; }
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  min-width: 280px;
+  min-height: 100svh;
+  font-family: inherit;
+  color: inherit;
+  background: inherit;
+  isolation: isolate;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -64px;
+  z-index: -1;
+  background: url("/background.jpg") center / cover no-repeat;
+  filter: blur(48px);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+body:has(.game-page-night)::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgb(0 0 0 / 75%);
+  pointer-events: none;
+}
 
 .game-page {
   min-height: 100svh;
@@ -16,12 +46,33 @@ body { margin: 0; min-width: 280px; }
   padding: 30px;
 }
 
-.game-shell { width: min(1280px, 100%); min-width: 0; }
-.game-stage { position: relative; aspect-ratio: 1280 / 800; background: #000; }
-.game-viewport { width: 100%; aspect-ratio: 1280 / 800; overflow: hidden; }
-.game-viewport canvas { display: block; image-rendering: auto; }
+.game-shell {
+  width: min(1280px, 100%);
+  min-width: 0;
+}
+.game-stage {
+  position: relative;
+  aspect-ratio: 1280 / 800;
+  background: #000;
+}
+.game-stage-menu {
+  min-height: 620px;
+}
+.game-viewport {
+  width: 100%;
+  aspect-ratio: 1280 / 800;
+  overflow: hidden;
+}
+.game-viewport canvas {
+  display: block;
+  image-rendering: auto;
+}
+.game-stage:not(.game-stage-menu) .game-viewport canvas {
+  cursor: none;
+}
 
 .round-screen {
+  --menu-muted: #a9c2bd;
   position: absolute;
   inset: 0;
   z-index: 10;
@@ -29,119 +80,486 @@ body { margin: 0; min-width: 280px; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 48px;
-  padding: 24px;
-  border: 8px solid #fff;
-  background: rgb(0 0 0 / 85%);
+  gap: 28px;
+  padding: 40px;
+  border: 4px solid #e7eee3;
+  outline: none;
+  background: #7c6fdb;
+  isolation: isolate;
+  overflow: hidden;
+  color: #f6f4e7;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  line-height: 1.7;
   text-align: center;
 }
 
-.round-screen-start {
-  background: #000 url('../old_game/graphics/background/back.png') center / cover no-repeat;
+.menu-cloud {
+  position: absolute;
+  left: -136px;
+  z-index: -1;
+  width: calc(100% + 136px);
+  height: 40px;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent 56px,
+      #f1efff 56px 88px,
+      transparent 88px
+    ),
+    linear-gradient(
+      90deg,
+      transparent 40px,
+      #f1efff 40px 112px,
+      transparent 112px
+    ),
+    linear-gradient(
+      90deg,
+      transparent 16px,
+      #f1efff 16px 136px,
+      transparent 136px
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24px,
+      #c6beef 24px 128px,
+      transparent 128px
+    );
+  background-size:
+    400px 8px,
+    400px 8px,
+    400px 16px,
+    400px 8px;
+  background-position:
+    0 0,
+    0 8px,
+    0 16px,
+    0 32px;
+  background-repeat: no-repeat;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: menu-clouds-drift 80s linear infinite;
 }
 
+.menu-cloud:nth-child(1) {
+  top: 9%;
+  animation-duration: 90s;
+  animation-delay: -14s;
+}
+.menu-cloud:nth-child(2) {
+  top: 27%;
+  opacity: 0.4;
+  animation-duration: 115s;
+  animation-delay: -83s;
+  animation-direction: reverse;
+}
+.menu-cloud:nth-child(3) {
+  top: 46%;
+  opacity: 0.3;
+  animation-duration: 105s;
+  animation-delay: -45s;
+}
+.menu-cloud:nth-child(4) {
+  top: 67%;
+  opacity: 0.45;
+  animation-duration: 125s;
+  animation-delay: -27s;
+  animation-direction: reverse;
+}
+.menu-cloud:nth-child(5) {
+  top: 86%;
+  animation-duration: 95s;
+  animation-delay: -60s;
+}
+
+@keyframes menu-clouds-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-cloud {
+    animation: none;
+    transform: translateX(35%);
+  }
+  .menu-cloud:nth-child(even) {
+    transform: translateX(70%);
+  }
+}
+
+.round-heading {
+  width: 100%;
+  max-width: 880px;
+}
 .round-screen h1 {
   margin: 0;
   max-width: 100%;
-  font-size: 60px;
-  line-height: 1.1;
+  font-size: 26px;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
-.pilot-chooser { display: flex; flex-direction: column; align-items: center; gap: 20px; max-width: 100%; }
-.pilot-list { display: grid; grid-template-columns: repeat(3, minmax(0, 200px)); gap: 24px; max-width: 100%; }
-.pilot-list-single { grid-template-columns: minmax(0, 200px); }
-
-.pilot-choice,
-.restart-game {
-  appearance: none;
-  border: 6px solid rgb(0 0 0 / 33%);
-  border-radius: 0;
-  background: transparent;
-  color: #fff;
-  font: inherit;
-  cursor: pointer;
+.round-screen-start {
+  justify-content: flex-start;
+  padding-top: 86px;
+  gap: 56px;
+}
+.round-screen-start .round-heading {
+  width: max-content;
+  max-width: 100%;
+}
+.round-screen-start h1 {
+  font-size: 88px;
+  line-height: 1.2;
+  overflow-wrap: normal;
+  text-shadow: 4px 4px #1d3934;
+}
+.round-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 0;
+  font-size: 16px;
+  white-space: nowrap;
+}
+.round-subtitle::before,
+.round-subtitle::after {
+  content: "";
+  flex: 1;
+  min-width: 16px;
+  height: 3px;
+  background: currentColor;
+}
+.round-kicker {
+  margin: 0 0 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.round-results {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 16px;
+  width: min(620px, 100%);
+  margin: 0;
+  padding: 16px 0;
+  border-top: 2px solid #45605a;
+  border-bottom: 2px solid #45605a;
+}
+.round-results > div {
+  min-width: 0;
+}
+.round-results dt {
+  color: var(--menu-muted);
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.round-results dd {
+  margin: 8px 0 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.pilot-chooser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+.round-screen-start .pilot-chooser {
+  transform: translateY(20%);
+}
+.pilot-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: min(720px, 100%);
+  padding: 4px;
+}
+.pilot-list-single {
+  width: 260px;
+  max-width: 100%;
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.pilot-choice {
+.nes-btn.pilot-choice {
   width: 100%;
   min-width: 0;
-  height: 260px;
+  height: 224px;
+  margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 16px 8px;
+  padding: 20px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: normal;
 }
 
-.pilot-choice img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 24px; image-rendering: pixelated; }
-.pilot-choice b { margin-bottom: 6px; font-size: 22px; }
-.pilot-choice i { max-width: 100%; font-size: 16px; line-height: 1.3; overflow-wrap: anywhere; }
-.pilot-alternative { font-size: 28px; }
-.restart-game { min-height: 56px; padding: 8px 20px; font-size: 20px; text-transform: uppercase; }
-.pilot-choice-selected,
-.pilot-choice:hover,
-.restart-game:hover,
-.pilot-choice:focus-visible,
-.restart-game:focus-visible { outline: none; border-color: #fff; }
+.pilot-choice img {
+  flex: none;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  image-rendering: pixelated;
+}
+.pilot-choice b {
+  max-width: 100%;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.pilot-description {
+  max-width: 100%;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.pilot-action {
+  margin-top: 20px;
+  font-size: 10px;
+}
+.round-screen-start .pilot-choice {
+  height: 260px;
+}
+.round-actions {
+  padding: 4px;
+}
+.nes-btn.restart-game {
+  margin: 0;
+  min-height: 44px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1.6;
+  white-space: normal;
+}
+.round-screen-end .pilot-choice:focus-visible {
+  outline: 3px solid #f7d66b;
+  outline-offset: 6px;
+}
 
 .game-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.6fr 1fr 1fr;
-  gap: 15px;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 2fr) minmax(0, 1.3fr)
+    minmax(0, 0.6fr);
+  align-items: start;
+  gap: 16px;
   margin: 0;
-  padding: 35px 25px;
-  background: var(--game-stats-background, #888);
-  box-shadow: inset 0 0 0 8px var(--game-stats-border, transparent);
+  padding: 24px;
+  background: var(--game-stats-background, #d3d3d3);
+  box-shadow: inset 0 0 0 4px var(--game-stats-border, transparent);
   text-align: center;
-  font-size: 35px;
-  font-weight: 700;
+  font-family: "Press Start 2P", monospace;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.7;
 }
 
-.game-stats > div { min-width: 0; }
-.game-stats dt { color: var(--game-stats-span, #000); text-transform: uppercase; }
-.game-stats dd { margin: 0; color: var(--game-stats-label, #fff); overflow-wrap: anywhere; }
-.fuel-stat dd { display: flex; align-items: center; height: 40px; }
-progress { appearance: none; width: 100%; height: 35px; border: 0; background: #e6e6e6; }
-progress::-webkit-progress-bar { background: #e6e6e6; }
-progress::-webkit-progress-value { background: #438500; }
-progress::-moz-progress-bar { background: #438500; }
+.game-stats > div {
+  min-width: 0;
+}
+.game-stats dt {
+  margin-bottom: 12px;
+  color: var(--game-stats-span, #4b4f54);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.game-stats dt label {
+  margin: 0;
+  font: inherit;
+}
+.game-stats dd {
+  min-height: 34px;
+  margin: 0;
+  color: var(--game-stats-label, #212529);
+  overflow-wrap: anywhere;
+}
+.fuel-stat dd {
+  display: flex;
+  align-items: center;
+}
+.game-stats .nes-progress {
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+}
 
 @media (max-width: 750px) {
-  .game-page { padding: 10px; }
-  .game-stage-menu { min-height: 380px; }
-  .round-screen { border-width: 5px; padding: 16px 10px; gap: 24px; }
-  .round-screen h1 { font-size: 32px; }
-  .pilot-chooser { gap: 12px; width: 100%; }
-  .pilot-list { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .pilot-list-single { width: 150px; grid-template-columns: minmax(0, 1fr); }
-  .pilot-choice { height: 160px; border-width: 4px; padding: 8px 2px; }
-  .pilot-choice img { width: 52px; height: 52px; margin-bottom: 14px; }
-  .pilot-choice b { font-size: 16px; }
-  .pilot-choice i { font-size: 11px; }
-  .pilot-alternative { font-size: 20px; }
-  .restart-game { min-height: 44px; border-width: 4px; padding: 6px 12px; font-size: 16px; }
-  .game-stats { padding: 17.5px 7.5px; gap: 7.5px; font-size: 17.5px; }
-  .fuel-stat dd { height: 20px; }
-  progress { height: 17.5px; }
+  .game-page {
+    padding: 10px;
+  }
+  .game-stage-menu {
+    min-height: 540px;
+  }
+  .round-screen {
+    padding: 24px 14px;
+    gap: 24px;
+  }
+  .round-screen h1 {
+    font-size: 18px;
+  }
+  .round-screen-start {
+    padding-top: 40px;
+    gap: 36px;
+  }
+  .round-screen-start h1 {
+    font-size: 56px;
+  }
+  .round-subtitle {
+    font-size: 12px;
+  }
+  .round-kicker {
+    font-size: 10px;
+  }
+  .round-results {
+    gap: 8px;
+    padding: 14px 0;
+  }
+  .round-results dt {
+    font-size: 8px;
+  }
+  .round-results dd {
+    font-size: 12px;
+  }
+  .pilot-chooser {
+    gap: 24px;
+  }
+  .pilot-list {
+    gap: 12px;
+  }
+  .pilot-list-single {
+    width: 220px;
+  }
+  .nes-btn.pilot-choice {
+    height: 190px;
+    padding: 12px 4px;
+  }
+  .pilot-choice img {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+  .pilot-choice b {
+    font-size: 10px;
+  }
+  .pilot-description {
+    font-size: 8px;
+  }
+  .round-screen-start .pilot-choice {
+    height: 240px;
+  }
+  .round-screen-start .pilot-choice img {
+    width: 96px;
+    height: 96px;
+  }
+  .game-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 20px 16px;
+    gap: 16px 12px;
+    font-size: 14px;
+  }
+  .game-stats dt {
+    margin-bottom: 8px;
+    font-size: 10px;
+  }
+  .game-stats dd {
+    min-height: 24px;
+  }
+  .fuel-stat {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+  .pilot-stat {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  .run-stat {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .game-stats .nes-progress {
+    height: 22px;
+  }
 }
 
 @media (min-width: 751px) and (max-width: 1050px) {
-  .round-screen { gap: 16px; padding: 16px; }
-  .round-screen h1 { font-size: 36px; }
-  .pilot-list { grid-template-columns: repeat(3, minmax(0, 160px)); gap: 16px; }
-  .pilot-list-single { grid-template-columns: minmax(0, 160px); }
-  .pilot-choice { height: 160px; }
-  .pilot-choice img { width: 52px; height: 52px; margin-bottom: 12px; }
-  .pilot-choice b { font-size: 18px; }
-  .pilot-choice i { font-size: 12px; }
-  .pilot-chooser { gap: 10px; }
-  .pilot-alternative { font-size: 20px; }
-  .restart-game { min-height: 44px; padding: 6px 12px; font-size: 16px; }
+  .round-screen {
+    padding: 28px;
+    gap: 24px;
+  }
+  .round-screen-start {
+    padding-top: 48px;
+    gap: 40px;
+  }
+  .round-screen-start h1 {
+    font-size: 56px;
+  }
+  .pilot-list {
+    gap: 20px;
+  }
+  .game-stats {
+    padding: 20px 16px;
+    gap: 12px;
+    font-size: 16px;
+  }
+  .game-stats dt {
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 400px) {
-  .round-screen h1 { font-size: 24px; }
-  .pilot-choice b { font-size: 12px; }
-  .pilot-choice i { font-size: 10px; }
+  .round-screen {
+    padding-inline: 10px;
+  }
+  .round-screen h1 {
+    font-size: 14px;
+  }
+  .round-screen-start h1 {
+    font-size: 40px;
+  }
+  .pilot-list {
+    gap: 10px;
+  }
+  .nes-btn.pilot-choice {
+    height: 184px;
+    padding-inline: 2px;
+  }
+  .pilot-choice img {
+    width: 48px;
+    height: 48px;
+  }
+  .pilot-choice b {
+    font-size: 8px;
+  }
+  .pilot-description {
+    font-size: 7px;
+  }
+  .round-results dt {
+    font-size: 7px;
+  }
+  .round-results dd {
+    font-size: 10px;
+  }
+  .game-stats {
+    padding: 18px 12px;
+    gap: 14px 8px;
+    font-size: 12px;
+  }
+  .game-stats dt {
+    font-size: 9px;
+  }
+  .game-stats .pilot-stat dd {
+    font-size: 9px;
+  }
 }

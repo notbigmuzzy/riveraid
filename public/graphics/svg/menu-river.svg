@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200" shape-rendering="crispEdges">
+  <defs>
+    <pattern id="sage-transition" width="4" height="4" patternUnits="userSpaceOnUse">
+      <path fill="#718167" d="M0 0h1v1H0zM2 2h1v1H2z"/>
+    </pattern>
+    <pattern id="green-transition" width="4" height="4" patternUnits="userSpaceOnUse">
+      <path fill="#486047" d="M0 0h1v1H0zM2 2h1v1H2z"/>
+    </pattern>
+    <pattern id="river-transition" width="4" height="4" patternUnits="userSpaceOnUse">
+      <path fill="#7c6fdb" d="M0 0h1v1H0zM2 2h1v1H2z"/>
+    </pattern>
+  </defs>
+  <path fill="#486047" d="M0 0h320v200H0z"/>
+  <path fill="url(#sage-transition)" d="M0 36h320v4H0z"/>
+  <path fill="#718167" d="M0 40h320v104H0z"/>
+  <path fill="url(#green-transition)" d="M0 40h320v4H0z"/>
+  <path fill="#92ad55" d="M0 140h320v4H0z"/>
+  <path fill="#648f36" d="M0 144h320v6H0z"/>
+  <path fill="url(#river-transition)" d="M0 146h320v4H0z"/>
+  <path fill="#7c6fdb" d="M0 150h320v32H0z"/>
+  <path fill="#648f36" d="M0 150h40v4h16v4h12v4h12v4H0z"/>
+  <path fill="#92ad55" d="M0 164h80v2H0z"/>
+  <path fill="#aba1ed" d="M95 158h24v1H95zM197 170h22v1h-22zM38 175h18v1H38z"/>
+  <image href="../aircraft.png" x="248" y="122" width="56" height="56" style="image-rendering:pixelated"/>
+  <path fill="url(#green-transition)" d="M0 178h320v4H0z"/>
+  <path fill="#486047" d="M0 182h320v18H0z"/>
+</svg>

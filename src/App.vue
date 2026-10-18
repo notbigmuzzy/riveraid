@@ -109,7 +109,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="game-page">
+  <main
+    class="game-page"
+    :class="{ 'game-page-night': stats.pilot === 'Rosanna' }"
+  >
     <section class="game-shell" aria-label="River Rogue">
       <div
         class="game-stage"
@@ -135,10 +138,22 @@ onBeforeUnmount(() => {
           tabindex="-1"
           @keydown="navigateMenu"
         >
-          <h1 v-if="screen === 'start'" id="round-title">
-            River Rogue<br />Legacy Raid
-          </h1>
-          <h1 v-else id="round-title">Choose your new pilot</h1>
+          <span
+            v-for="cloud in 5"
+            :key="cloud"
+            class="menu-cloud"
+            aria-hidden="true"
+          ></span>
+          <header class="round-heading">
+            <template v-if="screen === 'start'">
+              <h1 id="round-title">River Rogue</h1>
+              <p class="round-subtitle nes-text is-warning">Legacy Raid</p>
+            </template>
+            <template v-else>
+              <p class="round-kicker nes-text is-error">Flight ended</p>
+              <h1 id="round-title">Choose your next pilot</h1>
+            </template>
+          </header>
           <div class="pilot-chooser">
             <div
               class="pilot-list"
@@ -148,27 +163,33 @@ onBeforeUnmount(() => {
                 v-for="(pilot, index) in offeredPilots"
                 :key="pilot.name"
                 type="button"
-                class="pilot-choice"
-                :class="{ 'pilot-choice-selected': selectedChoice === index }"
+                class="nes-btn pilot-choice"
+                :class="{
+                  'pilot-choice-selected':
+                    screen === 'end' && selectedChoice === index,
+                  'is-warning': screen === 'end' && selectedChoice === index,
+                }"
                 @focus="selectedChoice = index"
                 @click="startRound(false, pilot.name)"
               >
                 <img :src="pilot.portrait" alt="" />
                 <b>{{ pilot.name }}</b>
-                <i>({{ pilot.description }})</i>
+                <span class="pilot-description">{{ pilot.description }}</span>
+                <span v-if="screen === 'start'" class="pilot-action"
+                  >Start Flight</span
+                >
               </button>
             </div>
-            <template v-if="screen === 'end'">
-              <span class="pilot-alternative">OR</span>
+            <div v-if="screen === 'end'" class="round-actions">
               <button
                 type="button"
-                class="restart-game"
+                class="nes-btn is-error restart-game"
                 tabindex="-1"
                 @click="startRound(true)"
               >
                 Restart Game
               </button>
-            </template>
+            </div>
           </div>
         </section>
       </div>
@@ -184,16 +205,28 @@ onBeforeUnmount(() => {
         <div class="fuel-stat">
           <dt><label for="fuel">Fuel</label></dt>
           <dd>
-            <progress id="fuel" :value="stats.fuel" max="125">
+            <progress
+              id="fuel"
+              class="nes-progress"
+              :class="
+                stats.fuel <= 25
+                  ? 'is-error'
+                  : stats.fuel <= 50
+                    ? 'is-warning'
+                    : 'is-success'
+              "
+              :value="stats.fuel"
+              max="125"
+            >
               {{ stats.fuel }}
             </progress>
           </dd>
         </div>
-        <div>
+        <div class="pilot-stat">
           <dt>Pilot</dt>
           <dd>{{ stats.pilot }}</dd>
         </div>
-        <div>
+        <div class="run-stat">
           <dt>Run</dt>
           <dd>{{ stats.run }}</dd>
         </div>
