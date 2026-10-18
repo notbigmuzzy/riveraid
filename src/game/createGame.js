@@ -48,6 +48,8 @@ export function createGame(parent, initialState, onStateChange) {
       this.collisionMasks = new Map()
       const state = { ...(data.state ?? initialState) }
       this.pilot = getPilot(state.pilot)
+      this.scrollSpeed = SCROLL_SPEED * (this.pilot.flightSpeedMultiplier ?? 1)
+      this.deathExplosion = null
       this.pilotTextures = { player: 'airplane', terrain: 'terrain', trees: 'trees', fence: 'fence', plants: 'plants' }
       this.registry.set('state', { ...state, pilot: this.pilot.name })
       const publishState = () => onStateChange({ ...this.registry.get('state') })
@@ -70,7 +72,7 @@ export function createGame(parent, initialState, onStateChange) {
       }
       if (!this.textures.get('trees').has('oak')) this.textures.get('trees').add('oak', 0, 0, 0, 96, 128)
       this.pilot.apply(this)
-      this.river = createRiverGenerator(GAME_WIDTH / TILE_SIZE, GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS)
+      this.river = createRiverGenerator(GAME_WIDTH / TILE_SIZE, GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS, Math.random, this.pilot.river)
       this.rows = []
       this.enemies = new EnemySystem(this, TILE_SIZE, GAME_WIDTH, GAME_HEIGHT)
       for (let rowIndex = -BUFFER_ROWS; rowIndex < GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS; rowIndex++) {
@@ -168,7 +170,7 @@ export function createGame(parent, initialState, onStateChange) {
       }
       if (info.segment !== 'bridge') this.addDecorations(index, decorations, tiles)
       const row = { index, tiles, container, decorations, info }
-      if (positionY < 0) this.enemies.addRow(row)
+      if (positionY < 0 && !this.isDead) this.enemies.addRow(row)
       return row
     }
 
@@ -294,8 +296,37 @@ export function createGame(parent, initialState, onStateChange) {
         texture.refresh()
       }
       this.player.setTexture(deadTexture)
-      this.scene.pause()
-      this.game.events.emit('round-ended', { ...this.registry.get('state') })
+      this.tweens.add({ targets: this.player, alpha: 0, duration: 200 })
+      this.deathExplosion = this.add.container(this.player.x, this.player.y).setDepth(5)
+      const colors = [0xfff1a8, 0xffb52e, 0xf05a36, 0xeeeeee]
+      for (let index = 0; index < 16; index++) {
+        const angle = index * Math.PI * 2 / 16
+        const radius = Phaser.Math.Between(35, 85)
+        const size = Phaser.Math.Between(6, 12)
+        const fragment = this.add.rectangle(0, 0, size, size, colors[index % colors.length])
+        this.deathExplosion.add(fragment)
+        this.tweens.add({
+          targets: fragment,
+          x: Math.cos(angle) * radius,
+          y: Math.sin(angle) * radius,
+          alpha: 0,
+          scale: 0.3,
+          duration: Phaser.Math.Between(400, 700),
+          ease: 'Cubic.Out',
+        })
+      }
+      this.tweens.add({
+        targets: this,
+        scrollSpeed: 0,
+        duration: 850,
+        ease: 'Cubic.Out',
+        onComplete: () => {
+          this.deathExplosion.destroy()
+          this.deathExplosion = null
+          this.scene.pause()
+          this.game.events.emit('round-ended', { ...this.registry.get('state') })
+        },
+      })
     }
 
     consumeFuel(elapsed) {
@@ -316,6 +347,13 @@ export function createGame(parent, initialState, onStateChange) {
 
     update(time, delta) {
       const elapsed = Math.min(delta, 100) / 1000
+      if (this.isDead) {
+        const distance = this.scrollWorld(this.scrollSpeed * elapsed)
+        this.enemies.scrollAfterDeath(distance)
+        this.player.y += distance
+        if (this.deathExplosion) this.deathExplosion.y += distance
+        return
+      }
       const up = this.pilot.canAccelerate !== false
         && (this.controls.up.isDown || this.controls.upAlt.isDown || this.controls.upIjkl.isDown)
       const down = this.pilot.canBrake !== false
@@ -323,6 +361,7 @@ export function createGame(parent, initialState, onStateChange) {
       const left = this.controls.left.isDown || this.controls.leftAlt.isDown || this.controls.leftIjkl.isDown
       const right = this.controls.right.isDown || this.controls.rightAlt.isDown || this.controls.rightIjkl.isDown
       const speedMultiplier = (up ? 2.1 : 1) * (down ? 0.5 : 1)
+      this.scrollSpeed = SCROLL_SPEED * speedMultiplier * (this.pilot.flightSpeedMultiplier ?? 1)
       if (!INFINITE_FUEL && !this.consumeFuel(elapsed * speedMultiplier)) return
 
       const accelerating = up && !down
@@ -341,7 +380,13 @@ export function createGame(parent, initialState, onStateChange) {
       )
       this.pilot.update(this)
 
-      this.scrollRemainder += SCROLL_SPEED * elapsed * speedMultiplier * (this.pilot.flightSpeedMultiplier ?? 1)
+      const distance = this.scrollWorld(this.scrollSpeed * elapsed)
+      this.checkTerrainCollision()
+      if (!this.isDead) this.enemies.update(elapsed, distance)
+    }
+
+    scrollWorld(travel) {
+      this.scrollRemainder += travel
       const distance = Math.floor(this.scrollRemainder)
       this.scrollRemainder -= distance
       this.rows.forEach((row) => {
@@ -362,8 +407,7 @@ export function createGame(parent, initialState, onStateChange) {
       }
 
       this.river.prune(this.rows[this.rows.length - 1].index + 1)
-      this.checkTerrainCollision()
-      if (this.scene.isActive()) this.enemies.update(elapsed, distance)
+      return distance
     }
   }
 

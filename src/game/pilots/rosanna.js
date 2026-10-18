@@ -21,6 +21,9 @@ export default {
   flightSpeedMultiplier: 1.2,
   canAccelerate: false,
   canBrake: false,
+  river: {
+    allowVeryNarrow: false,
+  },
   weapon: {
     ...bob.weapon,
     maxProjectiles: 4,

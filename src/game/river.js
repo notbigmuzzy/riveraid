@@ -18,7 +18,7 @@ const MEDIUM_ISLAND_COUNTS = {
   60: [5, 6],
 }
 
-export function createRiverGenerator(columns, startIndex, random = Math.random) {
+export function createRiverGenerator(columns, startIndex, random = Math.random, { allowVeryNarrow = true } = {}) {
   const rows = new Map()
   const rowInfo = new Map()
   const pick = (options) => options[Math.floor(random() * options.length)]
@@ -52,7 +52,8 @@ export function createRiverGenerator(columns, startIndex, random = Math.random) 
       return
     }
     const mode = firstBlock ? MODES.find((candidate) => candidate.name === 'medium')
-      : pick(MODES.filter((candidate) => candidate.name !== block.mode.name))
+      : pick(MODES.filter((candidate) => candidate.name !== block.mode.name
+        && (allowVeryNarrow || candidate.name !== 'very-narrow')))
     const strongMeander = mode.name === 'very-narrow' || (!firstBlock && random() < 0.5)
     block = {
       kind: 'regular',

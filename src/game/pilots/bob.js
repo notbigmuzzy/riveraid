@@ -7,7 +7,7 @@ export default {
     speed: 900,
     offsets: [0],
     alternatingWings: true,
-    maxProjectiles: 2,
+    maxProjectiles: 1,
     rangeFraction: Infinity,
   },
   apply() {},

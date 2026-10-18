@@ -438,6 +438,17 @@ export class EnemySystem {
     }
   }
 
+  scrollAfterDeath(distance) {
+    for (const enemy of this.enemies) {
+      enemy.image.y = enemy.row.container.y + this.tileSize / 2
+    }
+    for (const bullet of this.bullets) bullet.image.y += distance
+    for (const shot of this.playerShots) shot.y += distance
+    for (const fire of this.fires) {
+      for (const image of fire.images) image.y += distance
+    }
+  }
+
   removeRow(row) {
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.row !== row) return true

@@ -4,6 +4,11 @@ export default {
   ...bob,
   name: 'Jack',
   description: 'One eyed',
+  pointsPerTarget: 200,
+  weapon: {
+    ...bob.weapon,
+    maxProjectiles: 2,
+  },
   apply(scene) {
     scene.blindSide = Math.random() < 0.5 ? 'left' : 'right'
     scene.blindMask = scene.add.rectangle(0, 0, scene.scale.width, scene.scale.height, 0x000000)

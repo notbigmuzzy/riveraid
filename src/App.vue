@@ -23,7 +23,9 @@ let game;
 
 function focusChoice(index) {
   selectedChoice.value = index;
-  nextTick(() => roundMenu.value?.querySelectorAll("button")[index]?.focus());
+  nextTick(() =>
+    roundMenu.value?.querySelectorAll(".pilot-choice")[index]?.focus(),
+  );
 }
 
 function navigateMenu(event) {
@@ -31,11 +33,12 @@ function navigateMenu(event) {
   if (key === "enter" || key === " ") {
     event.preventDefault();
     event.stopPropagation();
-    if (!event.repeat && (key === "enter" || screen.value !== "end"))
-      startRound(
-        screen.value === "end" &&
-          selectedChoice.value === offeredPilots.value.length,
-      );
+    if (
+      !event.repeat &&
+      selectedChoice.value >= 0 &&
+      (key === "enter" || screen.value !== "end")
+    )
+      startRound();
     return;
   }
   const previous = ["arrowleft", "arrowup", "a", "w", "j", "i"].includes(key);
@@ -43,8 +46,14 @@ function navigateMenu(event) {
   if (!previous && !next) return;
   event.preventDefault();
   if (event.repeat) return;
-  const count = offeredPilots.value.length + (screen.value === "end" ? 1 : 0);
-  focusChoice((selectedChoice.value + (next ? 1 : -1) + count) % count);
+  const count = offeredPilots.value.length;
+  focusChoice(
+    selectedChoice.value < 0
+      ? next
+        ? 0
+        : count - 1
+      : (selectedChoice.value + (next ? 1 : -1) + count) % count,
+  );
 }
 
 function updateStats(state) {
@@ -68,7 +77,8 @@ function endRound(state) {
   }
   offeredPilots.value = choices.slice(0, 3);
   screen.value = "end";
-  focusChoice(1);
+  selectedChoice.value = -1;
+  nextTick(() => roundMenu.value?.focus({ preventScroll: true }));
 }
 
 function startRound(
@@ -125,6 +135,7 @@ onBeforeUnmount(() => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="round-title"
+          tabindex="-1"
           @keydown="navigateMenu"
         >
           <h1 v-if="screen === 'start'" id="round-title">
@@ -155,11 +166,7 @@ onBeforeUnmount(() => {
               <button
                 type="button"
                 class="restart-game"
-                :class="{
-                  'pilot-choice-selected':
-                    selectedChoice === offeredPilots.length,
-                }"
-                @focus="selectedChoice = offeredPilots.length"
+                tabindex="-1"
                 @click="startRound(true)"
               >
                 Restart Game
