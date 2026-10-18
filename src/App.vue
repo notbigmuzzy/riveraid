@@ -1,7 +1,12 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { createGame } from "./game/createGame.js";
-import { initialState, loadState, saveState } from "./game/state.js";
+import {
+  clearState,
+  initialState,
+  loadState,
+  saveState,
+} from "./game/state.js";
 import { getPilot, pilots as pilotDefinitions } from "./game/pilots/index.js";
 
 const gameHost = ref(null);
@@ -10,6 +15,7 @@ const stats = ref({ ...loadState(), score: 0, pilot: "Bob" });
 const hudStyle = computed(() => getPilot(stats.value.pilot).hud ?? {});
 const screen = ref("start");
 const selectedChoice = ref(0);
+const confirmingRestart = ref(false);
 const pilots = pilotDefinitions.map(({ name, description }) => ({
   name,
   description,
@@ -78,11 +84,21 @@ function endRound(state) {
   nextTick(() => roundMenu.value?.focus({ preventScroll: true }));
 }
 
+function restartGame() {
+  clearState();
+  stats.value = initialState();
+  offeredPilots.value = [pilots[0]];
+  confirmingRestart.value = false;
+  screen.value = "start";
+  focusChoice(0);
+}
+
 function startRound(
   reset = false,
   pilot = offeredPilots.value[selectedChoice.value]?.name ?? "Bob",
 ) {
   if (screen.value === "playing") return;
+  confirmingRestart.value = false;
   const state = {
     ...initialState(),
     pilot: reset ? "Bob" : pilot,
@@ -180,12 +196,37 @@ onBeforeUnmount(() => {
                 >
               </button>
             </div>
-            <div v-if="screen === 'end'" class="round-actions">
+            <p v-if="screen === 'end'" class="round-title">-- or --</p>
+            <div v-if="screen === 'end'" class="round-actions" @keydown.stop>
+              <div
+                class="restart-confirmation"
+                :class="{ 'restart-action-hidden': !confirmingRestart }"
+                role="alert"
+              >
+                <p>This will erase all progress. Are you sure?</p>
+                <div class="restart-confirmation-actions">
+                  <button
+                    type="button"
+                    class="nes-btn is-error restart-game"
+                    @click="restartGame"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    type="button"
+                    class="nes-btn restart-game"
+                    @click="confirmingRestart = false"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
               <button
                 type="button"
                 class="nes-btn is-error restart-game"
+                :class="{ 'restart-action-hidden': confirmingRestart }"
                 tabindex="-1"
-                @click="startRound(true)"
+                @click="confirmingRestart = true"
               >
                 Restart Game
               </button>
