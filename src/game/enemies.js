@@ -16,6 +16,8 @@ export class EnemySystem {
     this.bullets = []
     this.playerShots = []
     this.fires = []
+    this.fuelPacks = []
+    this.blasts = []
     this.weapon = scene.pilot.weapon
     this.maxPlayerShots = this.weapon.maxProjectiles
     this.nextWing = -1
@@ -34,6 +36,24 @@ export class EnemySystem {
       graphics.fillStyle(0xe2f692).fillRect(0, 0, 4, 16)
       graphics.fillStyle(0xffffff).fillRect(1, 0, 2, 10)
       graphics.generateTexture('player-bullet', 4, 16)
+    }
+    if (!scene.textures.exists('fuel-pack')) {
+      graphics.clear()
+      graphics.fillStyle(0x263c35).fillRect(2, 6, 28, 26)
+      graphics.fillStyle(0xe2f692).fillRect(4, 8, 24, 22)
+      graphics.fillStyle(0xfaf4df).fillRect(10, 2, 12, 6)
+      graphics.fillStyle(0x263c35).fillRect(12, 4, 8, 4)
+      graphics.fillStyle(0x263c35).fillRect(14, 12, 4, 14).fillRect(9, 17, 14, 4)
+      graphics.generateTexture('fuel-pack', 32, 32)
+    }
+    if (this.weapon.blastShapes && !scene.textures.exists('big-bullet')) {
+      graphics.clear()
+      graphics.fillStyle(0x9c354b).fillRect(4, 0, 10, 4).fillRect(0, 4, 18, 22)
+      graphics.fillStyle(0xffb52e).fillRect(2, 5, 14, 19)
+      graphics.fillStyle(0xfff1a8).fillRect(5, 3, 8, 13)
+      graphics.fillStyle(0xffffff).fillRect(6, 4, 4, 7)
+      graphics.fillStyle(0x9c354b).fillRect(3, 24, 12, 4)
+      graphics.generateTexture('big-bullet', 18, 28)
     }
     graphics.destroy()
   }
@@ -162,6 +182,7 @@ export class EnemySystem {
   }
 
   addFuelStation(row) {
+    if (this.scene.pilot.fuelStations === false) return false
     if (this.generatedRows <= 5 || this.enemies.some((entity) => entity.type === 'fuel')) return false
     const columns = []
     for (let column = 1; column < row.tiles.length - 1; column++) {
@@ -298,6 +319,74 @@ export class EnemySystem {
     return false
   }
 
+  destroyEnemy(enemy) {
+    if (enemy.destroyed) return
+    enemy.destroyed = true
+    this.addScore(enemy.type)
+    if (this.scene.pilot.fuelDropFraction) {
+      const image = this.scene.add.image(enemy.image.x, enemy.image.y, 'fuel-pack').setDepth(3.6)
+      this.fuelPacks.push({ image, row: enemy.row })
+    }
+    const puddleWidth = enemy.type === 'bridge' ? enemy.image.displayWidth : this.enemySize
+    const puddleHeight = enemy.type === 'bridge' ? this.tileSize * 2 : this.enemySize
+    enemy.image.setTexture('enemy-puddle')
+      .setDisplaySize(puddleWidth, puddleHeight)
+      .setFlip(false, false)
+      .setAlpha(0.7)
+      .setDepth(0.5)
+    this.scene.pilot.orientImage(enemy.image)
+  }
+
+  updateFuelPacks() {
+    for (let index = this.fuelPacks.length - 1; index >= 0; index--) {
+      const pack = this.fuelPacks[index]
+      pack.image.y = pack.row.container.y + this.tileSize / 2
+      if (!this.overlapsPlayer(pack.image)) continue
+      const state = this.scene.registry.get('state')
+      const fuel = Math.min(FULL_FUEL, state.fuel + FULL_FUEL * this.scene.pilot.fuelDropFraction)
+      this.scene.registry.set('state', { ...state, fuel })
+      pack.image.destroy()
+      this.fuelPacks.splice(index, 1)
+    }
+  }
+
+  explodeShot(shot, target) {
+    const positionX = target ? target.image.x : shot.x
+    const positionY = target ? target.image.y : shot.y
+    const images = shot.blastCells.map(([column, row]) => this.scene.add.image(
+      positionX + column * this.tileSize,
+      positionY + row * this.tileSize,
+      'fire-tile',
+    ).setDisplaySize(this.tileSize, this.tileSize).setDepth(4.7))
+    this.blasts.push({ images, age: 0 })
+    this.applyBlastDamage(images)
+  }
+
+  applyBlastDamage(images) {
+    for (const enemy of this.enemies) {
+      if (!enemy.destroyed && images.some((image) => Phaser.Geom.Intersects.RectangleToRectangle(
+        image.getBounds(), enemy.image.getBounds(),
+      ))) this.destroyEnemy(enemy)
+    }
+  }
+
+  updateBlasts(elapsed, distance) {
+    for (let index = this.blasts.length - 1; index >= 0; index--) {
+      const blast = this.blasts[index]
+      blast.age += elapsed
+      if (blast.age >= 0.35) {
+        blast.images.forEach((image) => image.destroy())
+        this.blasts.splice(index, 1)
+        continue
+      }
+      for (const image of blast.images) {
+        image.y += distance
+        image.setAlpha(1 - blast.age / 0.35)
+      }
+      if (!this.scene.isDead) this.applyBlastDamage(blast.images)
+    }
+  }
+
   updatePlayerShots(elapsed, distance) {
     for (let index = this.playerShots.length - 1; index >= 0; index--) {
       const shot = this.playerShots[index]
@@ -306,6 +395,7 @@ export class EnemySystem {
       const deltaY = -travel
       const steps = Math.max(1, Math.ceil(Math.abs(deltaY) / 4))
       let hit = this.overlapsTerrain(shot)
+      let impactTarget = null
       for (let step = 0; step < steps && !hit; step++) {
         shot.y += deltaY / steps
         if (this.overlapsTerrain(shot)) {
@@ -314,21 +404,15 @@ export class EnemySystem {
         }
         const enemy = this.enemies.find((target) => !target.destroyed && this.overlapsImages(shot, target.image))
         if (!enemy) continue
-        enemy.destroyed = true
-        this.addScore(enemy.type)
-        const puddleWidth = enemy.type === 'bridge' ? enemy.image.displayWidth : this.enemySize
-        const puddleHeight = enemy.type === 'bridge' ? this.tileSize * 2 : this.enemySize
-        enemy.image.setTexture('enemy-puddle')
-          .setDisplaySize(puddleWidth, puddleHeight)
-          .setFlip(false, false)
-          .setAlpha(0.7)
-          .setDepth(0.5)
-        this.scene.pilot.orientImage(enemy.image)
+        impactTarget = enemy
+        this.destroyEnemy(enemy)
         hit = true
         break
       }
       shot.travelled += travel
-      if (hit || shot.y < -160 || shot.travelled >= this.gameHeight * this.weapon.rangeFraction) {
+      const reachedRange = shot.travelled >= this.gameHeight * this.weapon.rangeFraction
+      if (hit || shot.y < -160 || reachedRange) {
+        if ((hit || reachedRange) && shot.blastCells) this.explodeShot(shot, impactTarget)
         shot.destroy()
         this.playerShots.splice(index, 1)
       }
@@ -339,12 +423,14 @@ export class EnemySystem {
       const player = this.scene.player
       const wingOffset = this.weapon.alternatingWings ? this.nextWing * player.displayWidth * 0.36 : 0
       for (const offset of this.weapon.offsets) {
+        const shapeIndex = this.weapon.blastShapes ? Phaser.Math.Between(0, this.weapon.blastShapes.length - 1) : null
         const shot = this.scene.add.image(
           player.x + wingOffset + offset,
           player.y - player.displayHeight * 0.06,
-          'player-bullet',
+          shapeIndex === null ? 'player-bullet' : 'big-bullet',
         ).setDepth(4.5)
         this.scene.pilot.orientImage(shot)
+        if (shapeIndex !== null) shot.blastCells = this.weapon.blastShapes[shapeIndex]
         shot.travelled = 0
         this.playerShots.push(shot)
       }
@@ -360,6 +446,7 @@ export class EnemySystem {
 
   update(elapsed, distance) {
     if (!this.updateFires(elapsed, distance)) return
+    this.updateFuelPacks()
     const activeBulletCount = this.bullets.length
     for (const enemy of this.enemies) {
       enemy.image.y = enemy.row.container.y + this.tileSize / 2
@@ -381,6 +468,7 @@ export class EnemySystem {
       }
     }
 
+    this.updateBlasts(elapsed, distance)
     this.updatePlayerShots(elapsed, distance)
     if (this.scene.isDead) return
 
@@ -438,18 +526,25 @@ export class EnemySystem {
     }
   }
 
-  scrollAfterDeath(distance) {
+  scrollAfterDeath(distance, elapsed) {
+    this.updateBlasts(elapsed, distance)
     for (const enemy of this.enemies) {
       enemy.image.y = enemy.row.container.y + this.tileSize / 2
     }
     for (const bullet of this.bullets) bullet.image.y += distance
     for (const shot of this.playerShots) shot.y += distance
+    for (const pack of this.fuelPacks) pack.image.y += distance
     for (const fire of this.fires) {
       for (const image of fire.images) image.y += distance
     }
   }
 
   removeRow(row) {
+    this.fuelPacks = this.fuelPacks.filter((pack) => {
+      if (pack.row !== row) return true
+      pack.image.destroy()
+      return false
+    })
     this.enemies = this.enemies.filter((enemy) => {
       if (enemy.row !== row) return true
       enemy.image.destroy()
@@ -461,10 +556,14 @@ export class EnemySystem {
     this.enemies.forEach((enemy) => enemy.image.destroy())
     this.bullets.forEach((bullet) => bullet.image.destroy())
     this.playerShots.forEach((shot) => shot.destroy())
+    this.fuelPacks.forEach((pack) => pack.image.destroy())
+    this.blasts.forEach((blast) => blast.images.forEach((image) => image.destroy()))
     this.fires.forEach((fire) => fire.images.forEach((image) => image.destroy()))
     this.enemies = []
     this.bullets = []
     this.playerShots = []
     this.fires = []
+    this.fuelPacks = []
+    this.blasts = []
   }
 }

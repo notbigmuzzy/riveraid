@@ -13,10 +13,7 @@ const selectedChoice = ref(0);
 const pilots = pilotDefinitions.map(({ name, description }) => ({
   name,
   description,
-  portrait: new URL(
-    `../old_game/graphics/characters/${name}.svg`,
-    import.meta.url,
-  ).href,
+  portrait: `${import.meta.env.BASE_URL}characters/${name}.png`,
 }));
 const offeredPilots = ref([pilots[0]]);
 let game;

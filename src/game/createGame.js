@@ -22,20 +22,20 @@ export function createGame(parent, initialState, onStateChange) {
     }
 
     preload() {
-      this.load.image('airplane', `${import.meta.env.BASE_URL}aircraft.png`)
-      this.load.image('enemy-boat', `${import.meta.env.BASE_URL}enemy-boat.png`)
-      this.load.image('enemy-blimp', `${import.meta.env.BASE_URL}enemy-blimp.png`)
-      this.load.image('enemy-helicopter', `${import.meta.env.BASE_URL}enemy-helicopter.png`)
-      this.load.image('enemy-tank', `${import.meta.env.BASE_URL}enemy-tank.png`)
-      this.load.image('enemy-puddle', `${import.meta.env.BASE_URL}enemy-puddle.png`)
-      this.load.image('fire-tile', `${import.meta.env.BASE_URL}fire-tile.png`)
-      this.load.image('enemy-fuel', `${import.meta.env.BASE_URL}fuel-station.png`)
-      this.load.image('enemy-bridge', `${import.meta.env.BASE_URL}bridge.png`)
-      this.load.image('road', `${import.meta.env.BASE_URL}road.png`)
-      this.load.image('terrain', `${import.meta.env.BASE_URL}shoreline.png`)
-      this.load.image('trees', `${import.meta.env.BASE_URL}shore-tree.png`)
-      this.load.image('fence', `${import.meta.env.BASE_URL}shore-fence.png`)
-      this.load.image('plants', `${import.meta.env.BASE_URL}shore-plants.png`)
+      this.load.image('airplane', `${import.meta.env.BASE_URL}graphics/aircraft.png`)
+      this.load.image('enemy-boat', `${import.meta.env.BASE_URL}graphics/enemy-boat.png`)
+      this.load.image('enemy-blimp', `${import.meta.env.BASE_URL}graphics/enemy-blimp.png`)
+      this.load.image('enemy-helicopter', `${import.meta.env.BASE_URL}graphics/enemy-helicopter.png`)
+      this.load.image('enemy-tank', `${import.meta.env.BASE_URL}graphics/enemy-tank.png`)
+      this.load.image('enemy-puddle', `${import.meta.env.BASE_URL}graphics/enemy-puddle.png`)
+      this.load.image('fire-tile', `${import.meta.env.BASE_URL}graphics/fire-tile.png`)
+      this.load.image('enemy-fuel', `${import.meta.env.BASE_URL}graphics/fuel-station.png`)
+      this.load.image('enemy-bridge', `${import.meta.env.BASE_URL}graphics/bridge.png`)
+      this.load.image('road', `${import.meta.env.BASE_URL}graphics/road.png`)
+      this.load.image('terrain', `${import.meta.env.BASE_URL}graphics/shoreline.png`)
+      this.load.image('trees', `${import.meta.env.BASE_URL}graphics/shore-tree.png`)
+      this.load.image('fence', `${import.meta.env.BASE_URL}graphics/shore-fence.png`)
+      this.load.image('plants', `${import.meta.env.BASE_URL}graphics/shore-plants.png`)
     }
 
     create(data = {}) {
@@ -349,7 +349,7 @@ export function createGame(parent, initialState, onStateChange) {
       const elapsed = Math.min(delta, 100) / 1000
       if (this.isDead) {
         const distance = this.scrollWorld(this.scrollSpeed * elapsed)
-        this.enemies.scrollAfterDeath(distance)
+        this.enemies.scrollAfterDeath(distance, elapsed)
         this.player.y += distance
         if (this.deathExplosion) this.deathExplosion.y += distance
         return

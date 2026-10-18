@@ -11,7 +11,7 @@ export default {
     offsets: [-50, 0, 50],
     alternatingWings: false,
     maxProjectiles: 3,
-    rangeFraction: 1 / 3,
+    rangeFraction: 0.5,
     fuelCostFraction: 0.02,
   },
   apply(scene) {
