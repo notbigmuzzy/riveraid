@@ -280,14 +280,31 @@ export class EnemySystem {
     return false
   }
 
+  overlapsTerrain(image) {
+    const bounds = image.getBounds()
+    for (const row of this.scene.rows) {
+      if (row.container.y >= bounds.bottom || row.container.y + this.tileSize <= bounds.top) continue
+      for (const tile of row.container.list) {
+        const left = row.container.x + tile.x
+        if (left >= bounds.right || left + this.tileSize <= bounds.left) continue
+        if (this.overlapsImages(image, tile)) return true
+      }
+    }
+    return false
+  }
+
   updatePlayerShots(elapsed, distance) {
     for (let index = this.playerShots.length - 1; index >= 0; index--) {
       const shot = this.playerShots[index]
       const deltaY = distance - 900 * elapsed
       const steps = Math.max(1, Math.ceil(Math.abs(deltaY) / 4))
-      let hit = false
-      for (let step = 0; step < steps; step++) {
+      let hit = this.overlapsTerrain(shot)
+      for (let step = 0; step < steps && !hit; step++) {
         shot.y += deltaY / steps
+        if (this.overlapsTerrain(shot)) {
+          hit = true
+          break
+        }
         const enemy = this.enemies.find((target) => !target.destroyed && this.overlapsImages(shot, target.image))
         if (!enemy) continue
         enemy.destroyed = true
