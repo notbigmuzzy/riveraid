@@ -20,6 +20,7 @@ export class EnemySystem {
     this.blasts = [];
     this.weapon = scene.pilot.weapon;
     this.maxPlayerShots = this.weapon.maxProjectiles;
+    this.shotCooldown = 0;
     this.nextWing = -1;
     this.emptyRowsRemaining = 0;
     this.generatedRows = 0;
@@ -511,6 +512,7 @@ export class EnemySystem {
   }
 
   updatePlayerShots(elapsed, distance) {
+    this.shotCooldown = Math.max(0, this.shotCooldown - elapsed);
     for (let index = this.playerShots.length - 1; index >= 0; index--) {
       const shot = this.playerShots[index];
       const remaining =
@@ -529,15 +531,15 @@ export class EnemySystem {
           hit = true;
           break;
         }
-        const enemy = this.enemies.find(
-          (target) =>
-            !target.destroyed && this.overlapsImages(shot, target.image),
-        );
-        if (!enemy) continue;
-        impactTarget = enemy;
-        this.destroyEnemy(enemy);
-        hit = true;
-        break;
+        for (const enemy of this.enemies) {
+          if (enemy.destroyed || !this.overlapsImages(shot, enemy.image))
+            continue;
+          this.destroyEnemy(enemy);
+          if (this.weapon.piercing) continue;
+          impactTarget = enemy;
+          hit = true;
+          break;
+        }
       }
       shot.travelled += travel;
       const reachedRange =
@@ -552,6 +554,7 @@ export class EnemySystem {
 
     if (
       Phaser.Input.Keyboard.JustDown(this.scene.controls.fire) &&
+      this.shotCooldown === 0 &&
       this.playerShots.length + this.weapon.offsets.length <=
         this.maxPlayerShots
     ) {
@@ -576,6 +579,7 @@ export class EnemySystem {
         shot.travelled = 0;
         this.playerShots.push(shot);
       }
+      this.shotCooldown = this.weapon.cooldown ?? 0;
       if (this.weapon.alternatingWings) this.nextWing *= -1;
       if (this.weapon.fuelCostFraction) {
         const state = this.scene.registry.get("state");
@@ -586,6 +590,14 @@ export class EnemySystem {
         this.scene.registry.set("state", { ...state, fuel });
         if (fuel === 0) this.scene.die();
       }
+    }
+    const activeShots = this.playerShots.length;
+    if (
+      this.lastWeaponStatus?.activeShots !== activeShots ||
+      this.lastWeaponStatus?.cooldown !== this.shotCooldown
+    ) {
+      this.lastWeaponStatus = { activeShots, cooldown: this.shotCooldown };
+      this.scene.game.events.emit("weapon-status", this.lastWeaponStatus);
     }
   }
 

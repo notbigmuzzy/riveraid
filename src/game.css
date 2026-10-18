@@ -11,7 +11,7 @@
 }
 body {
   margin: 0;
-  min-width: 280px;
+  min-width: 0;
   min-height: 100svh;
   font-family: inherit;
   color: inherit;
@@ -50,15 +50,26 @@ body:has(.game-page-night)::after {
 }
 
 .game-page {
-  min-height: 100svh;
+  height: 100dvh;
   display: grid;
   place-items: center;
   padding: 30px;
 }
 
+.game-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
 .game-shell {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: min(1280px, 100%);
   min-width: 0;
+  transform: translate(-50%, -50%) scale(var(--game-scale, 1));
 }
 .game-stage {
   position: relative;
@@ -66,7 +77,18 @@ body:has(.game-page-night)::after {
   background: #000;
 }
 .game-stage-menu {
+  display: grid;
+  aspect-ratio: auto;
   min-height: 620px;
+}
+.game-stage-menu > .game-viewport,
+.game-stage-menu > .round-screen {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.game-stage-menu > .round-screen {
+  position: relative;
+  inset: auto;
 }
 .game-viewport {
   width: 100%;
@@ -75,6 +97,9 @@ body:has(.game-page-night)::after {
 }
 .game-viewport canvas {
   display: block;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
   image-rendering: auto;
 }
 .game-stage:not(.game-stage-menu) .game-viewport canvas {
@@ -93,6 +118,7 @@ body:has(.game-page-night)::after {
   gap: 28px;
   padding: 40px;
   border: 4px solid #e7eee3;
+  border-style: dashed;
   outline: none;
   background: #7c6fdb;
   isolation: isolate;
@@ -284,9 +310,6 @@ body:has(.game-page-night)::after {
   gap: 28px;
   width: 100%;
 }
-.round-screen-start .pilot-chooser {
-  transform: translateY(20%);
-}
 .pilot-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -421,6 +444,49 @@ body:has(.game-page-night)::after {
   margin: 0;
   color: var(--game-stats-label, #212529);
   overflow-wrap: anywhere;
+}
+.fuel-stat dt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ammo-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.ammo-round {
+  position: relative;
+  width: 6px;
+  height: 14px;
+  background: currentColor;
+  clip-path: polygon(
+    33% 0,
+    67% 0,
+    67% 14%,
+    100% 14%,
+    100% 100%,
+    0 100%,
+    0 14%,
+    33% 14%
+  );
+}
+.ammo-round::before,
+.ammo-round::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--game-stats-background, #d3d3d3);
+  opacity: 0.8;
+}
+.ammo-round::after {
+  top: auto;
+  height: var(--ammo-fill);
+  background: currentColor;
+  opacity: 1;
 }
 .fuel-stat dd {
   display: flex;
