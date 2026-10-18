@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 import { awardScore } from './state.js'
 
-const DEFAULT_MAX_PLAYER_SHOTS = 2
 const FIRE_DURATION = 4
 const FULL_FUEL = 125
 const BRIDGE_SCORE_INTERVAL = 2000
@@ -17,7 +16,8 @@ export class EnemySystem {
     this.bullets = []
     this.playerShots = []
     this.fires = []
-    this.maxPlayerShots = DEFAULT_MAX_PLAYER_SHOTS
+    this.weapon = scene.pilot.weapon
+    this.maxPlayerShots = this.weapon.maxProjectiles
     this.nextWing = -1
     this.emptyRowsRemaining = 0
     this.generatedRows = 0
@@ -199,6 +199,10 @@ export class EnemySystem {
       .setDisplaySize(this.enemySize, this.enemySize)
       .setDepth(3.5)
       .setFlipX(direction < 0)
+    this.scene.pilot.orientImage(image)
+    if (this.scene.pilot.invertedView && (type === 'blimp' || type === 'helicopter' || type === 'tank')) {
+      image.setFlipX(direction < 0)
+    }
     const enemy = {
       type, row, image, patrol, direction,
       speed: type === 'blimp' ? 28 : type === 'helicopter' ? 95 : 0,
@@ -214,6 +218,7 @@ export class EnemySystem {
     const positionX = enemy.image.x + enemy.direction * (enemy.image.displayWidth / 2 + 5)
     const positionY = enemy.image.y
     const image = this.scene.add.image(positionX, positionY, 'enemy-bullet').setDepth(4.5)
+    this.scene.pilot.orientImage(image)
     this.bullets.push({ image, velocityX, velocityY, age: 0, targetX: enemy.targetX })
   }
 
@@ -221,11 +226,11 @@ export class EnemySystem {
     const images = []
     for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
       for (let columnOffset = -1; columnOffset <= 1; columnOffset++) {
-        images.push(this.scene.add.image(
+        images.push(this.scene.pilot.orientImage(this.scene.add.image(
           positionX + columnOffset * this.tileSize,
           positionY + rowOffset * this.tileSize,
           'fire-tile',
-        ).setDisplaySize(this.tileSize, this.tileSize).setDepth(3.75))
+        ).setDisplaySize(this.tileSize, this.tileSize).setDepth(3.75)))
       }
     }
     this.fires.push({ images, age: 0 })
@@ -296,7 +301,9 @@ export class EnemySystem {
   updatePlayerShots(elapsed, distance) {
     for (let index = this.playerShots.length - 1; index >= 0; index--) {
       const shot = this.playerShots[index]
-      const deltaY = distance - 900 * elapsed
+      const remaining = this.gameHeight * this.weapon.rangeFraction - shot.travelled
+      const travel = Math.min(Math.max(0, this.weapon.speed * elapsed - distance), remaining)
+      const deltaY = -travel
       const steps = Math.max(1, Math.ceil(Math.abs(deltaY) / 4))
       let hit = this.overlapsTerrain(shot)
       for (let step = 0; step < steps && !hit; step++) {
@@ -313,27 +320,41 @@ export class EnemySystem {
         const puddleHeight = enemy.type === 'bridge' ? this.tileSize * 2 : this.enemySize
         enemy.image.setTexture('enemy-puddle')
           .setDisplaySize(puddleWidth, puddleHeight)
-          .setFlipX(false)
+          .setFlip(false, false)
           .setAlpha(0.7)
           .setDepth(0.5)
+        this.scene.pilot.orientImage(enemy.image)
         hit = true
         break
       }
-      if (hit || shot.y < -160) {
+      shot.travelled += travel
+      if (hit || shot.y < -160 || shot.travelled >= this.gameHeight * this.weapon.rangeFraction) {
         shot.destroy()
         this.playerShots.splice(index, 1)
       }
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.scene.controls.fire)
-      && this.playerShots.length < this.maxPlayerShots) {
+      && this.playerShots.length + this.weapon.offsets.length <= this.maxPlayerShots) {
       const player = this.scene.player
-      this.playerShots.push(this.scene.add.image(
-        player.x + this.nextWing * player.displayWidth * 0.36,
-        player.y - player.displayHeight * 0.06,
-        'player-bullet',
-      ).setDepth(4.5))
-      this.nextWing *= -1
+      const wingOffset = this.weapon.alternatingWings ? this.nextWing * player.displayWidth * 0.36 : 0
+      for (const offset of this.weapon.offsets) {
+        const shot = this.scene.add.image(
+          player.x + wingOffset + offset,
+          player.y - player.displayHeight * 0.06,
+          'player-bullet',
+        ).setDepth(4.5)
+        this.scene.pilot.orientImage(shot)
+        shot.travelled = 0
+        this.playerShots.push(shot)
+      }
+      if (this.weapon.alternatingWings) this.nextWing *= -1
+      if (this.weapon.fuelCostFraction) {
+        const state = this.scene.registry.get('state')
+        const fuel = Math.max(0, state.fuel - FULL_FUEL * this.weapon.fuelCostFraction)
+        this.scene.registry.set('state', { ...state, fuel })
+        if (fuel === 0) this.scene.die()
+      }
     }
   }
 
@@ -361,6 +382,7 @@ export class EnemySystem {
     }
 
     this.updatePlayerShots(elapsed, distance)
+    if (this.scene.isDead) return
 
     for (const enemy of this.enemies) {
       if (enemy.destroyed) continue

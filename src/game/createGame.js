@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import { createRiverGenerator } from './river.js'
 import { EnemySystem } from './enemies.js'
+import { getPilot } from './pilots/index.js'
 
 export const GAME_WIDTH = 1280
 export const GAME_HEIGHT = 800
@@ -39,11 +40,16 @@ export function createGame(parent, initialState, onStateChange) {
 
     create(data = {}) {
       this.cameras.main.setRoundPixels(false)
+      this.cameras.main.setRotation(0).setBackgroundColor('#7c6fdb')
+      this.game.canvas.style.filter = ''
       this.isDead = false
       this.fuelElapsed = 0
       this.scrollRemainder = 0
       this.collisionMasks = new Map()
-      this.registry.set('state', { ...(data.state ?? initialState) })
+      const state = { ...(data.state ?? initialState) }
+      this.pilot = getPilot(state.pilot)
+      this.pilotTextures = { player: 'airplane', terrain: 'terrain', trees: 'trees', fence: 'fence', plants: 'plants' }
+      this.registry.set('state', { ...state, pilot: this.pilot.name })
       const publishState = () => onStateChange({ ...this.registry.get('state') })
       this.registry.events.on('changedata', publishState)
       this.events.once('shutdown', () => {
@@ -63,6 +69,7 @@ export function createGame(parent, initialState, onStateChange) {
         }
       }
       if (!this.textures.get('trees').has('oak')) this.textures.get('trees').add('oak', 0, 0, 0, 96, 128)
+      this.pilot.apply(this)
       this.river = createRiverGenerator(GAME_WIDTH / TILE_SIZE, GAME_HEIGHT / TILE_SIZE + BUFFER_ROWS)
       this.rows = []
       this.enemies = new EnemySystem(this, TILE_SIZE, GAME_WIDTH, GAME_HEIGHT)
@@ -71,7 +78,7 @@ export function createGame(parent, initialState, onStateChange) {
       }
 
       this.playerBaseY = GAME_HEIGHT - TILE_SIZE * 1.5
-      this.player = this.add.image(GAME_WIDTH / 2, this.playerBaseY, 'airplane')
+      this.player = this.add.image(GAME_WIDTH / 2, this.playerBaseY, this.pilotTextures.player)
         .setDisplaySize(TILE_SIZE * 1.5, TILE_SIZE * 1.5)
         .setDepth(4)
       if (new URLSearchParams(window.location.search).has('fps')) {
@@ -85,6 +92,9 @@ export function createGame(parent, initialState, onStateChange) {
           fixedWidth: 112,
           align: 'right',
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(1000)
+        if (this.pilot.invertedView) {
+          fpsText.setPosition(12, GAME_HEIGHT - 12).setOrigin(0, 1).setRotation(Math.PI)
+        }
         const updateFps = () => fpsText.setText(`${Math.round(this.game.loop.actualFps)} FPS`)
         updateFps()
         this.time.addEvent({ delay: 250, loop: true, callback: updateFps })
@@ -104,8 +114,10 @@ export function createGame(parent, initialState, onStateChange) {
         downIjkl: Phaser.Input.Keyboard.KeyCodes.K,
         fire: Phaser.Input.Keyboard.KeyCodes.SPACE,
       })
+      this.pilot.update(this)
 
       this.events.once('shutdown', () => {
+        this.game.canvas.style.filter = ''
         this.enemies.destroy()
         this.rows.forEach((row) => {
           row.container.destroy()
@@ -134,7 +146,7 @@ export function createGame(parent, initialState, onStateChange) {
         const frameRow = this.getTerrainTile(index - 1, column) === 'river' ? 0
           : this.getTerrainTile(index + 1, column) === 'river' ? 2 : 1
         const terrainFrame = frameRow * 3 + (frameColumn === 2 ? 0 : frameColumn)
-        container.add(this.add.image(column * TILE_SIZE, 0, 'terrain', terrainFrame)
+        container.add(this.add.image(column * TILE_SIZE, 0, this.pilotTextures.terrain, terrainFrame)
           .setOrigin(0)
           .setDisplaySize(TILE_SIZE, TILE_SIZE)
           .setFlipX(frameColumn === 2))
@@ -183,24 +195,24 @@ export function createGame(parent, initialState, onStateChange) {
         if ((onIsland || index % 4 === 0) && chance < 0.12
           && this.canPlaceDecoration(index, column, footprintWidth, footprintHeight, margin)) {
           if (chance < 0.07) {
-            layers.trees.add(this.add.image(column * TILE_SIZE, TILE_SIZE, 'trees', 'oak')
+            layers.trees.add(this.pilot.orientImage(this.add.image(column * TILE_SIZE, TILE_SIZE, this.pilotTextures.trees, 'oak')
               .setOrigin(0, 1)
               .setDisplaySize(TILE_SIZE * 1.5, TILE_SIZE * 2)
-              .setFlipX(Math.random() < 0.5))
+              .setFlipX(Math.random() < 0.5)))
           } else {
             const fenceRow = Phaser.Math.Between(0, 3)
             for (let segment = 0; segment < 3; segment++) {
-              layers.fences.add(this.add.image(column * TILE_SIZE + segment * TILE_SIZE / 2, 0, 'fence', fenceRow * 4 + segment)
+              layers.fences.add(this.pilot.orientImage(this.add.image(column * TILE_SIZE + segment * TILE_SIZE / 2, 0, this.pilotTextures.fence, fenceRow * 4 + segment)
                 .setOrigin(0)
-                .setDisplaySize(TILE_SIZE / 2, TILE_SIZE / 2))
+                .setDisplaySize(TILE_SIZE / 2, TILE_SIZE / 2)))
             }
           }
           column += onIsland ? 1 : 3
         } else if (chance < (onIsland ? 0.65 : 0.15)
           && this.canPlaceDecoration(index, column, 1, 1, margin)) {
-          layers.plants.add(this.add.image(column * TILE_SIZE, 0, 'plants', Phaser.Math.Between(0, 21))
+          layers.plants.add(this.pilot.orientImage(this.add.image(column * TILE_SIZE, 0, this.pilotTextures.plants, Phaser.Math.Between(0, 21))
             .setOrigin(0)
-            .setDisplaySize(TILE_SIZE, TILE_SIZE))
+            .setDisplaySize(TILE_SIZE, TILE_SIZE)))
         }
       }
     }
@@ -208,7 +220,7 @@ export function createGame(parent, initialState, onStateChange) {
     getCollisionMask(image) {
       const width = Math.round(image.displayWidth)
       const height = Math.round(image.displayHeight)
-      const key = `${image.texture.key}:${image.frame.name}:${width}:${height}:${image.flipX}`
+      const key = `${image.texture.key}:${image.frame.name}:${width}:${height}:${image.flipX}:${image.flipY}`
       if (this.collisionMasks.has(key)) return this.collisionMasks.get(key)
 
       const canvas = document.createElement('canvas')
@@ -216,9 +228,9 @@ export function createGame(parent, initialState, onStateChange) {
       canvas.height = height
       const context = canvas.getContext('2d')
       context.imageSmoothingEnabled = false
-      if (image.flipX) {
-        context.translate(width, 0)
-        context.scale(-1, 1)
+      if (image.flipX || image.flipY) {
+        context.translate(image.flipX ? width : 0, image.flipY ? height : 0)
+        context.scale(image.flipX ? -1 : 1, image.flipY ? -1 : 1)
       }
       const frame = image.frame
       context.drawImage(frame.source.image, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight,
@@ -271,22 +283,23 @@ export function createGame(parent, initialState, onStateChange) {
     die() {
       if (this.isDead) return
       this.isDead = true
-      if (!this.textures.exists('airplane-dead')) {
+      const deadTexture = `${this.player.texture.key}-dead`
+      if (!this.textures.exists(deadTexture)) {
         const frame = this.player.frame
-        const texture = this.textures.createCanvas('airplane-dead', frame.cutWidth, frame.cutHeight)
+        const texture = this.textures.createCanvas(deadTexture, frame.cutWidth, frame.cutHeight)
         const context = texture.getContext()
         context.filter = 'grayscale(1)'
         context.drawImage(frame.source.image, frame.cutX, frame.cutY, frame.cutWidth, frame.cutHeight,
           0, 0, frame.cutWidth, frame.cutHeight)
         texture.refresh()
       }
-      this.player.setTexture('airplane-dead')
+      this.player.setTexture(deadTexture)
       this.scene.pause()
       this.game.events.emit('round-ended', { ...this.registry.get('state') })
     }
 
     consumeFuel(elapsed) {
-      this.fuelElapsed += elapsed
+      this.fuelElapsed += elapsed * (this.pilot.fuelConsumptionMultiplier ?? 1)
       const ticks = Math.floor(this.fuelElapsed / FUEL_INTERVAL)
       let state = this.registry.get('state')
 
@@ -303,8 +316,10 @@ export function createGame(parent, initialState, onStateChange) {
 
     update(time, delta) {
       const elapsed = Math.min(delta, 100) / 1000
-      const up = this.controls.up.isDown || this.controls.upAlt.isDown || this.controls.upIjkl.isDown
-      const down = this.controls.down.isDown || this.controls.downAlt.isDown || this.controls.downIjkl.isDown
+      const up = this.pilot.canAccelerate !== false
+        && (this.controls.up.isDown || this.controls.upAlt.isDown || this.controls.upIjkl.isDown)
+      const down = this.pilot.canBrake !== false
+        && (this.controls.down.isDown || this.controls.downAlt.isDown || this.controls.downIjkl.isDown)
       const left = this.controls.left.isDown || this.controls.leftAlt.isDown || this.controls.leftIjkl.isDown
       const right = this.controls.right.isDown || this.controls.rightAlt.isDown || this.controls.rightIjkl.isDown
       const speedMultiplier = (up ? 2.1 : 1) * (down ? 0.5 : 1)
@@ -324,8 +339,9 @@ export function createGame(parent, initialState, onStateChange) {
         halfWidth,
         GAME_WIDTH - halfWidth,
       )
+      this.pilot.update(this)
 
-      this.scrollRemainder += SCROLL_SPEED * elapsed * speedMultiplier
+      this.scrollRemainder += SCROLL_SPEED * elapsed * speedMultiplier * (this.pilot.flightSpeedMultiplier ?? 1)
       const distance = Math.floor(this.scrollRemainder)
       this.scrollRemainder -= distance
       this.rows.forEach((row) => {

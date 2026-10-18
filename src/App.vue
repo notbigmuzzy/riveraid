@@ -1,21 +1,16 @@
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { createGame } from "./game/createGame.js";
 import { initialState, loadState, saveState } from "./game/state.js";
+import { getPilot, pilots as pilotDefinitions } from "./game/pilots/index.js";
 
 const gameHost = ref(null);
 const roundMenu = ref(null);
 const stats = ref({ ...loadState(), score: 0, pilot: "Bob" });
+const hudStyle = computed(() => getPilot(stats.value.pilot).hud ?? {});
 const screen = ref("start");
 const selectedChoice = ref(0);
-const pilots = [
-  ["Bob", "New guy"],
-  ["Vinston", "Shotgun FTW"],
-  ["Betty", "Blind as a bat"],
-  ["Jack", "One eyed"],
-  ["Rosanna", "Night raid"],
-  ["Alexei", "Contrarian"],
-].map(([name, description]) => ({
+const pilots = pilotDefinitions.map(({ name, description }) => ({
   name,
   description,
   portrait: new URL(
@@ -36,7 +31,7 @@ function navigateMenu(event) {
   if (key === "enter" || key === " ") {
     event.preventDefault();
     event.stopPropagation();
-    if (!event.repeat)
+    if (!event.repeat && (key === "enter" || screen.value !== "end"))
       startRound(
         screen.value === "end" &&
           selectedChoice.value === offeredPilots.value.length,
@@ -47,6 +42,7 @@ function navigateMenu(event) {
   const next = ["arrowright", "arrowdown", "d", "s", "l", "k"].includes(key);
   if (!previous && !next) return;
   event.preventDefault();
+  if (event.repeat) return;
   const count = offeredPilots.value.length + (screen.value === "end" ? 1 : 0);
   focusChoice((selectedChoice.value + (next ? 1 : -1) + count) % count);
 }
@@ -75,10 +71,14 @@ function endRound(state) {
   focusChoice(1);
 }
 
-function startRound(reset = false) {
+function startRound(
+  reset = false,
+  pilot = offeredPilots.value[selectedChoice.value]?.name ?? "Bob",
+) {
   if (screen.value === "playing") return;
   const state = {
     ...initialState(),
+    pilot: reset ? "Bob" : pilot,
     bridge: reset ? 0 : stats.value.bridge,
     run: reset ? 1 : stats.value.run + (screen.value === "end" ? 1 : 0),
   };
@@ -143,7 +143,11 @@ onBeforeUnmount(() => {
                 class="pilot-choice"
                 :class="{ 'pilot-choice-selected': selectedChoice === index }"
                 @focus="selectedChoice = index"
-                @click="startRound()"
+                @click="
+                  screen === 'end'
+                    ? focusChoice(index)
+                    : startRound(false, pilot.name)
+                "
               >
                 <img :src="pilot.portrait" alt="" />
                 <b>{{ pilot.name }}</b>
@@ -160,7 +164,7 @@ onBeforeUnmount(() => {
                     selectedChoice === offeredPilots.length,
                 }"
                 @focus="selectedChoice = offeredPilots.length"
-                @click="startRound(true)"
+                @click="focusChoice(offeredPilots.length)"
               >
                 Restart Game
               </button>
@@ -168,7 +172,7 @@ onBeforeUnmount(() => {
           </div>
         </section>
       </div>
-      <dl class="game-stats" aria-label="Game statistics">
+      <dl class="game-stats" :style="hudStyle" aria-label="Game statistics">
         <div>
           <dt>Bridge</dt>
           <dd>{{ stats.bridge }}</dd>

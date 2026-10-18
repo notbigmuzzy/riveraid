@@ -1,3 +1,5 @@
+import { getPilot } from './pilots/index.js'
+
 export const SAVE_KEY = 'river-rogue:save'
 
 export function initialState() {
@@ -6,7 +8,7 @@ export function initialState() {
 
 export function awardScore(state, targetType) {
   if (targetType === 'bridge') return { ...state, bridge: state.bridge + 1 }
-  const points = state.pilot === 'Betty' || state.pilot === 'Speedking' ? 200 : 100
+  const points = getPilot(state.pilot).pointsPerTarget
   return { ...state, score: state.score + points }
 }
 
@@ -24,7 +26,7 @@ export function loadState(storage = localStorage) {
       }
     }
     if (typeof state.pilot === 'string' && state.pilot.trim() && state.pilot.length <= 32) {
-      defaults.pilot = state.pilot
+      defaults.pilot = getPilot(state.pilot).name
     }
   } catch {
     return defaults
