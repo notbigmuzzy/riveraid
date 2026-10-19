@@ -2,13 +2,11 @@
 
 A browser-based tribute to River Raid with a little rogue-lite spin, rebuilt with Vue, Phaser and Vite using plain JavaScript. Fly through a procedurally generated river, destroy targets and bridges, and keep your fuel tank from running dry.
 
-River Raid was created by [Carol Shaw](https://en.wikipedia.org/wiki/Carol_Shaw) and first released in 1982. Here is a [short documentary about the game](https://www.youtube.com/watch?v=1OcT5zJzVV0). It was also the first video game I ever played, on a C64C my parents bought in 1989. Also it kinda kicked-off my interest in computer stuff.
-
-<img width="1277" height="923" alt="image" src="https://github.com/user-attachments/assets/d36e95fd-3f16-4d06-a0f8-21e5952f8a41" />
-
 ## Demo
 
 [Play River Rogue](https://notbigmuzzy.github.io/riveraid/)
+
+<img width="1277" height="923" alt="image" src="https://github.com/user-attachments/assets/d36e95fd-3f16-4d06-a0f8-21e5952f8a41" />
 
 ## Gameplay
 
@@ -49,6 +47,8 @@ Progress is saved in your browser's local storage. **Restart Game** asks for con
 - PNG gameplay graphics and the original OGG sound assets.
 
 ## Credits
+
+_River Raid was created by [Carol Shaw](https://en.wikipedia.org/wiki/Carol_Shaw) and first released in 1982. Here is a [short documentary about the game](https://www.youtube.com/watch?v=1OcT5zJzVV0). It was also the first video game I ever played, on a C64C my parents bought in 1989. Also it kinda kicked-off my interest in computer stuff._
 
 - [Sound pack: LittleRobotSoundFactory / freesound.org](https://freesound.org/people/LittleRobotSoundFactory/packs/16681/)
 - [Main music theme: Fesliyan Studios](https://www.fesliyanstudios.com/)
