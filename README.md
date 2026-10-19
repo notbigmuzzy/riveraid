@@ -4,6 +4,8 @@ A browser-based tribute to River Raid with a little rogue-lite spin, rebuilt wit
 
 River Raid was created by [Carol Shaw](https://en.wikipedia.org/wiki/Carol_Shaw) and first released in 1982. Here is a [short documentary about the game](https://www.youtube.com/watch?v=1OcT5zJzVV0). It was also the first video game I ever played, on a C64C my parents bought in 1989. Also it kinda kicked-off my interest in computer stuff.
 
+<img width="1277" height="923" alt="image" src="https://github.com/user-attachments/assets/d36e95fd-3f16-4d06-a0f8-21e5952f8a41" />
+
 ## Demo
 
 [Play River Rogue](https://notbigmuzzy.github.io/riveraid/)
