@@ -1,6 +1,33 @@
 import { getPilot } from "./pilots/index.js";
 
 export const SAVE_KEY = "river-rogue:save";
+const VOLUME_KEY = "river-rogue:volume";
+
+export function loadVolume(storage = localStorage) {
+  try {
+    const volume = JSON.parse(storage.getItem(VOLUME_KEY));
+    if (
+      typeof volume === "number" &&
+      Number.isFinite(volume) &&
+      volume >= 0 &&
+      volume <= 1
+    ) {
+      return volume;
+    }
+  } catch {
+    return 0.5;
+  }
+  return 0.5;
+}
+
+export function saveVolume(volume, storage = localStorage) {
+  try {
+    storage.setItem(VOLUME_KEY, JSON.stringify(volume));
+  } catch {
+    return false;
+  }
+  return true;
+}
 
 export function initialState() {
   return { bridge: 0, score: 0, fuel: 125, pilot: "Bob", run: 1 };

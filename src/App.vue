@@ -5,7 +5,9 @@ import {
   clearState,
   initialState,
   loadState,
+  loadVolume,
   saveState,
+  saveVolume,
 } from "./game/state.js";
 import { getPilot, pilots as pilotDefinitions } from "./game/pilots/index.js";
 
@@ -33,6 +35,9 @@ const ammoLevels = computed(() => {
 const screen = ref("start");
 const selectedChoice = ref(0);
 const confirmingRestart = ref(false);
+const optionsOpen = ref(false);
+const optionsButton = ref(null);
+const volume = ref(loadVolume());
 const startingRound = ref(false);
 const pilots = pilotDefinitions.map(({ name, description }) => ({
   name,
@@ -60,7 +65,30 @@ function launchRound(state) {
 
 function finishLoading() {
   assetsReady = true;
+  applyVolume();
   if (pendingState) launchRound(pendingState);
+}
+
+function applyVolume() {
+  game?.sound?.setVolume(volume.value);
+}
+
+function changeVolume(event) {
+  volume.value = Number(event.target.value) / 100;
+  applyVolume();
+  saveVolume(volume.value);
+}
+
+function closeOptions() {
+  if (!optionsOpen.value) return;
+  optionsOpen.value = false;
+  confirmingRestart.value = false;
+  nextTick(() => optionsButton.value?.focus({ preventScroll: true }));
+}
+
+function toggleOptions() {
+  if (optionsOpen.value) closeOptions();
+  else optionsOpen.value = true;
 }
 
 function updateWeaponStatus(status) {
@@ -86,6 +114,7 @@ function focusChoice(index) {
 }
 
 function navigateMenu(event) {
+  if (optionsOpen.value) return;
   const key = event.key.toLowerCase();
   if (key === "enter" || key === " ") {
     event.preventDefault();
@@ -144,6 +173,7 @@ function restartGame() {
   stats.value = initialState();
   offeredPilots.value = [pilots[0]];
   confirmingRestart.value = false;
+  optionsOpen.value = false;
   screen.value = "start";
   focusChoice(0);
 }
@@ -155,6 +185,7 @@ function startRound(
   if (screen.value === "playing" || startingRound.value) return;
   weaponStatus.value = { activeShots: 0, cooldown: 0 };
   confirmingRestart.value = false;
+  optionsOpen.value = false;
   const state = {
     ...initialState(),
     pilot: reset ? "Bob" : pilot,
@@ -195,7 +226,10 @@ onBeforeUnmount(() => {
 <template>
   <main
     class="game-page"
-    :class="{ 'game-page-night': stats.pilot === 'Rosanna' }"
+    :class="{
+      'game-page-night': stats.pilot === 'Rosanna',
+      'game-page-vinston': stats.pilot === 'Vinston',
+    }"
   >
     <div ref="gameFrame" class="game-frame">
       <section
@@ -226,6 +260,7 @@ onBeforeUnmount(() => {
             aria-modal="true"
             aria-labelledby="round-title"
             tabindex="-1"
+            @click="closeOptions"
             @keydown="navigateMenu"
           >
             <span
@@ -234,6 +269,80 @@ onBeforeUnmount(() => {
               class="menu-cloud"
               aria-hidden="true"
             ></span>
+            <div
+              v-if="screen === 'start'"
+              class="menu-options"
+              @click.stop
+              @keydown.stop
+              @keydown.esc.prevent="closeOptions"
+            >
+              <button
+                ref="optionsButton"
+                type="button"
+                class="nes-btn is-error options-toggle"
+                aria-label="Options"
+                title="Options"
+                aria-controls="game-options"
+                :aria-expanded="optionsOpen"
+                :disabled="startingRound"
+                @click="toggleOptions"
+              >
+                ?
+              </button>
+              <div
+                v-if="optionsOpen"
+                id="game-options"
+                class="options-dropdown"
+              >
+                <div class="volume-heading">
+                  <label for="game-volume">Volume</label>
+                  <output for="game-volume"
+                    >{{ Math.round(volume * 100) }}%</output
+                  >
+                </div>
+                <input
+                  id="game-volume"
+                  class="volume-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  :value="Math.round(volume * 100)"
+                  @input="changeVolume"
+                />
+                <div
+                  v-if="confirmingRestart"
+                  class="restart-confirmation"
+                  role="alert"
+                >
+                  <p>This will erase all progress. Are you sure?</p>
+                  <div class="restart-confirmation-actions">
+                    <button
+                      type="button"
+                      class="nes-btn is-error restart-game"
+                      @click="restartGame"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      class="nes-btn restart-game"
+                      @click="confirmingRestart = false"
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+                <button
+                  v-else
+                  type="button"
+                  class="nes-btn is-error restart-game"
+                  @click="confirmingRestart = true"
+                >
+                  Restart Game?
+                </button>
+              </div>
+            </div>
             <header class="round-heading">
               <template v-if="screen === 'start'">
                 <h1 id="round-title">River Rogue</h1>
@@ -269,41 +378,6 @@ onBeforeUnmount(() => {
                   <span v-if="screen === 'start'" class="pilot-action">{{
                     startingRound ? "Loading..." : "Start Flight"
                   }}</span>
-                </button>
-              </div>
-              <p v-if="screen === 'end'" class="round-title">-- or --</p>
-              <div v-if="screen === 'end'" class="round-actions" @keydown.stop>
-                <div
-                  class="restart-confirmation"
-                  :class="{ 'restart-action-hidden': !confirmingRestart }"
-                  role="alert"
-                >
-                  <p>This will erase all progress. Are you sure?</p>
-                  <div class="restart-confirmation-actions">
-                    <button
-                      type="button"
-                      class="nes-btn is-error restart-game"
-                      @click="restartGame"
-                    >
-                      Yes
-                    </button>
-                    <button
-                      type="button"
-                      class="nes-btn restart-game"
-                      @click="confirmingRestart = false"
-                    >
-                      No
-                    </button>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  class="nes-btn is-error restart-game"
-                  :class="{ 'restart-action-hidden': confirmingRestart }"
-                  tabindex="-1"
-                  @click="confirmingRestart = true"
-                >
-                  Restart Game
                 </button>
               </div>
             </div>
